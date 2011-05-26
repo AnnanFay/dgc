@@ -4,15 +4,23 @@
 Dwarven Guidance Counselor
 </title>
 <style>
+#guidance {
+	width:40em;
+}
 div.guidances {
 	margin-bottom: 1em;
 }
+
+div.guidances p {
+    padding-top: 12px;
+}
+
 ul {
-	width: 60em;
+	width: 36em;
 }
 ul li {
 	float: left;
-	width: 20em;
+	width: 12em;
 }
 br, p {
 	clear: left;
@@ -53,11 +61,29 @@ br, p {
 	font-weight:bold;
 	cursor:pointer;
 }
-.color .horrible, .color .error {
+.color .horrible, .color .error, .color .deek {
 	color: red;
 	font-weight:bold;
 	cursor:pointer;
 }
+
+.attribute, .trait {
+	width: 2.2em;
+	display: inline-block;
+	text-align:center;
+}
+.color .female {
+	color: blue;
+}
+.color .male {
+	color: red;
+}
+
+.no-color .trait, .no-color .attribute {
+	color: black !important;
+	background: white !important;
+}
+
 </style>
 <script type="text/javascript">
 <!--
@@ -115,461 +141,597 @@ var defaultDwarf = {
 		"orderliness": 50,
 		"cautiousness": 50,
 		"self-efficacy": 50
-	}
+	},
+	skills: {}
 }
+var urist = Object.create(defaultDwarf);
 
+/*
+ * New jobs can be easily added!
+ * A job is a collection of attributes, skills and traits that work well together
+ * Skills and attributes will be assumed to have a positive influence on job performance
+ * (though maybe this should be changed to take into account sherrifs)
+ * Traits will be seen as min/max. If it is positive it will be seen as the minimum required. 
+ * If a trait is negetive only dwarves with less than the value will be selected.
+ */
 var jobs = {
-    'socializer': {
-		skills: ['socializing'],
-		attributes: ['linguistic ability','empathy','social awareness'], //LEmSa,
-		traits: []
+    'leader/manager': {
+		skills: ['consoling', 'pacification'],
+		attributes: ['linguistic ability','empathy','social awareness', 'analytical ability','creatvity'], //LEmSaAaC,
+		traits: {
+			'cooperation': +39,
+			'straightforwardness': +39
+		}
 	},
-    'ranged combat dwarf': {
-		skills: [],
+    'broker': {
+		skills: ['appraisal', 'judging intent'],
+		attributes: ['intuition','empathy','social awareness', 'analytical ability','memory','linguistic ability'], //IEmSaAaML,
+		traits: {}
+	},
+    'bookkeeper': {
+		skills: ['record keeping'],
+		attributes: ['analytical ability','memory','focus'], //AaMF,
+		traits: {}
+	},
+    'chief medical dwarf': {
+		skills: ['diagnostics'],
+		attributes: ['analytical ability','memory','intuition'], //AaMI,
+		traits: {}
+	},
+    'ranged soldier': {
+		skills: ['observation', 'crossbow','hammer',  'ambusher', 'archer', 'blowgunner', 'bow'],
 		attributes: ['agility','focus','spatial sense','kinaesthetic sense'], //AFSsKs,
-		traits: []
+		traits: {}
 	},
-    'close combat dwarf': {
-		skills: [''],
+    'melee soldier': {
+		skills: ['kick', 'strike', 'pike', 'ax', 'observation', 'sword', 'spear', 'armour', 'shield', 'wrestling', 'dodging', 'mace', 'dagger', 'hammer', 'whip', 'blowgun', 'throw', 'fighting'],
 		attributes: ['strength','agility','toughness','willpower','spatial sense','kinaesthetic sense'], //SATWSsKs,
-		traits: []
+		traits: {}
+	},
+    'socializer': {
+		skills: ['conversationalist', 'flatterer', 'negotiator', 'persuader', 'consoler', 'leader', 'pacifier', 'teacher'],
+		attributes: ['linguistic ability','empathy','social awareness'], //LEmSa,
+		traits: {}
 	},
     'balance': {
 		skills: ['balance'],
 		attributes: ['strength','agility','kinaesthetic sense'], //SAKs,
-		traits: [],
+		traits: {},
 	},
     'coordination': {
 		skills: ['coordination'],
 		attributes: ['agility','kinaesthetic sense','kinaesthetic sense'], //ASsK ,
-		traits: [],
+		traits: {},
 	},
     'speaker': {
 		skills: ['speaking'],
 		attributes: ['linguistic ability'], //L,
-		traits: [],
+		traits: {},
 	},
     'reader': {
 		skills: ['reading'],
 		attributes: ['memory','focus','linguistic ability'], //MFL,
-		traits: [],
+		traits: {},
 	},
     'writer': {
 		skills: ['writing'],
-		attributes: ___________,
-		traits: [],
+		attributes: ['creatvity','intuition','linguistic ability'], //CIL,
+		traits: {},
 	},
     'wordsmith': {
 		skills: ['wordsmith'],
 		attributes: ['creatvity','intuition','linguistic ability'], //CIL,
-		traits: [],
+		traits: {},
 	},
     'poet': {
 		skills: ['poet'],
-		attributes: ___________,
-		traits: [],
+		attributes: ['creatvity','intuition','linguistic ability'], //CIL,
+		traits: {},
 	},
     'disciplinarian': {
 		skills: ['disciplinarian'],
 		attributes: ['disease resistance','willpower'], //FW,
-		traits: [],
+		traits: {},
 	},
     'tracker': {
 		skills: ['tracking'],
 		attributes: ['analytical ability','focus','spatial sense'], //AaFSs,
-		traits: [],
+		traits: {},
 	},
     'druid': {
 		skills: ['druid'],
 		attributes: ['agility','toughness','endurance','focus','willpower','empathy'], //ATEFWEm,
-		traits: [],
+		traits: {},
 	},
     'military tactician': {
 		skills: ['military tactician'],
 		attributes: ['analytical ability','creatvity','intuition'], //AaCI,
-		traits: [],
+		traits: {},
 	},
     'student': {
 		skills: ['student'],
-		attributes: [],
-		traits: [],
+		attributes: ['analytical ability','memory','focus'], //AaMF,
+		traits: {},
 	},
     'observer': {
 		skills: ['observation'],
 		attributes: ['intuition','focus','spatial sense'], //IFSs,
-		traits: [],
+		traits: {},
 	},
     'concentrator': {
 		skills: ['concentrator'],
 		attributes: ['focus','willpower','patience'], //FWP,
-		traits: [],
+		traits: {},
 	}, 
     'liar': {
 		skills: ['lying'],
 		attributes:  ['creatvity','linguistic ability','social awareness'], //CLSa,
-		traits: [],
+		traits: {
+			'straightforwardness': -61
+		},
 	},
     'judge of intent': {
 		skills: ['judging intent'],
 		attributes: ['intuition','empathy','social awareness'], //IEmSa,
-		traits: [],
+		traits: {},
 	},
     'intimidator': {
 		skills: ['intimidation'],
 		attributes: ['agility','kinaesthetic sense','linguistic ability'], //AKsL,
-		traits: [],
+		traits: {
+			'cooperation': -61
+		},
 	},
     'comedian': {
 		skills: ['comedy'],
 		attributes: ['agility','creatvity','kinaesthetic sense','linguistic ability'], //ACKsL,
-		traits: [],
+		traits: {
+			'self-consciousness': -76
+		},
 	},
     'wrestler': {
 		skills: ['wrestling'],
 		attributes: ['strength','agility','endurance','willpower','spatial sense','kinaesthetic sense'], //SAEWSsKs,
-		traits: [],
+		traits: {},
 	},
     'dodger': {
 		skills: ['dodging'],
 		attributes: ['agility','toughness','endurance','willpower','spatial sense','kinaesthetic sense'], //ATEWSsKs,
-		traits: [],
+		traits: {},
 	},
     'biter': {
 		skills: ['bitting'],
 		attributes: ['strength','toughness','endurance','willpower','spatial sense','kinaesthetic sense'], //STEWSsKs
-		traits: [],
+		traits: {},
 	},
     'armor user': {
 		skills: ['armor'],
 		attributes: ['strength','toughness','endurance','willpower','kinaesthetic sense'], //STEWKs,
-		traits: [],
+		traits: {},
 	},
     'record keeper': {
 		skills: ['record keeping'],
 		attributes: ['analytical ability','memory','focus'], //AaMF,
-		traits: [],
+		traits: {},
 	},
     'organizer': {
 		skills: ['organization'],
 		attributes: ['analytical ability','creatvity','social awareness'], //AaCSa,
-		traits: [],
+		traits: {},
 	},
     'building designer': {
 		skills: ['building design'],
 		attributes: ['analytical ability','creatvity','spatial sense'], //AaCSs,
-		traits: [],
+		traits: {},
 	},
     'appraiser': {
 		skills: ['appraisal'],
 		attributes: ['analytical ability','memory','intuition'], //AaMI,
-		traits: [],
+		traits: {},
 	},
     'knapper': {
 		skills: ['knapping'],
 		attributes: ['strength','agility','analytical ability','spatial sense','kinaesthetic sense'], //SAAaSsKs,
-		traits: [],
+		traits: {},
 	},
     'swimmer': {
 		skills: ['swimming'],
 		attributes: ['strength','agility','endurance','willpower','spatial sense','kinaesthetic sense'], //SAEWSsKs,
-		traits: [],
+		traits: {},
 	},
     'alchemist': {
 		skills: ['alchemist'],
 		attributes: ['agility','analytical ability','creatvity','intuition'], //AAaCI,
-		traits: [],
+		traits: {},
 	},
     'siege operator': {
 		skills: ['siege operation'],
 		attributes: ['strength','toughness','endurance','analytical ability','focus','spatial sense'], //STEAaFSs,
-		traits: [],
+		traits: {},
 	},
     'siege engineer': {
 		skills: ['siege engineering'],
 		attributes: ['strength','agility','endurance','analytical ability','creatvity','spatial sense'], //SAEAaCSs,
-		traits: [],
+		traits: {},
 	},
     'pump operator': {
 		skills: ['pump operation'],
 		attributes: ['strength','toughness','endurance','willpower','kinaesthetic sense'], //STEWKs,
-		traits: [],
+		traits: {},
 	},
     'mechanic': {
 		skills: ['machinery'],
 		attributes: ['strength','agility','endurance','analytical ability','creatvity','spatial sense'], //SAEAaCSs,
-		traits: [],
+		traits: {},
 	},
     'strand extractor': {
 		skills: ['strand extracting'],
 		attributes: ['strength','agility','endurance','analytical ability','kinaesthetic sense'], //SAEAaKs,
-		traits: [],
+		traits: {},
 	},
     'wood crafter': {
 		skills: ['wood crafting'],
 		attributes: ['agility','creatvity','spatial sense','kinaesthetic sense'], //ACSsKs,
-		traits: [],
+		traits: {},
 	},
     'weaver': {
 		skills: ['weaving'],
 		attributes: ['agility','creatvity','spatial sense','kinaesthetic sense'], //ACSsKs,,
-		traits: [],
+		traits: {},
 	},
     'stone crafter': {
 		skills: ['stone crafting'],
 		attributes: ['agility','creatvity','spatial sense','kinaesthetic sense'], //ACSsKs,
-		traits: [],
+		traits: {},
 	},
     'leatherworker': {
 		skills: ['leatherworkering'],
 		attributes: ['strength','agility','endurance','creatvity','spatial sense','kinaesthetic sense'], //SAECSsKs,
-		traits: [],
+		traits: {},
 	},
     'glassmaker': {
 		skills: ['glassmaking'],
 		attributes: ['strength','agility','endurance','creatvity','spatial sense','kinaesthetic sense'], //SAECSsKs,
-		traits: [],
+		traits: {},
 	},
     'clothier': {
 		skills: ['clothiing'],
 		attributes: ['agility','creatvity','spatial sense','kinaesthetic sense'], //ACSsKs,,
-		traits: [],
+		traits: {},
 	},
     'bone carver': {
 		skills: ['bone carving'],
 		attributes: ['agility','creatvity','spatial sense','kinaesthetic sense'], //ACSsKs,,
-		traits: [],
+		traits: {},
 	},
     'gem setter': {
 		skills: ['gem setting'],
 		attributes: ['agility','creatvity','spatial sense','kinaesthetic sense'], //ACSsKs,,
-		traits: [],
+		traits: {},
 	},
     'gem cutter': {
 		skills: ['gem cutting'],
 		attributes:  ['agility','analytical ability','spatial sense','kinaesthetic sense'], //AAaSsKs,
-		traits: [],
+		traits: {},
 	},
     'weaponsmith': {
 		skills: ['weaponsmithing'],
 		attributes: ['strength','agility','endurance','creatvity','spatial sense','kinaesthetic sense'], //SAECSsKs,
-		traits: [],
+		traits: {},
 	},
     'metalsmith': {
 		skills: ['metalsmithing'],
 		attributes: ['strength','agility','endurance','creatvity','spatial sense','kinaesthetic sense'], //SAECSsKs,
-		traits: [],
+		traits: {},
 	},
     'metal crafter': {
 		skills: ['metal crafting'],
 		attributes: ['strength','agility','endurance','creatvity','spatial sense','kinaesthetic sense'], //SAECSsKs
-		traits: [],
+		traits: {},
 	},
     'furnace operator': {
 		skills: ['furnace operation'],
 		attributes: ['strength','toughness','endurance','analytical ability','kinaesthetic sense'], //STEAaKs,
-		traits: [],
+		traits: {},
 	},
     'armorsmith': {
 		skills: ['armorsmithing'],
 		attributes: ['strength','agility','endurance','creatvity','spatial sense','kinaesthetic sense'], //SAECSsKs,
-		traits: [],
+		traits: {},
 	},
     'fisherdwarf': {
-		skills: ['fisherdwarf'],
+		skills: ['fishing'],
 		attributes: ['strength','agility','focus','patience','kinaesthetic sense'], //SAFPKs,
-		traits: [],
+		traits: {},
 	},
     'fish dissector': {
-		skills: ['fish dissecting'],
+		skills: ['fish dissection'],
 		attributes: ['agility','kinaesthetic sense'],
-		traits: [],
+		traits: {},
 	},
     'fish cleaner': {
 		skills: ['fish cleaning'],
 		attributes: ['agility','endurance','kinaesthetic sense'], //AEKs,
-		traits: [],
+		traits: {},
 	},
     'wood burner': {
 		skills: ['wood burning'],
 		attributes:  ['strength','toughness','endurance','kinaesthetic sense'], //STEKs,
-		traits: [],
+		traits: {},
 	},
     'thresher': {
 		skills: ['threshing'],
 		attributes: ['strength','agility','endurance','kinaesthetic sense'], //SAEKs,
-		traits: [],
+		traits: {},
 	},
     'tanner': {
 		skills: ['tanning'],
 		attributes: ['agility','kinaesthetic sense'],
-		traits: [],
+		traits: {},
 	},
     'soaper': {
 		skills: ['soap making'],
 		attributes:  ['strength','toughness','endurance','kinaesthetic sense'], //STEKs,
-		traits: [],
+		traits: {},
 	},
     'potash maker': {
 		skills: ['potash making'],
 		attributes:  ['strength','toughness','endurance','kinaesthetic sense'], //STEKs,
-		traits: [],
+		traits: {},
 	},
     'miller': {
 		skills: ['milling'],
 		attributes: ['strength','agility','endurance','kinaesthetic sense'], //SAEKs,
-		traits: [],
+		traits: {},
 	},
     'milker': {
 		skills: ['milking'],
 		attributes: ['strength','agility','endurance','kinaesthetic sense'], //SAEKs,
-		traits: [],
+		traits: {},
 	},
     'lye maker': {
 		skills: ['lye making'],
 		attributes:  ['strength','toughness','endurance','kinaesthetic sense'], //STEKs,
-		traits: [],
+		traits: {},
 	},
     'herbalist': {
-		skills: ['herbalist'],
+		skills: ['herbalist'],//??
 		attributes: ['agility','memory','kinaesthetic sense'], //AMKs,
-		traits: [],
+		traits: {},
 	},
     'grower': {
 		skills: ['growing'],
 		attributes: ['strength','agility','endurance','kinaesthetic sense'], //SAEKs,
-		traits: [],
+		traits: {},
 	},
     'dyer': {
-		skills: ['dying'],
+		skills: ['dying'],//??
 		attributes: ['strength','agility','endurance','kinaesthetic sense'], //SAEKs,
-		traits: [],
+		traits: {},
 	},
     'cook': {
 		skills: ['cooking'],
 		attributes: ['agility','analytical ability','creatvity','kinaesthetic sense'], //AAaCKs,
-		traits: [],
+		traits: {},
 	},
     'cheese maker': {
 		skills: ['cheese making'],
 		attributes: ['strength','agility','endurance','analytical ability','creatvity','kinaesthetic sense'], //SAEAaCKs,
-		traits: [],
+		traits: {},
 	},
     'butcher': {
 		skills: ['butchery'],
 		attributes: ['strength','agility','endurance','kinaesthetic sense'], //SAEKs,
-		traits: [],
+		traits: {},
 	},
     'brewer': {
-		skills: ['brewery'],
+		skills: ['brewing'],
 		attributes: ['strength','agility','kinaesthetic sense'], //SAKs,
-		traits: [],
+		traits: {},
 	},
     'wound dresser': {
 		skills: ['wound dressing'],
 		attributes: ['agility','spatial sense','kinaesthetic sense','empathy'], //ASsKsEm,
-		traits: [],
+		traits: {},
 	},
     'suturer': {
 		skills: ['suturing'],
 		attributes: ['agility','focus','spatial sense','kinaesthetic sense'], //AFSsKs,
-		traits: [],
+		traits: {},
 	},
     'surgeon': {
 		skills: ['surgery'],
 		attributes: ['agility','focus','spatial sense','kinaesthetic sense'], //AFSsKs,
-		traits: [],
-	},
-    'diagnostician': {
-		skills: ['diagnostics'],
-		attributes: ['analytical ability','memory','intuition'], //AaMI,
-		traits: [],
+		traits: {},
 	},
     'crutch walker': {
-		skills: ['crutch'],
+		skills: ['crutch walking'],
 		attributes: ['agility','endurance','willpower','spatial sense','kinaesthetic sense'], //AEWSsKs,
-		traits: [],
+		traits: {},
 	},
     'bone doctor': {
 		skills: ['bone setting'],
 		attributes: ['strength','agility','focus','spatial sense','kinaesthetic sense'], //SAFSsKs,
-		traits: [],
+		traits: {},
 	},
     'trapper': {
 		skills: ['trapping'],
 		attributes: ['agility','analytical ability','creatvity','spatial sense'], //AAaCSs,
-		traits: [],
+		traits: {},
 	},
     'animal trainer': {
 		skills: ['animal training'],
 		attributes: ['agility','toughness','endurance','intuition','patience','empathy'], //ATEIPEm,
-		traits: [],
+		traits: {},
 	},
     'animal dissector': {
 		skills: ['small animal dissection'],
 		attributes: ['agility','kinaesthetic sense'],
-		traits: [],
+		traits: {},
 	},
     'animal caretaker': {
 		skills: ['animal caretaking'],
 		attributes: ['agility','analytical ability','memory','empathy'], //AAaMEm,
-		traits: [],
+		traits: {},
 	},
     'ambusher': {
 		skills: ['ambushing'],
 		attributes: ['agility','focus','spatial sense','kinaesthetic sense'], //AFSsKs,
-		traits: [],
+		traits: {},
 	},
     'mason': {
 		skills: ['masonry'],
 		attributes: ['strength','agility','endurance','creatvity','spatial sense','kinaesthetic sense'], //SAECSsKs,
-		traits: [],
+		traits: {},
 	},
     'engraver': {
 		skills: ['engraving'],
 		attributes: ['agility','creatvity','spatial sense','kinaesthetic sense'], //ACSsKs,,
-		traits: [],
+		traits: {},
 	},
     'wood cutter': {
-		skills: ['wood'],
+		skills: ['wood cutting'],
 		attributes: ['strength','agility','endurance','willpower','spatial sense','kinaesthetic sense'], //SAEWSsKs,
-		traits: [],
+		traits: {},
 	},
     'carpenter': {
-		skills: ['carpenter'],
+		skills: ['carpentry'],
 		attributes: ['strength','agility','creatvity','spatial sense','kinaesthetic sense'], //SACSsKs,
-		traits: [],
+		traits: {},
 	},
     'bowyer': {
-		skills: ['bowyer'],
+		skills: ['bowmaking'],
 		attributes: ['agility','creatvity','spatial sense','kinaesthetic sense'], //ACSsKs,,
-		traits: [],
+		traits: {},
 	},
     'miner': {
 		skills: ['mining'],
 		attributes: ['strength','toughness','endurance','willpower','spatial sense','kinaesthetic sense'], //STEWSsKs,
-		traits: [],
+		traits: {},
 	}
 };
 
+delete jobs['knapper'];
+delete jobs['alchemist'];
+delete jobs['animal caretaker'];
+delete jobs['ambusher'];
+delete jobs['balance'];
+delete jobs['coordination'];
+delete jobs['speaker'];
+delete jobs['reader'];
+delete jobs['writer'];
+delete jobs['wordsmith'];
+delete jobs['poet'];
+delete jobs['disciplinarian'];
+delete jobs['tracker'];
+delete jobs['druid'];
+delete jobs['military tactician'];
+delete jobs['concentrator'];
+
+
+var attributeFunctionMap = {
+	'strength': 'plusattrtopct',
+	'agility': 'minusattrtopct',
+	'toughness': 'plusattrtopct',
+	'endurance': 'avgattrtopct',
+	'disease resistance': 'avgattrtopct',
+	'recuperation': 'avgattrtopct',
+	'analytical ability': 'plusattrtopct',
+	'memory': 'plusattrtopct',
+	'creatvity': 'plusattrtopct',
+	'intuition': 'avgattrtopct',
+	'focus': 'dubplusattrtopct',
+	'willpower': 'avgattrtopct',
+	'patience': 'plusattrtopct',
+	'spatial sense': 'dubplusattrtopct',
+	'kinaesthetic sense': 'avgattrtopct',
+	'linguistic ability': 'avgattrtopct',
+	'musicality': 'avgattrtopct',
+	'empathy': 'avgattrtopct',
+	'social awareness': 'avgattrtopct'
+}
+
+var attributeFunctions = {
+    minusattrtopct: function(x) {
+    var xpct;
+    if (x <= 599) {
+        xpct = ((0.0370356 * x) - 5.51835)
+    } else if (x >= 600 && x <= 799) {
+        xpct = ((0.0837487 * x) - 33.5822)
+    } else if (x >= 800 && x <= 899) {
+        xpct = ((0.168333 * x) - 101.333)
+    } else if (x >= 900 && x <= 999) {
+        xpct = ((0.168343 * x) - 101.509)
+    } else if (x >= 1000 && x <= 1099) {
+        xpct = ((0.168343 * x) - 101.676)
+    } else if (x >= 1100) {
+        xpct = ((0.0417669 * x) + 37.3904)
+    };
+    return xpct;
+},
+    avgattrtopct: function(x) {
+    var xpct;
+    if (x <= 749) {
+        xpct = ((0.030357 * x) - 6.0714)
+    } else if (x >= 750 && x <= 899) {
+        xpct = ((0.111852 * x) - 67.2223)
+    } else if (x >= 900 && x <= 999) {
+        xpct = ((0.168333 * x) - 118.166)
+    } else if (x >= 1000 && x <= 1099) {
+        xpct = ((0.168343 * x) - 118.343)
+    } else if (x >= 1100 && x <= 1299) {
+        xpct = ((0.0837538 * x) - 25.4621)
+    } else if (x >= 1300) {
+        xpct = ((0.0238412 * x) + 52.3404)
+    };
+    return xpct;
+},
+    plusattrtopct: function(x) {
+    var xpct;
+    if (x <= 949) {
+        xpct = ((0.0333988 * x) - 15.0295)
+    } else if (x >= 950 && x <= 1149) {
+        xpct = ((0.0837487 * x) - 62.8943)
+    } else if (x >= 1150 && x <= 1249) {
+        xpct = ((0.168333 * x) - 160.249)
+    } else if (x >= 1250 && x <= 1349) {
+        xpct = ((0.168343 * x) - 160.429)
+    } else if (x >= 1350 && x <= 1549) {
+        xpct = ((0.0837538 * x) - 46.4006)
+    } else if (x >= 1550) {
+        xpct = ((0.0238412 * x) + 46.3801)
+    };
+    return xpct;
+},
+    dubplusattrtopct: function(x) {
+    var xpct;
+    if (x <= 1199) {
+        xpct = ((0.0333988 * x) - 23.3792)
+    } else if (x >= 1200 && x <= 1399) {
+        xpct = ((0.0837487 * x) - 83.8315)
+    } else if (x >= 1400 && x <= 1499) {
+        xpct = ((0.168333 * x) - 202.333)
+    } else if (x >= 1500 && x <= 1599) {
+        xpct = ((0.168343 * x) - 202.515)
+    } else if (x >= 1600 && x <= 1799) {
+        xpct = ((0.0837538 * x) - 67.339)
+    } else if (x >= 1800) {
+        xpct = ((0.0238412 * x) + 40.4198)
+    };
+    return xpct;
+}
+};
 var changelog = [""];
 
 var xmlDoc;
-var dwarfnames = [];
 var dwarfnum;
 var microsoft;
 var currentDwarf;
 
-var superbname = [];
-var verygoodname = [];
-var goodname = [];
-var highavgname = [];
-var lowavgname = [];
-var poorname = [];
-var verypoorname = [];
-var horriblename = [];
-var deekname = [];
-
 function sum(nums) {
+	if (nums.length == 0){
+		return 0;
+	}
 	return nums.reduce(function(x,y){return x+y;});
 }
 function avg(nums) {
@@ -581,14 +743,13 @@ function $(id, doc) {
 	return (doc || document).getElementById(id);
 };
 
-/*So we can clone the default dwarf*/
+/*So we can clone objects easily*/
 Object.create = function (o) {
 	function F() {}
 	F.prototype = o;
 	return new F();
 };
-String.prototype.toCapitalize = function()
-{ 
+String.prototype.toCapitalize = function() { 
    return this.toLowerCase().replace(/^.|\s\S/g, function(a) { return a.toUpperCase(); });
 }
 
@@ -639,7 +800,11 @@ function disableverbenter(e) {
     if (key == 13) {
         var update = verbalevalsubmit($("verbaleval").value);
 		verbapprox(update[0],update[1],update[2]);
-        $("verbaleval").value = ""
+		changelogupdate(update[0] + " set to " + update[2] + " by Counselor.");
+        $("verbaleval").value = "";
+		attributeUpdate();
+		traitUpdate();
+		guide();
     };
     return (key != 13);
 }
@@ -666,7 +831,6 @@ function xmlUpdate() {
     dwarfnum = parseInt(dwarfnum);
 	//currentDwarf is global
     for (currentDwarf=0; currentDwarf < dwarfnum; currentDwarf++) {
-	
 	
 		var dwarf = Object.create(defaultDwarf);
 		xmlDwarf = xmlDoc.getElementsByTagName("Creature")[currentDwarf];
@@ -716,50 +880,70 @@ function xmlUpdate() {
 			var update = verbalevalsubmit(traitText);
 			verbapprox(update[0], update[1], update[2]);
 		}
-		
-		
-		//add select options
-        var dList = $("dwarflist");
-        var option = document.createElement("option");
-        option.text = dwarves[currentDwarf].name;
-        dList.options.add(option, dList.options.length);
-        
-		var dFrom = $("dwarfsfrom");
-        var option = document.createElement("option");
-        option.text = dwarves[currentDwarf].name;
-        dFrom.options.add(option, dFrom.options.length);
     }
-    $("dwarfsfrom")[0].selected = true;
-	currentDwarf = 0;
-}
+	// Sort dwarves alphebetically
+	// Doesn't really make a difference however it's nice for drop downs
+	var compareDwarves = function(a,b) {
+		if (a.name < b.name)
+			return -1;
+		if (a.name > b.name)
+			return 1;
+		return 0;
+	}
+	dwarves.sort(compareDwarves);
 
-
-function xmlprocess() {
-	//reset everything to defaults
-	var dwarf = Object.create(defaultDwarf);
-	
-    if ($("dwarflist").selectedIndex == 0) {
-		attributeUpdate();
-		traitUpdate();
-        $("dwarfname").value = "Urist McAverage";
-        $("printdwarf").innerHTML = $("dwarfname").value;
-        return;
-    };
-	
-    currentDwarf = $("dwarflist").selectedIndex - 1;
-	dwarf = dwarves[currentDwarf];
-	
-	if (dwarf.genfer == "Male") {
-		$("male").checked = true;
-	} else {
-		$("female").checked = true;
+	//add select options
+    for (var d in dwarves) {
+		var dList = $("dwarflist");
+		var option = document.createElement("option");
+		option.text = dwarves[d].name;
+		dList.options.add(option, dList.options.length);
+		
+		var dFrom = $("dwarfsfrom");
+		var option = document.createElement("option");
+		option.text = dwarves[d].name;
+		option.value = dwarves[d].name;
+		dFrom.options.add(option, dFrom.options.length);
 	}
 	
-    $("dwarfname").value = dwarf.name;
+    for (var j in jobs) {
+		var jList = $("joblist");
+		var option = document.createElement("option");
+		option.text = j.toCapitalize();
+		option.value = j;
+		jList.options.add(option, jList.options.length);
+	}
+	
+	
+    $("dwarfsfrom")[0].selected = true;
+	currentDwarf = undefined;
+}
+
+/*
+ * Works out which dwarf is selected and calls guide
+ */
+function viewDwarf() {
+	
+    if ($("dwarflist").selectedIndex == 0) {
+		currentDwarf = undefined;
+		dwarf = urist;
+		dwarf.name = "Urist McAverage";
+		dwarf.gender = "Male";
+		
+        $("dwarfname").value = dwarf.name;
+    } else {
+		
+		currentDwarf = $("dwarflist").selectedIndex - 1;
+		dwarf = dwarves[currentDwarf];
+		
+		$("dwarfname").value = dwarf.name;
+		$("verbaleval").value = "";
+	}
     printname();
 	printgender();
-	$("verbaleval").value = "";
-	
+	traitUpdate();
+	attributeUpdate();
+	guide();
 }
 
 
@@ -778,37 +962,54 @@ function printname() {
 }
 
 function printgender() {
-    if ($("male").checked == true) {
-        gender = "Male"
-        $("printdwarfgender").innerHTML = "\u2642";
-        $("printdwarfgender2").innerHTML = "\u2642";
+	var dwarf = dwarves[currentDwarf] || urist;
+
+    if (dwarf.gender == "Male") {
+		$("male").checked = true;
+        $('printdwarfgender').innerHTML = '<span class="male">\u2642</span>';
+        $('printdwarfgender2').innerHTML = '<span class="male">\u2642</span>';
     } else {
-        gender = "Female"
-        $("printdwarfgender").innerHTML = "\u2640";
-        $("printdwarfgender2").innerHTML = "\u2640";
+		$("female").checked = true;
+        $('printdwarfgender').innerHTML = '<span class="female">\u2640</span>';
+        $('printdwarfgender2').innerHTML = '<span class="female">\u2640</span>';
     };
 }
 
 function attributeUpdate() {
 	var attributes = (dwarves[currentDwarf] || defaultDwarf).attributes;
 	for (var attr in attributes) {
-		//console.log(attr);
-		$(attr.replace(/[ _]/g,'-')).innerHTML = attributes[attr];
-    }
+		var attribute = attributes[attr];
+		var defaultAttribute = defaultDwarf.attributes[attr];
+		var distance = Math.abs(attribute - defaultAttribute);
+		var intensity = distance / (attribute < defaultAttribute ? -defaultAttribute : 5000 - defaultAttribute);
+		
+		var distance = Math.abs(attribute - defaultAttribute);
+		$(attr.replace(/[ ]/g,'-')).innerHTML = '<span class="attribute" style="background:' + getInfoColor(intensity, 210, 0) + '">' + attribute + '</span>';
+	}
 }
 
 function traitUpdate() {
-	var traits = (dwarves[currentDwarf] || defaultDwarf).traits;
-	for (var trait in traits) {
-		$(trait.replace(/[ _]/g,'-')).innerHTML = traits[trait];
+	var traits = (dwarves[currentDwarf] || urist).traits;
+	for (var t in traits) {
+		var trait = traits[t];
+		var defaultTrait = defaultDwarf.traits[t];
+		var distance = Math.abs(trait - defaultTrait);
+		var intensity = distance / (trait < defaultTrait ? defaultTrait : 100 - defaultTrait);
+		$(t.replace(/[ ]/g,'-')).innerHTML = '<span class="trait" style="background:' + getInfoColor(intensity, 260) + '">' + trait + '</span>';
     }
 }
 
+function getInfoColor(intensity, color, negativeColor) {
+	if ((negativeColor > -1) && (intensity < 0)) {
+		color = negativeColor;
+		intensity = Math.abs(intensity);
+	}
+	return 'hsl(' + color + ', ' + Math.round(intensity*100) + '%, 70%)';
+}
+
 function directAttributeSubmit(rawAttribute, rawValue) {
-	dwarf = dwarves[currentDwarf];
-    printname();
-    printgender();
-	
+	dwarf = dwarves[currentDwarf] || urist;
+
     var attributeName = rawAttribute.toLowerCase();
 	var attributeValue = parseInt(rawValue);
 	
@@ -823,11 +1024,11 @@ function directAttributeSubmit(rawAttribute, rawValue) {
     } else {
         $(attributeName.replace(/ /, '-')).innerHTML = attributeValue;
         
+		dwarf.attributes[attributeName] = attributeValue;
         guide();
         changelogupdate(rawAttribute + " set to " + attributeValue + " by User.");
     }
 	
-    dwarf.attributes[attributeName] = attributeValue;
 }
 
 function directSoulSubmit() {	
@@ -842,19 +1043,17 @@ function directBodySubmit() {
 	
 	directAttributeSubmit(rawAttribute, rawValue);
 }
-
 function directTraitSubmit() {
     var rawTrait = $("directpers").value;
 	var rawValue = $("directpersnum").value;
 	
-	dwarf = dwarves[currentDwarf];
+	dwarf = dwarves[currentDwarf] || urist;
     printname();
     printgender();
 	
 	var traitName = rawTrait.toLowerCase();
 	var safeTraitName = traitName.replace(/ /, '-').replace(/ \(.*\)/, '');
 	var traitValue = parseInt(rawValue);
-	console.log(traitName, safeTraitName)
 	
     if (isNaN(traitValue)) {
         traitValue = $(safeTraitName).innerHTML;
@@ -875,566 +1074,35 @@ function directTraitSubmit() {
 }
 
 function bestdwarf() {
-    var pick = $("joblist").selectedIndex;
-    var pickName = $("joblist").value.toLowerCase();
+
+	/*global*/
+	nameRates = {
+		superb: [],
+		verygood: [],
+		good: [],
+		highavg: [],
+		lowavg: [],
+		poor: [],
+		verypoor: [],
+		horrible: [],
+		deek: []
+	};
+    var jobIndex = $("joblist").selectedIndex;
+    var jobName = $("joblist").value.toLowerCase();
+	var job = jobs[jobName];
     var dwarfallattrs = [];
     var dwarfbodyattrs = [];
     var dwarfsoulattrs = [];
     var attrsum = [];
     var skillcomp = [];
     var ratelist = [];
-    var ratejob = $("joblist").options[pick].text;
+    var ratejob = $("joblist").options[jobIndex].text;
     var fortsum = 0;
     var fortavg = 0;
     var dwarfworth = 0;
 	var dwarf;
-
-    var strbest = function() {
-        return plusattrtopct(dwarf.attributes['strength']);
-    }
-
-    var agibest = function() {
-        return minusattrtopct(dwarf.attributes['agility']);
-    }
-
-    var tuffbest = function() {
-        return plusattrtopct(dwarf.attributes['toughness']);
-    }
-
-    var endrbest = function() {
-        return avgattrtopct(dwarf.attributes['endurance']);
-    }
-
-    var disresbest = function() {
-        return avgattrtopct(dwarf.attributes['disease resistance']);
-    }
-
-    var recupbest = function() {
-        return avgattrtopct(dwarf.attributes['recuperation']);
-    }
-
-    var anabbest = function() {
-        return plusattrtopct(dwarf.attributes['analytical ability']);
-    }
-
-    var membest = function() {
-        return plusattrtopct(dwarf.attributes['memory']);
-    }
-
-    var crebest = function() {
-        return plusattrtopct(dwarf.attributes['creatvity']);
-    }
-
-    var intubest = function() {
-        return avgattrtopct(dwarf.attributes['intuition']);
-    }
-
-    var focbest = function() {
-        return dubplusattrtopct(dwarf.attributes['focus']);
-    }
-
-    var willbest = function() {
-        return avgattrtopct(dwarf.attributes['willpower']);
-    }
-
-    var patbest = function() {
-        return plusattrtopct(dwarf.attributes['patience']);
-    }
-
-    var spabest = function() {
-        return dubplusattrtopct(dwarf.attributes['spatial sense']);
-    }
-
-    var kinbest = function() {
-        return avgattrtopct(dwarf.attributes['kinaesthetic sense']);
-    }
-
-    var lingbest = function() {
-        return avgattrtopct(dwarf.attributes['linguistic ability']);
-    }
-
-    var musbest = function() {
-        return avgattrtopct(dwarf.attributes['musicality']);
-    }
-
-    var empbest = function() {
-        return avgattrtopct(dwarf.attributes['empathy']);
-    }
-
-    var socbest = function() {
-        return avgattrtopct(dwarf.attributes['social awareness']);
-    }
 	
-	var fitness = function() {
-		console.log("no fitness function found")
-	}
-    
-	// LEADER/MANAGER (not low straightforwardness, not low cooperation, organizer, socializer)
-	if (pick == 1) {
-            fitness = function(i){
-				var traitsperdwarf = [];
-				var dwarftraitlist = [];
-				traitsperdwarf[i] = xmlDoc.getElementsByTagName("Traits")[i].childNodes.length;
-				if (microsoft != "yes") {
-					traitsperdwarf[i] = (traitsperdwarf[i] - 1) / 2;
-				};
-				x = 0;
-				for (x = 0; x < traitsperdwarf[i]; x++) {
-					dwarftraitlist[x] = xmlDoc.getElementsByTagName("Traits")[i].getElementsByTagName("Trait")[x].childNodes[0].nodeValue;
-					dwarftraitlist[x] = dwarftraitlist[x].toLowerCase();
-				}
-				dwarftraitlist = dwarftraitlist.toString();
-				if (dwarftraitlist.search("to compromise with somebody else") != -1) {
-					skillcomp[i] = "deek";
-					ratelist[i] = namerate(dwarves[i], skillcomp[i], jobs[pickName].skills)
-				} else if (dwarftraitlist.search("rather intimidate others") != -1) {
-					skillcomp[i] = "deek";
-					ratelist[i] = namerate(dwarves[i], skillcomp[i], jobs[pickName].skills)
-				} else if (dwarftraitlist.search("like to compromise") != -1) {
-					skillcomp[i] = "deek";
-					ratelist[i] = namerate(dwarves[i], skillcomp[i], jobs[pickName].skills)
-				} else if (dwarftraitlist.search("some deception is necessary") != -1) {
-					skillcomp[i] = "deek";
-					ratelist[i] = namerate(dwarves[i], skillcomp[i], jobs[pickName].skills)
-				} else if (dwarftraitlist.search("not straightforward") != -1) {
-					skillcomp[i] = "deek";
-					ratelist[i] = namerate(dwarves[i], skillcomp[i], jobs[pickName].skills)
-				} else if (dwarftraitlist.search("guarded in relationships") != -1) {
-					skillcomp[i] = "deek";
-					ratelist[i] = namerate(dwarves[i], skillcomp[i], jobs[pickName].skills)
-				} else {
-					skillcomp[i] = anabbest() + crebest() + socbest() + lingbest() + empbest() + socbest();
-					skillcomp[i] = Math.round(skillcomp[i] / 6);
-					ratelist[i] = namerate(dwarves[i], skillcomp[i], jobs[pickName].skills)
-				}
-			}
-	}
-    // BROKER (joi, appraiser, socializer)
-    else if (pick == 2) {
-        fitness = function(i){
-            skillcomp[i] = intubest() + empbest() + socbest() + anabbest() + membest() + intubest() + lingbest() + empbest() + socbest();
-            skillcomp[i] = Math.round(skillcomp[i] / 9);
-            ratelist[i] = namerate(dwarves[i], skillcomp[i], jobs[pickName].skills)
-        }
-    }
-    // CLOSE COMBAT DWARF SATWSsKs
-    else if (pick == 3) {
-    
-        fitness = function(i){
-            skillcomp[i] = strbest() + agibest() + tuffbest() + willbest() + spabest() + kinbest();
-            skillcomp[i] = Math.round(skillcomp[i] / 6);
-            ratelist[i] = namerate(dwarves[i], skillcomp[i], jobs[pickName].skills)
-        }
-    }
-    // RANGED COMBAT DWARF SURGEON SUTURER AFSsKs
-    else if (pick == 4 || pick == 18 || pick == 19) {
-    
-        fitness = function(i){
-            skillcomp[i] = agibest() + focbest() + spabest() + kinbest();
-            skillcomp[i] = Math.round(skillcomp[i] / 4);
-            ratelist[i] = namerate(dwarves[i], skillcomp[i], jobs[pickName].skills)
-        }
-    }
-    // SOCIALIZER LEmSa
-    else if (pick == 5) {
-    
-        fitness = function(i){
-            skillcomp[i] = lingbest() + empbest() + socbest();
-            skillcomp[i] = Math.round(skillcomp[i] / 3);
-            ratelist[i] = namerate(dwarves[i], skillcomp[i], jobs[pickName].skills)
-        }
-    }
-    // MINER BITER STEWSsKs
-    else if (pick == 6 || pick == 64) {
-        fitness = function(i){
-            skillcomp[i] = strbest() + tuffbest() + endrbest() + willbest() + spabest() + kinbest();
-            skillcomp[i] = Math.round(skillcomp[i] / 6);
-            ratelist[i] = namerate(dwarves[i], skillcomp[i], jobs[pickName].skills);
-        }
-    }
-    // BOWYER ENGRAVER GEM SETTER BONE CARVER CLOTHIER STONE CRAFTER WEAVER WOOD CRAFTER ACSsKs
-    else if (pick == 7 || pick == 10 || pick == 45 || pick == 46 || pick == 47 || pick == 50 || pick == 51 || pick == 52) {
-    
-        fitness = function(i){
-            skillcomp[i] = agibest() + crebest() + spabest() + kinbest();
-            skillcomp[i] = Math.round(skillcomp[i] / 4);
-            ratelist[i] = namerate(dwarves[i], skillcomp[i], jobs[pickName].skills)
-        }
-    }
-    // CARPENTER SACSsKs
-    else if (pick == 8) {
-    
-        fitness = function(i){
-            skillcomp[i] = strbest() + agibest() + crebest() + spabest() + kinbest();
-            skillcomp[i] = Math.round(skillcomp[i] / 5);
-            ratelist[i] = namerate(dwarves[i], skillcomp[i], jobs[pickName].skills)
-        }
-    }
-    // WOOD CUTTER SWIMMER WRESTLER SAEWSsKs
-    else if (pick == 9 || pick == 58 || pick == 66) {
-    
-        fitness = function(i){
-            skillcomp[i] = strbest() + agibest() + endrbest() + willbest() + spabest() + kinbest();
-            skillcomp[i] = Math.round(skillcomp[i] / 6);
-            ratelist[i] = namerate(dwarves[i], skillcomp[i], jobs[pickName].skills)
-        }
-    }
-    // MASON ARMORSMITH METAL CRAFTER METALSMITH WEAPONSMITH GLASSMAKER LEATHERWORKER SAECSsKs
-    else if (pick == 11 || pick == 39 || pick == 41 || pick == 42 || pick == 43 || pick == 48 || pick == 49) {
-    
-        fitness = function(i){
-            skillcomp[i] = strbest() + agibest() + endrbest() + willbest() + spabest() + kinbest();
-            skillcomp[i] = Math.round(skillcomp[i] / 6);
-            ratelist[i] = namerate(dwarves[i], skillcomp[i], jobs[pickName].skills)
-        }
-    }
-    // ANIMAL DISSECTOR TANNER FISH DISSECTOR AKs
-    else if (pick == 12 || pick == 33 || pick == 37) {
-    
-        fitness = function(i){
-            skillcomp[i] = agibest() + kinbest();
-            skillcomp[i] = Math.round(skillcomp[i] / 2);
-            ratelist[i] = namerate(dwarves[i], skillcomp[i], jobs[pickName].skills)
-        }
-    }
-    // ANIMAL TRAINER ATEIPEm
-    else if (pick == 13) {
-    
-        fitness = function(i){
-            skillcomp[i] = agibest() + tuffbest() + endrbest() + intubest() + patbest() + empbest();
-            skillcomp[i] = Math.round(skillcomp[i] / 6);
-            ratelist[i] = namerate(dwarves[i], skillcomp[i], jobs[pickName].skills)
-        }
-    }
-    // TRAPPER AAaCSs
-    else if (pick == 14) {
-    
-        fitness = function(i){
-            skillcomp[i] = agibest() + anabbest() + crebest() + spabest();
-            skillcomp[i] = Math.round(skillcomp[i] / 4);
-            ratelist[i] = namerate(dwarves[i], skillcomp[i], jobs[pickName].skills)
-        }
-    }
-    // BONE DOCTOR SAFSsKs
-    else if (pick == 15) {
-    
-        fitness = function(i){
-            skillcomp[i] = strbest() + agibest() + focbest() + spabest() + kinbest();
-            skillcomp[i] = Math.round(skillcomp[i] / 5);
-            ratelist[i] = namerate(dwarves[i], skillcomp[i], jobs[pickName].skills)
-        }
-    }
-    // CRUTCH WALKER AEWSsKs
-    else if (pick == 16) {
-    
-        fitness = function(i){
-            skillcomp[i] = agibest() + endrbest() + willbest() + spabest() + kinbest();
-            skillcomp[i] = Math.round(skillcomp[i] / 5);
-            ratelist[i] = namerate(dwarves[i], skillcomp[i], jobs[pickName].skills)
-        }
-    }
-    // DIAGNOSTICIAN APPRAISER AaMI
-    else if (pick == 17 || pick == 59) {
-    
-        fitness = function(i){
-            skillcomp[i] = anabbest() + membest() + intubest();
-            skillcomp[i] = Math.round(skillcomp[i] / 3);
-            ratelist[i] = namerate(dwarves[i], skillcomp[i], jobs[pickName].skills)
-        }
-    }
-    // WOUND DRESSER ASsKsEm
-    else if (pick == 20) {
-    
-        fitness = function(i){
-            skillcomp[i] = agibest() + spabest() + kinbest() + empbest();
-            skillcomp[i] = Math.round(skillcomp[i] / 4);
-            ratelist[i] = namerate(dwarves[i], skillcomp[i], jobs[pickName].skills)
-        }
-    }
-    // BREWER SAKs
-    else if (pick == 21) {
-    
-        fitness = function(i){
-            skillcomp[i] = strbest() + agibest() + kinbest();
-            skillcomp[i] = Math.round(skillcomp[i] / 3);
-            ratelist[i] = namerate(dwarves[i], skillcomp[i], jobs[pickName].skills)
-        }
-    }
-    // BUTCHER DYER GROWER MILKER MILLER THRESHER SAEKs
-    else if (pick == 22 || pick == 25 || pick == 26 || pick == 29 || pick == 30 || pick == 34) {
-    
-        fitness = function(i){
-            skillcomp[i] = strbest() + agibest() + endrbest() + kinbest();
-            skillcomp[i] = Math.round(skillcomp[i] / 4);
-            ratelist[i] = namerate(dwarves[i], skillcomp[i], jobs[pickName].skills)
-        }
-    }
-    // CHEESE MAKER SAEAaCKs
-    else if (pick == 23) {
-    
-        fitness = function(i){
-            skillcomp[i] = strbest() + agibest() + endrbest() + anabbest() + crebest() + kinbest();
-            skillcomp[i] = Math.round(skillcomp[i] / 6);
-            ratelist[i] = namerate(dwarves[i], skillcomp[i], jobs[pickName].skills)
-        }
-    }
-    // COOK AAaCKs
-    else if (pick == 24) {
-    
-        fitness = function(i){
-            skillcomp[i] = agibest() + anabbest() + crebest() + kinbest();
-            skillcomp[i] = Math.round(skillcomp[i] / 4);
-            ratelist[i] = namerate(dwarves[i], skillcomp[i], jobs[pickName].skills)
-        }
-    }
-    // HERBALIST AMKs
-    else if (pick == 27) {
-    
-        fitness = function(i){
-            skillcomp[i] = agibest() + membest() + kinbest();
-            skillcomp[i] = Math.round(skillcomp[i] / 3);
-            ratelist[i] = namerate(dwarves[i], skillcomp[i], jobs[pickName].skills)
-        }
-    }
-    // LYE MAKER POTASH MAKER SOAPER WOOD BURNER STEKs
-    else if (pick == 28 || pick == 31 || pick == 32 || pick == 35) {
-    
-        fitness = function(i){
-            skillcomp[i] = strbest() + tuffbest() + endrbest() + kinbest();
-            skillcomp[i] = Math.round(skillcomp[i] / 4);
-            ratelist[i] = namerate(dwarves[i], skillcomp[i], jobs[pickName].skills)
-        }
-    }
-    // FISH CLEANER AEKs
-    else if (pick == 36) {
-    
-        fitness = function(i){
-            skillcomp[i] = agibest() + endrbest() + kinbest();
-            skillcomp[i] = Math.round(skillcomp[i] / 3);
-            ratelist[i] = namerate(dwarves[i], skillcomp[i], jobs[pickName].skills)
-        }
-    }
-    // FISHERDWARF SAFPKs
-    else if (pick == 38) {
-    
-        fitness = function(i){
-            skillcomp[i] = strbest() + agibest() + focbest() + patbest() + kinbest();
-            skillcomp[i] = Math.round(skillcomp[i] / 5);
-            ratelist[i] = namerate(dwarves[i], skillcomp[i], jobs[pickName].skills)
-        }
-    }
-    // FURNACE OPERATOR STEAaKs
-    else if (pick == 40) {
-    
-        fitness = function(i){
-            skillcomp[i] = strbest() + tuffbest() + endrbest() + anabbest() + kinbest();
-            skillcomp[i] = Math.round(skillcomp[i] / 5);
-            ratelist[i] = namerate(dwarves[i], skillcomp[i], jobs[pickName].skills)
-        }
-    }
-    // GEM CUTTER AAaSsKs
-    else if (pick == 44) {
-    
-        fitness = function(i){
-            skillcomp[i] = agibest() + anabbest() + spabest() + kinbest();
-            skillcomp[i] = Math.round(skillcomp[i] / 4);
-            ratelist[i] = namerate(dwarves[i], skillcomp[i], jobs[pickName].skills)
-        }
-    }
-    // STRAND EXTRACTOR SAEAaKs
-    else if (pick == 53) {
-    
-        fitness = function(i){
-            skillcomp[i] = strbest() + agibest() + endrbest() + anabbest() + kinbest();
-            skillcomp[i] = Math.round(skillcomp[i] / 5);
-            ratelist[i] = namerate(dwarves[i], skillcomp[i], jobs[pickName].skills)
-        }
-    }
-    // MECHANIC SIEGE ENGINEER SAEAaCSs
-    else if (pick == 54 || pick == 56) {
-    
-        fitness = function(i){
-            skillcomp[i] = strbest() + agibest() + endrbest() + anabbest() + crebest() + spabest();
-            skillcomp[i] = Math.round(skillcomp[i] / 6);
-            ratelist[i] = namerate(dwarves[i], skillcomp[i], jobs[pickName].skills)
-        }
-    }
-    // PUMP OPERATOR ARMOR USER STEWKs
-    else if (pick == 55 || pick == 63) {
-    
-        fitness = function(i){
-            skillcomp[i] = strbest() + tuffbest() + endrbest() + willbest() + kinbest();
-            skillcomp[i] = Math.round(skillcomp[i] / 5);
-            ratelist[i] = namerate(dwarves[i], skillcomp[i], jobs[pickName].skills)
-        }
-    }
-    // SIEGE OPERATOR STEAaFSs
-    else if (pick == 57) {
-    
-		fitness = function(i){
-		
-			skillcomp[i] = strbest() + tuffbest() + endrbest() + anabbest() + focbest() + spabest();
-			skillcomp[i] = Math.round(skillcomp[i] / 6);
-			ratelist[i] = namerate(dwarves[i], skillcomp[i], jobs[pickName].skills)
-        }
-    }
-    // BUILDING DESIGNER AaCSs
-    else if (pick == 60) {
-    
-		fitness = function(i){
-		
-			skillcomp[i] = anabbest() + crebest() + spabest();
-			skillcomp[i] = Math.round(skillcomp[i] / 3);
-			ratelist[i] = namerate(dwarves[i], skillcomp[i], jobs[pickName].skills)
-        }
-    }
-    // ORGANIZER AaCSa
-    else if (pick == 61) {
-    
-		fitness = function(i){
-		
-			skillcomp[i] = anabbest() + crebest() + socbest();
-			skillcomp[i] = Math.round(skillcomp[i] / 3);
-			ratelist[i] = namerate(dwarves[i], skillcomp[i], jobs[pickName].skills)
-        }
-    }
-    // RECORD KEEPER STUDENT AaMF
-    else if (pick == 62 || pick == 72) {
-    
-		fitness = function(i){
-		
-			skillcomp[i] = anabbest() + membest() + focbest();
-			skillcomp[i] = Math.round(skillcomp[i] / 3);
-			ratelist[i] = namerate(dwarves[i], skillcomp[i], jobs[pickName].skills)
-        }
-    }
-    // DODGER ATEWSsKs
-    else if (pick == 65) {
-    
-		fitness = function(i){
-		
-			skillcomp[i] = agibest() + tuffbest() + endrbest() + willbest() + spabest() + kinbest();
-			skillcomp[i] = Math.round(skillcomp[i] / 6);
-			ratelist[i] = namerate(dwarves[i], skillcomp[i], jobs[pickName].skills)
-        }
-    }
-    // COMEDIAN (not high self-consciousness, ACKsL)
-
-    else if (pick == 67) {
-		fitness = function(i){
-			var traitsperdwarf = [];
-			var dwarftraitlist = [];
-			traitsperdwarf[i] = xmlDoc.getElementsByTagName("Traits")[i].childNodes.length;
-			if (microsoft == "yes") {} else {
-				traitsperdwarf[i] = (traitsperdwarf[i] - 1) / 2;
-			};
-			x = 0;
-			for (x = 0; x < traitsperdwarf[i]; x++) {
-				dwarftraitlist[x] = xmlDoc.getElementsByTagName("Traits")[i].getElementsByTagName("Trait")[x].childNodes[0].nodeValue;
-				dwarftraitlist[x] = dwarftraitlist[x].toLowerCase();
-			}
-			dwarftraitlist = dwarftraitlist.toString();
-			if (dwarftraitlist.search("socially cripplied") != -1) {
-				skillcomp[i] = "deek";
-				ratelist[i] = namerate(dwarves[i], skillcomp[i], jobs[pickName].skills)
-			} else if (dwarftraitlist.search("rejection and ridicule") != -1) {
-				skillcomp[i] = "deek";
-				ratelist[i] = namerate(dwarves[i], skillcomp[i], jobs[pickName].skills)
-			} else {
-				skillcomp[i] = agibest() + crebest() + kinbest() + lingbest();
-				skillcomp[i] = Math.round(skillcomp[i] / 4);
-				ratelist[i] = namerate(dwarves[i], skillcomp[i], jobs[pickName].skills)
-			}
-		}
-    }
-    // INTIMIDATOR (not high cooperation, AKsL)
-
-    else if (pick == 68) {
-            fitness = function(i){
-				var traitsperdwarf = [];
-				var dwarftraitlist = [];
-				traitsperdwarf[i] = xmlDoc.getElementsByTagName("Traits")[i].childNodes.length;
-				if (microsoft == "yes") {} else {
-					traitsperdwarf[i] = (traitsperdwarf[i] - 1) / 2;
-				};
-                x = 0;
-                for (x = 0; x < traitsperdwarf[i]; x++) {
-                    dwarftraitlist[x] = xmlDoc.getElementsByTagName("Traits")[i].getElementsByTagName("Trait")[x].childNodes[0].nodeValue;
-                    dwarftraitlist[x] = dwarftraitlist[x].toLowerCase();
-                }
-                dwarftraitlist = dwarftraitlist.toString();
-                if (dwarftraitlist.search("needs to get along with others") != -1) {
-                    skillcomp[i] = "deek";
-                    ratelist[i] = namerate(dwarves[i], skillcomp[i], jobs[pickName].skills)
-                } else if (dwarftraitlist.search("dislikes confrontations") != -1) {
-                    skillcomp[i] = "deek";
-                    ratelist[i] = namerate(dwarves[i], skillcomp[i], jobs[pickName].skills)
-                } else if (dwarftraitlist.search("willing to compromise") != -1) {
-                    skillcomp[i] = "deek";
-                    ratelist[i] = namerate(dwarves[i], skillcomp[i], jobs[pickName].skills)
-                } else {
-                    skillcomp[i] = agibest() + kinbest() + lingbest();
-                    skillcomp[i] = Math.round(skillcomp[i] / 3);
-                    ratelist[i] = namerate(dwarves[i], skillcomp[i], jobs[pickName].skills)
-                }
-            }
-    }
-    // JUDGE OF INTENT IEmSa
-    else if (pick == 69) {
-    
-		fitness = function(i){
-		
-			skillcomp[i] = intubest() + empbest() + socbest();
-			skillcomp[i] = Math.round(skillcomp[i] / 3);
-			ratelist[i] = namerate(dwarves[i], skillcomp[i], jobs[pickName].skills)
-        }
-    }
-    // LIAR (low straightforwardness, CLSa)
-
-    else if (pick == 70) {
-            fitness = function(i){
-				var traitsperdwarf = [];
-				var dwarftraitlist = [];
-				traitsperdwarf[i] = xmlDoc.getElementsByTagName("Traits")[i].childNodes.length;
-				if (microsoft == "yes") {} else {
-					traitsperdwarf[i] = (traitsperdwarf[i] - 1) / 2;
-				};
-                x = 0;
-                for (x = 0; x < traitsperdwarf[i]; x++) {
-                    dwarftraitlist[x] = xmlDoc.getElementsByTagName("Traits")[i].getElementsByTagName("Trait")[x].childNodes[0].nodeValue;
-                    dwarftraitlist[x] = dwarftraitlist[x].toLowerCase();
-                }
-                dwarftraitlist = dwarftraitlist.toString();
-                if (dwarftraitlist.search("some deception is necessary") >= 1) {
-                    isliar();
-                } else if (dwarftraitlist.search("not straightforward") >= 1) {
-                    isliar();
-                } else if (dwarftraitlist.search("guarded in relationships") >= 1) {
-                    isliar();
-                } else {
-                    skillcomp[i] = "deek";
-                    ratelist[i] = namerate(dwarves[i], skillcomp[i], jobs[pickName].skills)
-                }
-
-                function isliar() {
-                    skillcomp[i] = crebest() + lingbest() + socbest();
-                    skillcomp[i] = Math.round(skillcomp[i] / 3);
-                    ratelist[i] = namerate(dwarves[i], skillcomp[i], jobs[pickName].skills)
-                }
-            }
-    }
-    // OBSERVER IFSs
-    else if (pick == 71) {
-    
-		fitness = function(i){
-		
-			skillcomp[i] = intubest() + focbest() + spabest();
-			skillcomp[i] = Math.round(skillcomp[i] / 3);
-			ratelist[i] = namerate(dwarves[i], skillcomp[i], jobs[pickName].skills)
-        }
-    }
-	
-	if (pick == 0) {
+	if (jobIndex == 0) {
         $("printdwarf2").innerHTML = "\u263C " + "Your Embark";
         $("printdwarfgender2").innerHTML = "\u263C";
 		
@@ -1457,138 +1125,118 @@ function bestdwarf() {
         return;
     }
 	else {
-        for (var i in dwarves) {
-            dwarf = dwarves[i];
-            if ($("dwarfsfrom")[0].selected == true || $("dwarfsfrom")[i + 1].selected == true) {
-                fitness(i);
+        for (var dwarfNum = 0, l = dwarves.length; dwarfNum<l; dwarfNum++) {
+            dwarf = dwarves[dwarfNum] || urist;
+            if ($("dwarfsfrom")[0].selected || $("dwarfsfrom")[dwarfNum + 1].selected) {
+                skillcomp[dwarfNum] = jobFitness(dwarf, job);
+				ratelist[dwarfNum] = namerate(dwarf, skillcomp[dwarfNum], jobName);;
             }
         }
 	}
 	
-	
-	
-	
-    if (superbname.length >= 1) {
-        superbname.unshift("<div class=\"guidances\"><p>You are lucky to have a superb " + ratejob + " in:</p> <ul>");
-        superbname.push("</ul></div>");
+    if (nameRates.superb.length >= 1) {
+        nameRates.superb.unshift("<div class=\"guidances\"><p>You are lucky to have a superb " + ratejob + " in:</p> <ul>");
+        nameRates.superb.push("</ul></div>");
     };
-    if (verygoodname.length >= 1) {
-        verygoodname.unshift("<div class=\"guidances\"><p>You'll have a very good " + ratejob + " in:</p> <ul>");
-        verygoodname.push("</ul></div>");
+    if (nameRates.verygood.length >= 1) {
+        nameRates.verygood.unshift("<div class=\"guidances\"><p>You'll have a very good " + ratejob + " in:</p> <ul>");
+        nameRates.verygood.push("</ul></div>");
     };
-    if (goodname.length >= 1) {
-        goodname.unshift("<div class=\"guidances\"><p>If you want a good " + ratejob + "; there's:</p> <ul>");
-        goodname.push("</ul></div>");
+    if (nameRates.good.length >= 1) {
+        nameRates.good.unshift("<div class=\"guidances\"><p>If you want a good " + ratejob + "; there's:</p> <ul>");
+        nameRates.good.push("</ul></div>");
     };
-    if (highavgname.length >= 1) {
-        highavgname.unshift("<div class=\"guidances\"><p> For a " + ratejob + " a bit above average; try:</p> <ul>");
-        highavgname.push("</ul></div>");
+    if (nameRates.highavg.length >= 1) {
+        nameRates.highavg.unshift("<div class=\"guidances\"><p> For a " + ratejob + " a bit above average; try:</p> <ul>");
+        nameRates.highavg.push("</ul></div>");
     };
-    if (lowavgname.length >= 1) {
-        lowavgname.unshift("<div class=\"guidances\"><p>If you'll settle for a below average " + ratejob + "; there's:</p> <ul>");
-        lowavgname.push("</ul></div>");
+    if (nameRates.lowavg.length >= 1) {
+        nameRates.lowavg.unshift("<div class=\"guidances\"><p>If you'll settle for a below average " + ratejob + "; there's:</p> <ul>");
+        nameRates.lowavg.push("</ul></div>");
     };
-    if (poorname.length >= 1) {
-        poorname.unshift("<div class=\"guidances\"><p>You will have a poor " + ratejob + " in:</p> <ul>");
-        poorname.push("</ul></div>");
+    if (nameRates.poor.length >= 1) {
+        nameRates.poor.unshift("<div class=\"guidances\"><p>You will have a poor " + ratejob + " in:</p> <ul>");
+        nameRates.poor.push("</ul></div>");
     };
-    if (verypoorname.length >= 1) {
-        verypoorname.unshift("<div class=\"guidances\"><p>You'll have a very poor " + ratejob + " in:</p> <ul>");
-        verypoorname.push("</ul></div>");
+    if (nameRates.verypoor.length >= 1) {
+        nameRates.verypoor.unshift("<div class=\"guidances\"><p>You'll have a very poor " + ratejob + " in:</p> <ul>");
+        nameRates.verypoor.push("</ul></div>");
     };
-    if (horriblename.length >= 1) {
-        horriblename.unshift("<div class=\"guidances\"><p>You're unlucky to have a horrible " + ratejob + " in:</p> <ul>");
-        horriblename.push("</ul></div>");
+    if (nameRates.horrible.length >= 1) {
+        nameRates.horrible.unshift("<div class=\"guidances\"><p>You're unlucky to have a horrible " + ratejob + " in:</p> <ul>");
+        nameRates.horrible.push("</ul></div>");
     };
-    if (deekname.length >= 1) {
-        deekname.unshift("<div class=\"guidances\"><p>The following dwarves cannot be a " + ratejob + " because of personality problems:</p> <ul>");
-        deekname.push("</ul></div>");
+    if (nameRates.deek.length >= 1) {
+        nameRates.deek.unshift("<div class=\"guidances\"><p>The following dwarves cannot be a " + ratejob + " because of personality problems:</p> <ul>");
+        nameRates.deek.push("</ul></div>");
     };
 	
 	
-    $("printdwarf2").innerHTML = "\u263C " + "Best " + $("joblist").options[pick].text;
+    $("printdwarf2").innerHTML = "\u263C " + "Best " + $("joblist").options[jobIndex].text;
     $("printdwarfgender2").innerHTML = "\u263C";
-    var guidename = superbname.toString() + " " + verygoodname.toString() + " " + goodname.toString() + " " + highavgname.toString() + " " + lowavgname.toString() + " " + poorname.toString() + " " + verypoorname.toString() + " " + horriblename.toString() + " " + deekname.toString();
-    guidename = guidename.replace(/,/g, " ");
-    guidename = guidename.replace(/\u003B/g, ",");
-    $("guidance").innerHTML = guidename;
-    superbname = [];
-    verygoodname = [];
-    goodname = [];
-    highavgname = [];
-    lowavgname = [];
-    poorname = [];
-    verypoorname = [];
-    horriblename = [];
-    deekname = [];
+    $("guidance").innerHTML = nameRates.superb.join('') + " " 
+		+ nameRates.verygood.join('') + " " 
+		+ nameRates.good.join('') + " " 
+		+ nameRates.highavg.join('') + " " 
+		+ nameRates.lowavg.join('') + " " 
+		+ nameRates.poor.join('') + " " 
+		+ nameRates.verypoor.join('') + " " 
+		+ nameRates.horrible.join('') + " " 
+		+ nameRates.deek.join('');
 }
 
-function namerate(dwarf, pct, jobSkills) {
-	
-	var relatedSkills = '';
-	var skillLevel;
-	for (var s in jobSkills){
-		skillLevel = dwarf.skills[jobs[s]].skills;
-		if (skillLevel > 0){
-			//TODO: multiple skills and format
-			relatedSkills += ' (L' + skillLevel + ') ';
+/* appends a string to the appropriate array */
+function namerate(dwarf, pct, j) {
+	var job = jobs[j];
+	var pctName = pctToText(pct);
+	var newname = '<li class="' + pctName + '" onclick="goToName(\'' + dwarf.name + '\')">['+pct+'] ' + dwarf.name + relatedSkills(dwarf, job) + '</li>';
+	nameRates[pctName].unshift(newname);
+}
+/* appends a string to the appropriate array */
+function jobrate(dwarf, pct, j) {
+	var job = jobs[j];
+	var pctName = pctToText(pct);
+	var newname = '<li class="' + pctName + '" onclick="goToJob(\'' + j + '\')">['+pct+'] ' + j.toCapitalize() + relatedSkills(dwarf, job) + '</li>';
+	analysis[pctName].unshift(newname);
+}
+
+function relatedSkills(dwarf, job){
+	var skills = job.skills;
+	var level, related = [];
+	for (var s in skills){
+		level = dwarf.skills[skills[s]];
+		if (level > 0){
+			related.push(level + ' ' + skills[s].toCapitalize());
 		}
 	}
-	
-	var rate;
-    if (pct == "deek") {
-        rate = 'horrible';
-    } else if (pct > 90) {
-        rate = 'superb';
-    } else if (pct > 75) {
-        rate = 'verygood';
-    } else if (pct > 60) {
-        rate = 'good';
-    } else if (pct > 49) {
-        rate = 'highavg';
-    } else if (pct > 39) {
-        rate = 'lowavg';
-    } else if (pct > 24) {
-        rate = 'poor';
-    } else if (pct > 9) {
-        rate = 'verygood';
-    } else {
-        rate = 'horrible';
-    }
-	
-	var newname = '<li class="' + rate + '" onclick="goToName(\'' + dwarf.name + '\')">' + dwarf.name + relatedSkills + '</li>';
-	window[rate + 'name'].unshift(newname);
-	
+	if (related.length){
+		return '<br>(' + related.join(', ') + ')';
+	}
+	return '';
 }
 
-
-/* job appends a string to the appropriate array */
-function jobrate(newjob, pct, skillname) {
-	var currentLevel = dwarves[currentDwarf].skills[skillname.toLowerCase()];
-	
-	var rate;
-    if (pct == "deek") {
-        rate = 'horrible';
+function pctToText(pct){
+	var text;
+    if (pct == 'deek') {
+        text = pct;
     } else if (pct > 90) {
-        rate = 'superb';
+        text = 'superb';
     } else if (pct > 75) {
-        rate = 'verygood';
+        text = 'verygood';
     } else if (pct > 60) {
-        rate = 'good';
+        text = 'good';
     } else if (pct > 49) {
-        rate = 'highavg';
+        text = 'highavg';
     } else if (pct > 39) {
-        rate = 'lowavg';
+        text = 'lowavg';
     } else if (pct > 24) {
-        rate = 'poor';
+        text = 'poor';
     } else if (pct > 9) {
-        rate = 'verygood';
+        text = 'verypoor';
     } else {
-        rate = 'horrible';
+        text = 'horrible';
     }
-
-	var newname = '<li class="' + rate + ' onclick="goToJob(\'' + newjob + '\')">' + newjob + (currentLevel != undefined ? ' (L' + currentLevel + ')' : '') + '</li>';
-	analysis[rate].unshift(newname);
+	return text;
 }
 
 function goToName(name){
@@ -1601,14 +1249,9 @@ function goToJob(job){
 	bestdwarf();
 }
 
-function viewDwarf(){
-	xmlprocess();
-    guide();
-}
-
 /* when given a text trait 
  * returns the attribute or trait that it relates to and the corosponding value
- * TODO: Use map instead of ifs
+ * TODO: Use map instead of if statements
  */
 function verbalevalsubmit(verbal) {
     verbal = verbal.toLowerCase();
@@ -3031,91 +2674,91 @@ function verbalevalsubmit(verbal) {
     // SELF-CONSCIOUSNESS
     else if (verbal.search("socially crippled") != -1) {
         value = 95;
-        trait = "Self_Consciousness";
+        trait = "self-consciousness";
 		type = "Trait";
     } else if (verbal.search("rejection and ridicule") != -1) {
         value = 83;
-        trait = "Self_Consciousness";
+        trait = "self-consciousness";
 		type = "Trait";
     } else if (verbal.search("average self-consciousness") != -1) {
         value = 50;
-        trait = "Self_Consciousness";
+        trait = "self-consciousness";
 		type = "Trait";
     } else if (verbal.search("self-conscious") != -1) {
         value = 68;
-        trait = "Self_Consciousness";
+        trait = "self-consciousness";
 		type = "Trait";
     } else if (verbal.search("absolutely unfazed") != -1) {
         value = 5;
-        trait = "Self_Consciousness";
+        trait = "self-consciousness";
 		type = "Trait";
     } else if (verbal.search("very comfortable in social situations") != -1) {
         value = 17;
-        trait = "Self_Consciousness";
+        trait = "self-consciousness";
 		type = "Trait";
     } else if (verbal.search("comfortable in social situations") != -1) {
         value = 32;
-        trait = "Self_Consciousness";
+        trait = "self-consciousness";
 		type = "Trait";
     }
     // SELF-DISCIPLINE
     else if (verbal.search("will persist in the face") != -1) {
         value = 95;
-        trait = "Self_Discipline";
+        trait = "Self-Discipline";
 		type = "Trait";
     } else if (verbal.search("great willpower") != -1) {
         value = 83;
-        trait = "Self_Discipline";
+        trait = "Self-Discipline";
 		type = "Trait";
     } else if (verbal.search("self-disciplined") != -1) {
         value = 68;
-        trait = "Self_Discipline";
+        trait = "Self-Discipline";
 		type = "Trait";
     } else if (verbal.search("average self-discipline") != -1) {
         value = 50;
-        trait = "Self_Discipline";
+        trait = "Self-Discipline";
 		type = "Trait";
     } else if (verbal.search("rarely completes tasks") != -1) {
         value = 5;
-        trait = "Self_Discipline";
+        trait = "Self-Discipline";
 		type = "Trait";
     } else if (verbal.search("little self-discipline") != -1) {
         value = 17;
-        trait = "Self_Discipline";
+        trait = "Self-Discipline";
 		type = "Trait";
     } else if (verbal.search("procrastination") != -1) {
         value = 32;
-        trait = "Self_Discipline";
+        trait = "Self-Discipline";
 		type = "Trait";
     }
     // SELF-EFFICACY
     else if (verbal.search("incredibly confident") != -1) {
         value = 95;
-        trait = "Self_Efficacy";
+        trait = "Self-Efficacy";
 		type = "Trait";
     } else if (verbal.search("very confident") != -1) {
         value = 83;
-        trait = "Self_Efficacy";
+        trait = "Self-Efficacy";
 		type = "Trait";
     } else if (verbal.search("confident") != -1 && verbal.search("under") == -1) {
         value = 68;
-        trait = "Self_Efficacy";
+        trait = "Self-Efficacy";
 		type = "Trait";
     } else if (verbal.search("average self-efficacy") != -1) {
         value = 50;
-        trait = "Self_Efficacy";
+        trait = "Self-Efficacy";
 		type = "Trait";
     } else if (verbal.search("feels as if") != -1 && verbal.search("not in control") != -1) {
         value = 5;
-        trait = "Self_Efficacy";
+        trait = "Self-Efficacy";
 		type = "Trait";
     } else if (verbal.search("does not feel effective") != -1) {
         value = 17;
-        trait = "Self_Efficacy";
+        trait = "Self-Efficacy";
 		type = "Trait";
     } else if (verbal.search("lacks confidence") != -1) {
         value = 32;
-        trait = "Self_Efficacy";
+        trait = "Self-Efficacy";
 		type = "Trait";
     }
     // STRAIGHTFORWARDNESS
@@ -3246,96 +2889,36 @@ function verbalevalsubmit(verbal) {
 }
 
 function verbapprox(type, trait, value) {
-	
-	dwarves[currentDwarf][(type == "Trait" ? "traits" : "attributes")][trait.toLowerCase()] = value;
-	
-    attributeUpdate();
-    traitUpdate();
-	
-    
-
-    guide();
-    changelogupdate(trait + " set to " + value + " by Counselor.");
+	dwarves[currentDwarf][(type == "Trait" ? "traits" : "attributes")][trait.toLowerCase().replace(/_/, ' ')] = value;
 }
 
-function minusattrtopct(newattr) {
-    var x = newattr;
-    var xpct;
-    if (x <= 599) {
-        xpct = ((0.0370356 * x) - 5.51835)
-    } else if (x >= 600 && x <= 799) {
-        xpct = ((0.0837487 * x) - 33.5822)
-    } else if (x >= 800 && x <= 899) {
-        xpct = ((0.168333 * x) - 101.333)
-    } else if (x >= 900 && x <= 999) {
-        xpct = ((0.168343 * x) - 101.509)
-    } else if (x >= 1000 && x <= 1099) {
-        xpct = ((0.168343 * x) - 101.676)
-    } else if (x >= 1100) {
-        xpct = ((0.0417669 * x) + 37.3904)
-    };
-    return Math.round(xpct);
+
+function rateDwarfForJob(dwarf, job) {
+    var pcts = [];
+	for (var a in job.attributes) {
+		var attrFunc = attributeFunctions[attributeFunctionMap[job.attributes[a]]];
+		var attrPct = attrFunc(dwarf.attributes[job.attributes[a]])
+		pcts.push(attrPct);
+	}
+	return Math.round(avg(pcts));
 }
 
-function avgattrtopct(newattr) {
-    var x = newattr;
-    var xpct;
-    if (x <= 749) {
-        xpct = ((0.030357 * x) - 6.0714)
-    } else if (x >= 750 && x <= 899) {
-        xpct = ((0.111852 * x) - 67.2223)
-    } else if (x >= 900 && x <= 999) {
-        xpct = ((0.168333 * x) - 118.166)
-    } else if (x >= 1000 && x <= 1099) {
-        xpct = ((0.168343 * x) - 118.343)
-    } else if (x >= 1100 && x <= 1299) {
-        xpct = ((0.0837538 * x) - 25.4621)
-    } else if (x >= 1300) {
-        xpct = ((0.0238412 * x) + 52.3404)
-    };
-    return Math.round(xpct);
+var jobFitness = function(dwarf, job) {
+	for (t in job.traits){
+		var trait = job.traits[t];
+		if (trait < 0 && dwarf.traits[t] > job.traits[t]){
+			return "deek";
+		}
+		else if (trait > 0 && dwarf.traits[t] < job.traits[t]){
+			return "deek";
+		}
+	}
+	return rateDwarfForJob(dwarf, job);
 }
 
-function plusattrtopct(newattr) {
-    var x = newattr;
-    var xpct;
-    if (x <= 949) {
-        xpct = ((0.0333988 * x) - 15.0295)
-    } else if (x >= 950 && x <= 1149) {
-        xpct = ((0.0837487 * x) - 62.8943)
-    } else if (x >= 1150 && x <= 1249) {
-        xpct = ((0.168333 * x) - 160.249)
-    } else if (x >= 1250 && x <= 1349) {
-        xpct = ((0.168343 * x) - 160.429)
-    } else if (x >= 1350 && x <= 1549) {
-        xpct = ((0.0837538 * x) - 46.4006)
-    } else if (x >= 1550) {
-        xpct = ((0.0238412 * x) + 46.3801)
-    };
-    return Math.round(xpct);
-}
-
-function dubplusattrtopct(newattr) {
-    var x = newattr;
-    var xpct;
-    if (x <= 1199) {
-        xpct = ((0.0333988 * x) - 23.3792)
-    } else if (x >= 1200 && x <= 1399) {
-        xpct = ((0.0837487 * x) - 83.8315)
-    } else if (x >= 1400 && x <= 1499) {
-        xpct = ((0.168333 * x) - 202.333)
-    } else if (x >= 1500 && x <= 1599) {
-        xpct = ((0.168343 * x) - 202.515)
-    } else if (x >= 1600 && x <= 1799) {
-        xpct = ((0.0837538 * x) - 67.339)
-    } else if (x >= 1800) {
-        xpct = ((0.0238412 * x) + 40.4198)
-    };
-    return Math.round(xpct);
-}
 
 function guide() {
-	var dwarf = dwarves[currentDwarf];
+	var dwarf = dwarves[currentDwarf] || urist;
 	
     analysis = {
 		'superb': [],
@@ -3346,6 +2929,7 @@ function guide() {
 		'poor': [],
 		'verypoor': [],
 		'horrible': [],
+		'deek': [],
 		'output': []
 	};
 	
@@ -3363,21 +2947,10 @@ function guide() {
         var detpro = "Her";
     }
 	
-	
-
-
-	
-	var pct, pcts;
-	
-	
-	
-	for (var job in jobs) {
-		pcts = [];
-		for (var a in jobs[job].attributes) {
-			pcts.push(funct())
-		}
-		pct = avg(pcts);
-		jobrate(job.toCapitalize(), pct, jobs[job].skills);
+	var pct;
+	for (var j in jobs) {
+		pct = jobFitness(dwarf, jobs[j]);
+		jobrate(dwarf, pct, j);
 	}
 	
     if (analysis.superb.length >= 1) {
@@ -3418,20 +2991,24 @@ function guide() {
         analysis.horrible.unshift('<div class="guidances"><p>' + subjpro + " would be horrible as a:</p> <ul>");
         analysis.horrible.push("</ul></div>");
     };
+    if (analysis.deek.length >= 1) {
+        analysis.deek.unshift('<div class="guidances"><p>Because of personality problems ' + subjpro + " cannot be a:</p> <ul>");
+        analysis.deek.push("</ul></div>");
+    };
 	
-	/*
-		
-	*/
 	var brightside = $("brightside").checked;
-    if (brightside && analysis.superb.length + analysis.verygood.length + good.length + highavg.length < 20) {
-        analysis.output.push(analysis.superb + " " + analysis.verygood + " " + analysis.good + " " + analysis.highavg + " " + analysis.lowavg);
-    } else if (brightside && analysis.superb.length + verygood.length + good.length < 20) {
-        analysis.output.push(analysis.superb + " " + analysis.verygood + " " + analysis.good + " " + analysis.highavg);
-    } else if (brightside) {
-        analysis.output.push(analysis.superb + " " + analysis.verygood + " " + good);
+    if (brightside) {
+		if (analysis.superb.length + analysis.verygood.length + analysis.good.length + analysis.highavg.length < 20) {
+			analysis.output.push(analysis.superb + " " + analysis.verygood + " " + analysis.good + " " + analysis.highavg + " " + analysis.lowavg);
+		} else if (analysis.superb.length + analysis.verygood.length + analysis.good.length < 20) {
+			analysis.output.push(analysis.superb + " " + analysis.verygood + " " + analysis.good + " " + analysis.highavg);
+		} else {
+			analysis.output.push(analysis.superb + " " + analysis.verygood + " " + analysis.good);
+		}
     } else {
-        analysis.output.push(analysis.superb + " " + analysis.verygood + " " + analysis.good + " " + analysis.poor + " " + analysis.verypoor + " " + analysis.horrible);
+		analysis.output.push(analysis.superb + " " + analysis.verygood + " " + analysis.good + " " + analysis.poor + " " + analysis.verypoor + " " + analysis.horrible+ " " + analysis.deek);
     }
+	
 	
     if (dwarf.traits['self-discipline'] < 25) {
         analysis.output.push('<p>This lazy sack of booze prefers to spend time <span class="horrible"' + ">On Break.</span>");
@@ -3449,7 +3026,7 @@ function guide() {
         analysis.output.push('<p>' + subjpro + ' seems happy at the thought of <span class="superb"' + ">helping others</span>.");
     }
     if (dwarf.traits['assertiveness'] < 40) {
-        analysis.output.push(detpro + " unassertive nature won\'t allow " + objpro.toLowerCase() + ' to attempt <span class="horrible"' + ">Persuasion</span>.");
+        analysis.output.push('<p>' + detpro + " unassertive nature won\'t allow " + objpro.toLowerCase() + ' to attempt <span class="horrible"' + ">Persuasion</span>.</p>");
     }
     if (dwarf.traits['cooperation'] < 40) {
         analysis.output.push('<p>' + subjpro + ' cannot be relied on to <span class="horrible"' + ">Pacify</span> others.");
@@ -3478,7 +3055,7 @@ function guide() {
 
 
 function setColors() {
-	document.body.className = ($('colorcode').checked ? 'color' : '');
+	document.body.className = ($('colorcode').checked ? 'color' : 'no-color');
 }
 //-->
 </script>
@@ -3487,99 +3064,19 @@ function setColors() {
 Welcome to the Dwarven Guidance Counselor. I'll be offering you advice today. Shall I color-code your evaluation? <input type="checkbox" id="colorcode" onclick="setColors();" checked><br> 
 What's your name, please? <input type="text" id="dwarfname" value="Urist McAverage" onKeyPress="return disableEnterKey(event)" onkeyup="printname()">
 And your gender? <input type="radio" name="gender" id="male" value="Male" checked="checked" onclick="printgender(this.value)">Male</input> <input type="radio" name="gender" id="female" value="Female" onclick="printgender(this.value)">Female</input> 
-&nbsp;Are we looking on the bright side today? <input type="checkbox" id="brightside" onchange=""><br>
+&nbsp;Are we looking on the bright side today? <input type="checkbox" id="brightside" onchange="viewDwarf()"><br>
 
 
 <p>
 <table>
 
 <tr>
-<td valign="top"><button onclick="xmlprocess()">Load from XML</button></td>
-<td><select id="dwarflist" onchange="viewDwarf()"><option>Dwarf List</option></select><button onclick="xmlprocess()">U</button></td>
+<td valign="top">Load from XML</td>
+<td><select id="dwarflist" onchange="viewDwarf()"><option>Dwarf List</option></select><button onclick="viewDwarf()">U</button></td>
 <td>&nbsp;Find Best&nbsp;
 <select id="joblist" onchange="bestdwarf()">
 
-<option>Embark Facts</option>
-<option>Leader/Manager</option>
-<option>Broker</option>
-<option>Close combat dwarf</option>
-<option>Ranged combat dwarf</option>
-<option>Socializer</option>
-<option>Miner</option>
-<option>Bowyer</option>
-<option>Carpenter</option>
-<option>Wood cutter</option>
-<option>Engraver</option>
-
-<option>Mason</option>
-<option>Animal dissector</option>
-<option>Animal trainer</option>
-<option>Trapper</option>
-<option>Bone doctor</option>
-<option>Crutch walker</option>
-<option>Diagnostician</option>
-<option>Surgeon</option>
-<option>Suturer</option>
-<option>Wound dresser</option>
-
-<option>Brewer</option>
-<option>Butcher</option>
-<option>Cheese maker</option>
-<option>Cook</option>
-<option>Dyer</option>
-<option>Grower</option>
-<option>Herbalist</option>
-<option>Lye maker</option>
-<option>Milker</option>
-<option>Miller</option>
-
-<option>Potash maker</option>
-<option>Soaper</option>
-<option>Tanner</option>
-<option>Thresher</option>
-<option>Wood burner</option>
-<option>Fish cleaner</option>
-<option>Fish dissector</option>
-<option>Fisherdwarf</option>
-<option>Armorsmith</option>
-<option>Furnace operator</option>
-
-<option>Metal crafter</option>
-<option>Metalsmith</option>
-<option>Weaponsmith</option>
-<option>Gem cutter</option>
-<option>Gem setter</option>
-<option>Bone carver</option>
-<option>Clothier</option>
-<option>Glassmaker</option>
-<option>Leatherworker</option>
-<option>Stone crafter</option>
-
-<option>Weaver</option>
-<option>Wood crafter</option>
-<option>Strand extractor</option>
-<option>Mechanic</option>
-<option>Pump operator</option>
-<option>Siege engineer</option>
-<option>Siege operator</option>
-<option>Swimmer</option>
-<option>Appraiser</option>
-<option>Building designer</option>
-
-<option>Organizer</option>
-<option>Record keeper</option>
-<option>Armor user</option>
-<option>Biter</option>
-<option>Dodger</option>
-<option>Wrestler</option>
-<option>Comedian</option>
-<option>Intimidator</option>
-<option>Judge of intent</option>
-<option>Liar</option>
-
-<option>Observer</option>
-<option>Student</option>
-
+<option value="embark facts">Embark Facts</option>
 </select>
 <button onclick="bestdwarf()">U</button></td>
 <td valign="top" rowspan="5">Find Best Among:<p>
@@ -3683,7 +3180,7 @@ Last 5 updates (most recent first):<p>
 <table border="1">
 <tr>
 <td colspan="3"><div style="text-align:center"><b>Attributes and Traits of: <a id="printdwarf">Urist McAverage</a>, <a id="printdwarfgender">&#9794;</a></b></div></td>
-<td rowspan="19" valign="top"><div style="text-align:center"><b>Guidance for: <a id="printdwarf2">Urist McAverage</a>, <a id="printdwarfgender2">&#9794;</a></b></div><span id="guidance">A short, sturdy creature fond of drink and industry.</span</td>
+<td rowspan="19" valign="top"><div style="text-align:center"><b>Guidance for: <a id="printdwarf2">Urist McAverage</a>, <a id="printdwarfgender2">&#9794;</a></b></div><div id="guidance">A short, sturdy creature fond of drink and industry.</div</td>
 </tr>
 <tr>
 <th>Body Attributes</th>
@@ -3796,7 +3293,7 @@ View your dwarf's thoughts and preferences, and enter those phrases that reflect
 Tell the Counselor "average &lt;statname&gt;" and it'll return to default racial median. Try "strong", then "average strength". Refresh page to revert to average entirely.<br>
 Alternatively, use Runesmith and Dwarf Therapist to find attributes and traits respectively, and update by hand.<br>
 Runesmith/Dwarf Therapist trait names are those in parentheses in the dropdown.<br>
-
+</p>
 <h3>Thanks/Info</h3>
 <p>
 To <a href="http://www.bay12forums.com/smf/index.php?topic=72616.0">Urist Da Vinci</a> for SCIENCE<br>
