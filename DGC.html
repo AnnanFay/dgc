@@ -145,6 +145,9 @@ var defaultDwarf = {
 	skills: {}
 }
 var urist = Object.create(defaultDwarf);
+//TODO: this is a bit silly!
+urist.attributes = Object.create(defaultDwarf.attributes);
+urist.traits = Object.create(defaultDwarf.traits);
 
 /*
  * New jobs can be easily added!
@@ -1008,7 +1011,7 @@ function getInfoColor(intensity, color, negativeColor) {
 }
 
 function directAttributeSubmit(rawAttribute, rawValue) {
-	dwarf = dwarves[currentDwarf] || urist;
+	var dwarf = dwarves[currentDwarf] || urist;
 
     var attributeName = rawAttribute.toLowerCase();
 	var safeAttributeName = attributeName.replace(/ /, '-').replace(/ \(.*\)/, '');
@@ -1021,6 +1024,7 @@ function directAttributeSubmit(rawAttribute, rawValue) {
     } else {
 		dwarf.attributes[attributeName] = attributeValue;
         changelogupdate(rawAttribute + " set to " + attributeValue + " by User.");
+		attributeUpdate();
         guide();
     }
 	
@@ -1055,6 +1059,7 @@ function directTraitSubmit() {
     } else {
 		dwarf.traits[traitName] = traitValue;
         changelogupdate(rawTrait + " set to " + traitValue + " by User.");
+		traitUpdate();
         guide();
     }
 	
@@ -2876,7 +2881,9 @@ function verbalevalsubmit(verbal) {
 }
 
 function verbapprox(type, trait, value) {
-	(dwarves[currentDwarf] || urist)[(type == "Trait" ? "traits" : "attributes")][trait.toLowerCase().replace(/_/, ' ')] = value;
+	var dwarf = dwarves[currentDwarf] || urist;
+	var safeTrait = trait.toLowerCase().replace(/_/, ' ');
+	dwarf[(type == "Trait" ? "traits" : "attributes")][safeTrait] = value;
 }
 
 
