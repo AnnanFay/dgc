@@ -800,7 +800,7 @@ function disableverbenter(e) {
     if (key == 13) {
         var update = verbalevalsubmit($("verbaleval").value);
 		verbapprox(update[0],update[1],update[2]);
-		changelogupdate(update[0] + " set to " + update[2] + " by Counselor.");
+		changelogupdate(update[1] + " set to " + update[2] + " by Counselor.");
         $("verbaleval").value = "";
 		attributeUpdate();
 		traitUpdate();
@@ -976,13 +976,12 @@ function printgender() {
 }
 
 function attributeUpdate() {
-	var attributes = (dwarves[currentDwarf] || defaultDwarf).attributes;
+	var attributes = (dwarves[currentDwarf] || urist).attributes;
 	for (var attr in attributes) {
 		var attribute = attributes[attr];
 		var defaultAttribute = defaultDwarf.attributes[attr];
 		var distance = Math.abs(attribute - defaultAttribute);
 		var intensity = distance / (attribute < defaultAttribute ? -defaultAttribute : 5000 - defaultAttribute);
-		
 		var distance = Math.abs(attribute - defaultAttribute);
 		$(attr.replace(/[ ]/g,'-')).innerHTML = '<span class="attribute" style="background:' + getInfoColor(intensity, 210, 0) + '">' + attribute + '</span>';
 	}
@@ -993,6 +992,7 @@ function traitUpdate() {
 	for (var t in traits) {
 		var trait = traits[t];
 		var defaultTrait = defaultDwarf.traits[t];
+		console.log(t, defaultTrait);
 		var distance = Math.abs(trait - defaultTrait);
 		var intensity = distance / (trait < defaultTrait ? defaultTrait : 100 - defaultTrait);
 		$(t.replace(/[ ]/g,'-')).innerHTML = '<span class="trait" style="background:' + getInfoColor(intensity, 260) + '">' + trait + '</span>';
@@ -1011,22 +1011,17 @@ function directAttributeSubmit(rawAttribute, rawValue) {
 	dwarf = dwarves[currentDwarf] || urist;
 
     var attributeName = rawAttribute.toLowerCase();
+	var safeAttributeName = attributeName.replace(/ /, '-').replace(/ \(.*\)/, '');
 	var attributeValue = parseInt(rawValue);
 	
     if (isNaN(attributeValue)) {
-        attributeValue = $(attributeName.replace(/ /, '-')).innerHTML;
-        
         changelogupdate("Error! " + rawValue + " must be a number!");
     } else if (attributeValue < 0 || attributeValue > 5000) {
-        attributeValue = $(attributeName.replace(/ /, '-')).innerHTML;
-        
         changelogupdate("Error! " + rawValue + " must be between 0 and 5000!");
     } else {
-        $(attributeName.replace(/ /, '-')).innerHTML = attributeValue;
-        
 		dwarf.attributes[attributeName] = attributeValue;
-        guide();
         changelogupdate(rawAttribute + " set to " + attributeValue + " by User.");
+        guide();
     }
 	
 }
@@ -1047,30 +1042,22 @@ function directTraitSubmit() {
     var rawTrait = $("directpers").value;
 	var rawValue = $("directpersnum").value;
 	
-	dwarf = dwarves[currentDwarf] || urist;
-    printname();
-    printgender();
+	var dwarf = dwarves[currentDwarf] || urist;
 	
 	var traitName = rawTrait.toLowerCase();
 	var safeTraitName = traitName.replace(/ /, '-').replace(/ \(.*\)/, '');
 	var traitValue = parseInt(rawValue);
 	
     if (isNaN(traitValue)) {
-        traitValue = $(safeTraitName).innerHTML;
-        
         changelogupdate("Error! " + rawValue + " must be a number!");
     } else if (traitValue < 0 || traitValue > 100) {
-        traitValue = $(safeTraitName).innerHTML;
-        
         changelogupdate("Error! " + rawValue + " must be between 0 and 100!");
     } else {
-        $(safeTraitName).innerHTML = traitValue;
-        
-        guide();
+		dwarf.traits[traitName] = traitValue;
         changelogupdate(rawTrait + " set to " + traitValue + " by User.");
+        guide();
     }
 	
-    dwarf.traits[traitName] = traitValue;
 }
 
 function bestdwarf() {
@@ -2889,7 +2876,7 @@ function verbalevalsubmit(verbal) {
 }
 
 function verbapprox(type, trait, value) {
-	dwarves[currentDwarf][(type == "Trait" ? "traits" : "attributes")][trait.toLowerCase().replace(/_/, ' ')] = value;
+	(dwarves[currentDwarf] || urist)[(type == "Trait" ? "traits" : "attributes")][trait.toLowerCase().replace(/_/, ' ')] = value;
 }
 
 
