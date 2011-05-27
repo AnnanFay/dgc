@@ -144,8 +144,9 @@ var defaultDwarf = {
 	},
 	skills: {}
 }
-var urist = Object.create(defaultDwarf);
+var urist = {};
 //TODO: this is a bit silly!
+urist.skills = Object.create(defaultDwarf.skills);
 urist.attributes = Object.create(defaultDwarf.attributes);
 urist.traits = Object.create(defaultDwarf.traits);
 
@@ -748,10 +749,11 @@ function $(id, doc) {
 
 /*So we can clone objects easily*/
 Object.create = function (o) {
-	function F() {}
-	F.prototype = o;
-	return new F();
+    function F() {}
+    F.prototype = o;
+    return new F();
 };
+
 String.prototype.toCapitalize = function() { 
    return this.toLowerCase().replace(/^.|\s\S/g, function(a) { return a.toUpperCase(); });
 }
@@ -790,7 +792,7 @@ function disablepersenter(e) {
     if (window.event) key = window.event.keyCode; //IE
     else key = e.which; //firefox
     if (key == 13) {
-        directperssubmit();
+        directTraitSubmit();
         $("directpersnum").value = ""
     };
     return (key != 13);
@@ -802,9 +804,11 @@ function disableverbenter(e) {
     else key = e.which; //firefox
     if (key == 13) {
         var update = verbalevalsubmit($("verbaleval").value);
-		verbapprox(update[0],update[1],update[2]);
-		changelogupdate(update[1] + " set to " + update[2] + " by Counselor.");
-        $("verbaleval").value = "";
+		if (update){
+			verbapprox(update[0],update[1],update[2]);
+			changelogupdate(update[1] + " set to " + update[2] + " by Counselor.");
+			$("verbaleval").value = "";
+		}
 		attributeUpdate();
 		traitUpdate();
 		guide();
@@ -986,7 +990,7 @@ function attributeUpdate() {
 		var distance = Math.abs(attribute - defaultAttribute);
 		var intensity = distance / (attribute < defaultAttribute ? -defaultAttribute : 5000 - defaultAttribute);
 		var distance = Math.abs(attribute - defaultAttribute);
-		$(attr.replace(/[ ]/g,'-')).innerHTML = '<span class="attribute" style="background:' + getInfoColor(intensity, 210, 0) + '">' + attribute + '</span>';
+		$(attr.replace(/ /g,'-')).innerHTML = '<span class="attribute" style="background:' + getInfoColor(intensity, 210, 0) + '">' + attribute + '</span>';
 	}
 }
 
@@ -997,7 +1001,7 @@ function traitUpdate() {
 		var defaultTrait = defaultDwarf.traits[t];
 		var distance = Math.abs(trait - defaultTrait);
 		var intensity = distance / (trait < defaultTrait ? defaultTrait : 100 - defaultTrait);
-		$(t.replace(/[ ]/g,'-')).innerHTML = '<span class="trait" style="background:' + getInfoColor(intensity, 260) + '">' + trait + '</span>';
+		$(t.replace(/ /g,'-')).innerHTML = '<span class="trait" style="background:' + getInfoColor(intensity, 260) + '">' + trait + '</span>';
     }
 }
 
@@ -1012,8 +1016,8 @@ function getInfoColor(intensity, color, negativeColor) {
 function directAttributeSubmit(rawAttribute, rawValue) {
 	var dwarf = dwarves[currentDwarf] || urist;
 
-    var attributeName = rawAttribute.toLowerCase();
-	var safeAttributeName = attributeName.replace(/ /, '-').replace(/ \(.*\)/, '');
+    var attributeName = rawAttribute.toLowerCase().replace(/ \(.*\)/, '');
+	var safeAttributeName = attributeName.replace(/ /, '-');
 	var attributeValue = parseInt(rawValue);
 	
     if (isNaN(attributeValue)) {
@@ -1047,8 +1051,8 @@ function directTraitSubmit() {
 	
 	var dwarf = dwarves[currentDwarf] || urist;
 	
-	var traitName = rawTrait.toLowerCase();
-	var safeTraitName = traitName.replace(/ /, '-').replace(/ \(.*\)/, '');
+	var traitName = rawTrait.toLowerCase().replace(/ \(.*\)/, '');
+	var safeTraitName = traitName.replace(/ /, '-');
 	var traitValue = parseInt(rawValue);
 	
     if (isNaN(traitValue)) {
