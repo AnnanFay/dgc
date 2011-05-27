@@ -84,6 +84,10 @@ br, p {
 	background: white !important;
 }
 
+table {
+	width: 100%;
+}
+
 </style>
 <script type="text/javascript">
 <!--
@@ -725,10 +729,9 @@ var attributeFunctions = {
     return xpct;
 }
 };
-var changelog = [""];
+var changelog = [''];
 
 var xmlDoc;
-var dwarfnum;
 var microsoft;
 var currentDwarf;
 
@@ -831,9 +834,9 @@ function xmlUpdate() {
         document.body.removeChild(xml);
     }
     if (microsoft == "yes") {
-        dwarfnum = xmlDoc.getElementsByTagName("Creatures")[0].childNodes.length;
+        var dwarfnum = xmlDoc.getElementsByTagName("Creatures")[0].childNodes.length;
     } else {
-        dwarfnum = ((xmlDoc.getElementsByTagName("Creatures")[0].childNodes.length - 1) / 2);
+        var dwarfnum = ((xmlDoc.getElementsByTagName("Creatures")[0].childNodes.length - 1) / 2);
     }
     dwarfnum = parseInt(dwarfnum);
 	//currentDwarf is global
