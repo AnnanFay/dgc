@@ -995,7 +995,6 @@ function traitUpdate() {
 	for (var t in traits) {
 		var trait = traits[t];
 		var defaultTrait = defaultDwarf.traits[t];
-		console.log(t, defaultTrait);
 		var distance = Math.abs(trait - defaultTrait);
 		var intensity = distance / (trait < defaultTrait ? defaultTrait : 100 - defaultTrait);
 		$(t.replace(/[ ]/g,'-')).innerHTML = '<span class="trait" style="background:' + getInfoColor(intensity, 260) + '">' + trait + '</span>';
