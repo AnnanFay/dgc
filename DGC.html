@@ -808,7 +808,8 @@ function disableverbenter(e) {
     if (key == 13) {
         var update = verbalevalsubmit($("verbaleval").value);
 		if (update){
-			verbapprox(update[0],update[1],update[2]);
+			var dwarf = dwarves[currentDwarf] || urist;
+			verbalUpdate(dwarf, update);
 			changelogupdate(update[1] + " set to " + update[2] + " by Counselor.");
 			$("verbaleval").value = "";
 		}
@@ -834,15 +835,14 @@ function xmlUpdate() {
         document.body.removeChild(xml);
     }
     if (microsoft == "yes") {
-        var dwarfnum = xmlDoc.getElementsByTagName("Creatures")[0].childNodes.length;
+        var dwarfCount = xmlDoc.getElementsByTagName("Creatures")[0].childNodes.length;
     } else {
-        var dwarfnum = ((xmlDoc.getElementsByTagName("Creatures")[0].childNodes.length - 1) / 2);
+        var dwarfCount = ((xmlDoc.getElementsByTagName("Creatures")[0].childNodes.length - 1) / 2);
     }
-    dwarfnum = parseInt(dwarfnum);
-	//currentDwarf is global
-    for (currentDwarf=0; currentDwarf < dwarfnum; currentDwarf++) {
+    dwarfCount = parseInt(dwarfCount);
+    for (var currentDwarf=0; currentDwarf < dwarfCount; currentDwarf++) {
 	
-		var dwarf = Object.create(defaultDwarf);
+		var dwarf = {};
 		xmlDwarf = xmlDoc.getElementsByTagName("Creature")[currentDwarf];
 	
         try {
@@ -856,7 +856,7 @@ function xmlUpdate() {
 		
 		//update attributes
 		var xmlAttributes = xmlDwarf.getElementsByTagName('Attributes')[0].childNodes;
-		dwarf.attributes = {};
+		dwarf.attributes = Object.create(defaultDwarf.attributes);
 		
 		for (var i = 0; i < xmlAttributes.length-1; i++) if (xmlAttributes[i].nodeType == 1) {
 			var attrName = xmlAttributes[i].nodeName.replace(/([^A-Z]+)([A-Z])/g,'$1 $2').toLowerCase();
@@ -867,7 +867,7 @@ function xmlUpdate() {
 		//update skills
 		var numberRegex = /.*\[([^\]]+)\].*/;
 		var xmlSkills = xmlDwarf.getElementsByTagName('Skill');
-		dwarf.skills = {};
+		dwarf.skills = Object.create(defaultDwarf.skills);
 		
 		for (var i = 0; i < xmlSkills.length-1; i++) if (xmlSkills[i].nodeType == 1) {
 			var skillName = xmlSkills[i].getElementsByTagName('Name')[0].textContent.toLowerCase();
@@ -878,18 +878,17 @@ function xmlUpdate() {
 		
 		//update traits
 
-		var xmlTraits = xmlDwarf.getElementsByTagName("Trait");
+		var xmlTraits = xmlDwarf.getElementsByTagName('Trait');
 		dwarf.traitTexts = [];
-		dwarf.traits = {};
-		
-		dwarves[currentDwarf] = dwarf;
+		dwarf.traits = Object.create(defaultDwarf.traits);
 		
 		for (var i = 0; i < xmlTraits.length-1; i++) {
 			var traitText = xmlTraits[i].childNodes[0].nodeValue;
-			dwarves[currentDwarf].traitTexts.push(traitText);
+			dwarf.traitTexts.push(traitText);
 			var update = verbalevalsubmit(traitText);
-			verbapprox(update[0], update[1], update[2]);
+			verbalUpdate(dwarf, update);
 		}
+		dwarves[currentDwarf] = dwarf;
     }
 	// Sort dwarves alphebetically
 	// Doesn't really make a difference however it's nice for drop downs
@@ -2886,8 +2885,10 @@ function verbalevalsubmit(verbal) {
     return [type, trait, value];
 }
 
-function verbapprox(type, trait, value) {
-	var dwarf = dwarves[currentDwarf] || urist;
+function verbalUpdate(dwarf, update) {
+	var type = update[0];
+	var trait = update[1];
+	var value = update[2];
 	var safeTrait = trait.toLowerCase().replace(/_/, ' ');
 	dwarf[(type == "Trait" ? "traits" : "attributes")][safeTrait] = value;
 }
@@ -2905,17 +2906,17 @@ function rateDwarfForJob(dwarf, job) {
 
 var jobFitness = function(dwarf, job) {
 	for (t in job.traits){
-		var trait = job.traits[t];
-		if (trait < 0 && dwarf.traits[t] > job.traits[t]){
-			return "deek";
+		var jobTrait = job.traits[t];
+		var dwarfTrait = dwarf.traits[t];
+		if (jobTrait < 0 && dwarfTrait > Math.abs(jobTrait)){
+			return 'deek';
 		}
-		else if (trait > 0 && dwarf.traits[t] < job.traits[t]){
-			return "deek";
+		else if (jobTrait > 0 && dwarfTrait < Math.abs(jobTrait)){
+			return 'deek';
 		}
 	}
 	return rateDwarfForJob(dwarf, job);
 }
-
 
 function guide() {
 	var dwarf = dwarves[currentDwarf] || urist;
