@@ -25,12 +25,17 @@ td.name {
     max-width: 20em;
 }
 
-th {}
+th, td.name {
+	border: 1px black solid;
+}
 th.job-head {
 	height:144px;
 }
 
 th.job-head div {
+	position: relative;
+	top: -60px;
+	left: 12px;
 	writing-mode:tb-rl;
 	-webkit-transform:rotate(90deg);
 	-moz-transform:rotate(90deg);
@@ -795,7 +800,13 @@ function getInfoColor(intensity, color, negativeColor) {
 		color = negativeColor;
 		intensity = Math.abs(intensity);
 	}
-	return 'hsl(' + color + ', ' + Math.round(intensity*100) + '%, 70%)';
+	var hue = color;
+	//saturation goes up as intensity goes up (between 90 and 60)
+	var saturation = Math.round(60 + (intensity * 40));
+	//lightness goes down as intensity goes up (between 90 and 60)
+	var lightness = Math.round(99 - (intensity * 45));
+	
+	return 'hsl('+color+', '+saturation+'%, '+lightness+'%)';
 }
 
 function spread() {
@@ -805,7 +816,7 @@ function spread() {
 	//write header
 	tableHTML += '<thead><tr><th>Dwarf</th>';
 	for (j in jobs){
-		tableHTML += '<th class="job-head"><div>'+j+'</div></th>';
+		tableHTML += '<th class="job-head"><div>'+j.toCapitalize()+'</div></th>';
 	}
 	tableHTML += '</tr></thead><tbody>';
 		
@@ -817,7 +828,7 @@ function spread() {
 		for (j in jobs){
 			var fitness = jobFitness(dwarf, jobs[j]);
 			var intensity = Math.abs(fitness - 50) / (fitness < 50 ? -100 : 100);
-			tableHTML += '<td style="background: ' + getInfoColor(intensity, 260, 0) + ';">'+ fitness +'</td>';
+			tableHTML += '<td style="background: ' + getInfoColor(intensity, 100, 0) + ';">'+ fitness +'</td>';
 		}
 		tableHTML += '</tr>';
 	}
