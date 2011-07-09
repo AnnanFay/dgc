@@ -732,8 +732,12 @@ var attributeFunctions = {
 var changelog = [''];
 
 var xmlDoc;
-var microsoft;
+var microsoft = false;
 var currentDwarf;
+
+if(typeof console === "undefined") {
+    console = { log: function() { } };
+}
 
 function sum(nums) {
 	if (nums.length == 0){
@@ -820,21 +824,84 @@ function disableverbenter(e) {
     return (key != 13);
 }
 
-function xmlUpdate() {
-    var xhttp = new XMLHttpRequest();
+function getFiles(){
+	
+	//tries getting files of format dwarves(-n)?.xml
+	
+	var base = 'Dwarves';
+	var ext = 'xml';
+	var files = {};
+	var file;
+	
+	var filename = base+'.'+ext;
+	if (file = getFile('Dwarves.xml')){
+		files[filename] = file;
+	}
+	
+	for (var i=0; i<20; i++) {
+		filename = base+'-'+i+'.'+ext;
+		if (file = getFile(filename)){
+			files[filename] = file;
+		}
+	}
+	return files;
+}
+
+function getFile(filename){
+
+	var xhttp = new XMLHttpRequest();
     try {
-        xhttp.open('GET', 'Dwarves.xml', false);
+        xhttp.open('GET', filename, false);
         xhttp.send(null);
-        xmlDoc = xhttp.responseXML;
+        var xmlDoc = xhttp.responseXML;
     } catch (e) {
-        microsoft = "yes";
-        var xml = document.createElement("xml");
-        xml.src = "Dwarves.xml";
-        document.body.appendChild(xml);
-        xmlDoc = xml.XMLDocument;
-        document.body.removeChild(xml);
+		if (e.name !== 'NS_ERROR_DOM_BAD_URI') {
+			window.microsoft = true;
+			var xml = document.createElement("xml");
+			xml.src = filename;
+			document.body.appendChild(xml);
+			var xmlDoc = xml.XMLDocument;
+			document.body.removeChild(xml);
+		}
     }
-    if (microsoft == "yes") {
+	
+	return xmlDoc || false;
+}
+
+function option(text, value){
+	var o = document.createElement("option");
+	o.text = text;
+	o.value = value || text;
+	return o;
+}
+
+function xmlUpdate() {
+	
+	var fileList = $('filelist');
+	var currentFile = fileList.value || false;
+	
+	fileList.innerHTML = ''; //faster than removing DOM nodes
+	
+	var files = getFiles();
+	console.log('files:', files);
+	
+	fileList.options.add(option('No File', ''), fileList.options.length);
+	
+	for (f in files){
+		fileList.options.add(option(f), fileList.options.length);
+	}
+	
+	fileList.value = currentFile || '';
+	
+	//selectedIndex
+	if (!currentFile) {
+		return;
+	}
+	console.log('loading ' + currentFile)
+	xmlDoc = files[currentFile];
+	dwarves = [];
+	
+    if (microsoft) {
         var dwarfCount = xmlDoc.getElementsByTagName("Creatures")[0].childNodes.length;
     } else {
         var dwarfCount = ((xmlDoc.getElementsByTagName("Creatures")[0].childNodes.length - 1) / 2);
@@ -844,7 +911,9 @@ function xmlUpdate() {
 	
 		var dwarf = {};
 		xmlDwarf = xmlDoc.getElementsByTagName("Creature")[currentDwarf];
-	
+		
+		//console.log(currentDwarf +'/'+dwarfCount, xmlDwarf)
+		
         try {
             dwarf.name = xmlDwarf.getElementsByTagName("Nickname")[0].childNodes[0].nodeValue;
         } catch (e) {
@@ -904,28 +973,21 @@ function xmlUpdate() {
 	var dList = $("dwarflist");
 	var dFrom = $("dwarfsfrom");
 	
-	var option = document.createElement("option");
-	option.text = "All Dwarves (" +dwarves.length+ ")";
-	dFrom.options.add(option, dFrom.options.length);
+	dList.innerHTML = '';
+	dFrom.innerHTML = '';
+	
+	dFrom.options.add(option("All Dwarves (" +dwarves.length+ ")"), dFrom.options.length);
 		
 	//add select options
     for (var d in dwarves) {
-		var option = document.createElement("option");
-		option.text = dwarves[d].name;
-		dList.options.add(option, dList.options.length);
+		dList.options.add(option(dwarves[d].name), dList.options.length);
 		
-		var option = document.createElement("option");
-		option.text = dwarves[d].name;
-		option.value = dwarves[d].name;
-		dFrom.options.add(option, dFrom.options.length);
+		dFrom.options.add(option(dwarves[d].name), dFrom.options.length);
 	}
 	
     for (var j in jobs) {
 		var jList = $("joblist");
-		var option = document.createElement("option");
-		option.text = j.toCapitalize();
-		option.value = j;
-		jList.options.add(option, jList.options.length);
+		jList.options.add(option(j.toCapitalize(), j), jList.options.length);
 	}
 	
 	
@@ -1123,7 +1185,7 @@ function bestdwarf() {
         dwarfworth = Math.round((dwarvesAttributeSum * 100) / 21835) / 100;
         $("guidance").innerHTML = "Your " + dwarves.length + " dwarves have the attribute points of " 
 						+ dwarfworth + " average dwarves. If this is your starting seven, about " 
-						+ dwarvesAttributeAvg + " percent of embarks will have as many or fewer attribute points as this embark.";
+						+ dwarvesAttributeAvg + "% of embarks will have as many or fewer attribute points as this embark.";
         return;
     }
 	else {
@@ -3078,6 +3140,10 @@ And your gender? <input type="radio" name="gender" id="male" value="Male" checke
 
 <tr>
 <td valign="top">Load from XML</td>
+<td><select id="filelist" onchange="xmlUpdate()"></select><button onclick="xmlUpdate()">U</button></td>
+</tr>
+<tr>
+<td valign="top">Dwarf</td>
 <td><select id="dwarflist" onchange="viewDwarf()"><option>Dwarf List</option></select><button onclick="viewDwarf()">U</button></td>
 <td>&nbsp;Find Best&nbsp;
 <select id="joblist" onchange="bestdwarf()">
