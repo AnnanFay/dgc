@@ -901,14 +901,19 @@ function xmlUpdate() {
 	}
 	dwarves.sort(compareDwarves);
 
+	var dList = $("dwarflist");
+	var dFrom = $("dwarfsfrom");
+	
+	var option = document.createElement("option");
+	option.text = "All Dwarves (" +dwarves.length+ ")";
+	dFrom.options.add(option, dFrom.options.length);
+		
 	//add select options
     for (var d in dwarves) {
-		var dList = $("dwarflist");
 		var option = document.createElement("option");
 		option.text = dwarves[d].name;
 		dList.options.add(option, dList.options.length);
 		
-		var dFrom = $("dwarfsfrom");
 		var option = document.createElement("option");
 		option.text = dwarves[d].name;
 		option.value = dwarves[d].name;
@@ -3082,7 +3087,6 @@ And your gender? <input type="radio" name="gender" id="male" value="Male" checke
 <button onclick="bestdwarf()">U</button></td>
 <td valign="top" rowspan="5">Find Best Among:<p>
 <select id="dwarfsfrom" multiple="true" size="6" onchange="bestdwarf()">
-<option>All Dwarves</option>
 </select>
 </td>
 <td valign="top" rowspan="5">
