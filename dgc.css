@@ -1,0 +1,83 @@
+#guidance {
+	width:40em;
+}
+div.guidances {
+	margin-bottom: 1em;
+}
+
+div.guidances p {
+    padding-top: 12px;
+}
+
+ul {
+	width: 36em;
+}
+ul li {
+	float: left;
+	width: 12em;
+}
+br, p {
+	clear: left;
+}
+
+.color .superb {
+	color: indigo;
+	font-weight:bold;
+	cursor:pointer;
+}
+.color .verygood {
+	color: #5533FF;
+	font-weight:bold;
+	cursor:pointer;
+}
+.color .good {
+	color: steelblue;
+	font-weight:bold;
+	cursor:pointer;
+}
+.color .highavg {
+	color: yellowgreen;
+	font-weight:bold;
+	cursor:pointer;
+}
+.color .lowavg {
+	color: #BBBB22;
+	font-weight:bold;
+	cursor:pointer;
+}
+.color .poor {
+	color: orange;
+	font-weight:bold;
+	cursor:pointer;
+}
+.color .verypoor {
+	color: chocolate;
+	font-weight:bold;
+	cursor:pointer;
+}
+.color .horrible, .color .error, .color .deek {
+	color: red;
+	font-weight:bold;
+	cursor:pointer;
+}
+
+.attribute, .trait {
+	width: 2.2em;
+	display: inline-block;
+	text-align:center;
+}
+.color .female {
+	color: blue;
+}
+.color .male {
+	color: red;
+}
+
+.no-color .trait, .no-color .attribute {
+	color: black !important;
+	background: white !important;
+}
+
+table {
+	width: 100%;
+}
