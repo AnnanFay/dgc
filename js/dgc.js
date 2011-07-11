@@ -794,13 +794,15 @@ function xmlUpdate() {
 	console.log('files:', files);
 	
 	fileList.options.add(option('No File', ''), fileList.options.length);
-	
+	var altFile;
 	for (f in files){
 		fileList.options.add(option(f), fileList.options.length);
-		currentFile = f;
+		altFile = f;
 	}
 	
-	fileList.value = currentFile || '';
+	currentFile = currentFile || altFile;
+	
+	fileList.value = currentFile;
 	
 	//selectedIndex
 	if (!currentFile) {
@@ -866,6 +868,12 @@ function xmlUpdate() {
 			var update = verbalevalsubmit(traitText);
 			verbalUpdate(dwarf, update);
 		}
+		
+		dwarf.attributeSum = 0;
+		for (var a in dwarf.attributes) {
+			dwarf.attributeSum = dwarf.attributeSum + dwarf.attributes[a];
+		}
+		
 		dwarves[currentDwarf] = dwarf;
     }
 	// Sort dwarves alphebetically
@@ -879,17 +887,11 @@ function xmlUpdate() {
 	}
 	dwarves.sort(compareDwarves);
 
-	var dwarfList = $("#dwarves ol");
-	
-	var dList = gid("dwarflist");
-	dList.innerHTML = '';
-	dList.options.add(option("-Urist McAverage-"), dList.options.length);
+	var dwarfList = $("#dwarves ol").empty();
 		
 	//add select options
     for (var d in dwarves) {
 		dwarves[d].index = d;
-		
-		dList.options.add(option(dwarves[d].name), dList.options.length);
 		
 		dwarfList.append(dwarfHTML(dwarves[d]));
 	}
@@ -903,7 +905,8 @@ function xmlUpdate() {
 }
 
 function dwarfHTML(d) {
-	return '<li class="ui-widget-content dwarf" id="dwarf-'+d.index+'" did="'+d.index+'" dname="'+d.name+'">'+genderSymbol(d.gender)+' '+d.name+'</li>';
+	return '<li class="ui-widget-content dwarf" id="dwarf-'+d.index+'" did="'+d.index+'" dname="'+d.name+'">'
+		+genderSymbol(d.gender)+' '+d.name+'<div class="dwarfworth">'+dwarfWorth(d.attributeSum)+'</div></li>';
 }
 
 /*
@@ -911,27 +914,9 @@ function dwarfHTML(d) {
  */
 function viewDwarf(did) {
 	
-	console.log('viewing dwarf');
+	currentDwarf = did;
+	dwarf = dwarves[currentDwarf];
 	
-	if (typeof did !== 'undefined'){
-		gid("dwarflist").selectedIndex = parseInt(did)+1;
-	}
-	
-    if (gid("dwarflist").selectedIndex == 0) {
-		currentDwarf = undefined;
-		dwarf = urist;
-		dwarf.name = "Urist McAverage";
-		dwarf.gender = "Male";
-		
-        gid("dwarfname").value = dwarf.name;
-    } else {
-		
-		currentDwarf = gid("dwarflist").selectedIndex - 1;
-		dwarf = dwarves[currentDwarf];
-		
-		gid("dwarfname").value = dwarf.name;
-		gid("verbaleval").value = "";
-	}
     printname();
 	printgender();
 	traitUpdate();
@@ -949,8 +934,9 @@ function changelogupdate(message) {
 }
 
 function printname() {
-    gid("printdwarf").innerHTML = gid("dwarfname").value;
-    gid("printdwarf2").innerHTML = gid("dwarfname").value;
+	var name = dwarves[currentDwarf].name;
+    gid("printdwarf").innerHTML = name;
+    gid("printdwarf2").innerHTML = name;
 }
 
 function printgender() {
@@ -968,25 +954,34 @@ function genderSymbol(gender){
 }
 
 function attributeUpdate() {
-	var attributes = (dwarves[currentDwarf] || urist).attributes;
-	for (var attr in attributes) {
-		var attribute = attributes[attr];
+	var attrsBox = $('#attributes').empty();
+	
+	for (var attr in defaultDwarf.attributes) {
+		var attribute = (dwarves[currentDwarf] || urist).attributes[attr];
 		var defaultAttribute = defaultDwarf.attributes[attr];
 		var distance = Math.abs(attribute - defaultAttribute);
 		var intensity = distance / (attribute < defaultAttribute ? -defaultAttribute : 5000 - defaultAttribute);
 		var distance = Math.abs(attribute - defaultAttribute);
-		gid(attr.replace(/ /g,'-')).innerHTML = '<span class="attribute" style="background:' + getInfoColor(intensity, 210, 0) + '">' + attribute + '</span>';
+		
+		var safeName = attr.replace(/ /g,'-');
+		
+		attrsBox.append('<input type="text" id="'+safeName+'" name="'+safeName+'" value="'+attribute+'" style="background: '+getInfoColor(intensity, 210, 0)+';"><label for="'+safeName+'">'+attr+'</label>');
 	}
 }
 
 function traitUpdate() {
-	var traits = (dwarves[currentDwarf] || urist).traits;
-	for (var t in traits) {
-		var trait = traits[t];
+	var traitsBox = $('#traits').empty();
+	
+	for (var t in defaultDwarf.traits) {
+		var trait = (dwarves[currentDwarf] || urist).traits[t];
 		var defaultTrait = defaultDwarf.traits[t];
 		var distance = Math.abs(trait - defaultTrait);
 		var intensity = distance / (trait < defaultTrait ? defaultTrait : 100 - defaultTrait);
-		gid(t.replace(/ /g,'-')).innerHTML = '<span class="trait" style="background:' + getInfoColor(intensity, 260) + '">' + trait + '</span>';
+			
+		var safeName = t.replace(/ /g,'-');
+		
+		traitsBox.append('<input type="text" id="'+safeName+'" name="'+safeName+'" value="'+trait+'" style="background: '+getInfoColor(intensity, 260)+';"><label for="'+safeName+'">'+t+'</label>');
+	
     }
 }
 
@@ -1053,6 +1048,10 @@ function directTraitSubmit() {
 	
 }
 
+function dwarfWorth(sum){
+	return Math.round((sum * 100) / 21835) / 100;
+}
+
 function bestdwarf() {
 
 	/*global*/
@@ -1088,17 +1087,12 @@ function bestdwarf() {
 		
 		var dwarvesAttributeSum = 0;
         for (var i in dwarves) {
-            dwarf = dwarves[i];
-			dwarves[i].attributeSum = 0;
-            for (var a in dwarves[i].attributes) {
-                dwarves[i].attributeSum = dwarves[i].attributeSum + dwarves[i].attributes[a];
-            }
             dwarvesAttributeSum += dwarves[i].attributeSum;
         }
     
         dwarvesAttributeAvg = Math.round(dwarvesAttributeSum / dwarves.length);
         dwarvesAttributeAvg = Math.round(((dwarvesAttributeAvg * 89) / 1976) - (916735 / 988));
-        dwarfworth = Math.round((dwarvesAttributeSum * 100) / 21835) / 100;
+        dwarfworth = dwarfWorth(dwarvesAttributeSum);
         gid("guidance").innerHTML = "Your " + dwarves.length + " dwarves have the attribute points of " 
 						+ dwarfworth + " average dwarves. If this is your starting seven, about " 
 						+ dwarvesAttributeAvg + "% of embarks will have as many or fewer attribute points as this embark.";

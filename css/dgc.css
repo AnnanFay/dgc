@@ -51,6 +51,15 @@
 	height: 18px;
 }
 
+.dwarfworth {
+	float:right;
+	font-size:60%;
+}
+
+#attributes label, #traits label {
+	display: block;
+}
+
 button#add-dwarf {
 	display: block;
 }

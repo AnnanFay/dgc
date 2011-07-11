@@ -119,6 +119,7 @@
 			<ul>
 				<li><a href="#main-1">Info</a></li>
 				<li><a href="#main-2">Guidance</a></li>
+				<li><a href="#main-3">Dwarf</a></li>
 			</ul>
 			<div id="main-1">
 			
@@ -140,14 +141,9 @@
 				<p>And of course <a href="http://bay12games.com/dwarves/">Bay 12 Games</a>, for allowing me to build and discard so many worlds.</p>
 			</div>
 			<div id="main-2">
-			
 				<p>
 					Load from XML
 					<select id="filelist" onchange="xmlUpdate()"></select><button onclick="xmlUpdate()">Update</button>
-				</p>
-				<p>
-					Dwarf 
-					<select id="dwarflist" onchange="viewDwarf()"><option>Dwarf List</option></select><button onclick="viewDwarf()">Update</button>
 				</p>
 				<p>
 					Find Best
@@ -156,103 +152,21 @@
 					</select>
 					<button onclick="bestdwarf()">Update</button>
 				</p>
-
-				<table border="1">
-					<tr>
-						<td colspan="3"><div style="text-align:center"><b>Attributes and Traits of: <a id="printdwarf">Urist McAverage</a>, <a id="printdwarfgender">&#9794;</a></b></div></td>
-						<td rowspan="19"><div style="text-align:center"><b>Guidance for: <a id="printdwarf2">Urist McAverage</a>, <a id="printdwarfgender2">&#9794;</a></b></div><div id="guidance">A short, sturdy creature fond of drink and industry.</div></td>
-					</tr>
-					<tr>
-						<th>Body Attributes</th>
-						<th>Soul Attributes</th>
-						<th>Personality Traits</th>
-					</tr>
-					<tr>
-						<td><a id="strength"> </a> Strength</td>
-						<td><a id="musicality"> </a> Musicality</td>
-						<td><a id="emotionality"> </a> Emotionality</td>
-					</tr>
-					<tr>
-						<td><a id="agility"> </a> Agility</td>
-						<td><a id="empathy"> </a> Empathy</td>
-						<td><a id="excitement-seeking"> </a> Excitement Seeking</td>
-					</tr>
-					<tr>
-						<td><a id="toughness"> </a> Toughness</td>
-						<td><a id="social-awareness"> </a> Social Awareness</td>
-						<td><a id="friendliness"> </a> Friendliness</td>
-					</tr>
-					<tr>
-						<td><a id="endurance"> </a> Endurance</td>
-						<th>Personality Traits</th>
-						<td><a id="gregariousness"> </a> Gregariousness</td>
-					</tr>
-					<tr>
-						<td><a id="disease-resistance"> </a> Disease Resistance</td>
-						<td><a id="achievement-striving"> </a> Achievement Striving</td>
-						<td><a id="imagination"> </a> Imagination</td>
-					</tr>
-					<tr>
-						<td><a id="recuperation"> </a> Recuperation</td>
-						<td><a id="activity-level"> </a> Activity Level</td>
-						<td><a id="immoderation"> </a> Immoderation</td>
-					</tr>
-					<tr>
-						<th>Soul Attributes</th>
-						<td><a id="adventurousness"> </a> Adventurousness</td>
-						<td><a id="intellectual-curiosity"> </a> Intellectual Curiosity</td>
-					</tr>
-					<tr>
-						<td><a id="analytical-ability"> </a> Analytical Ability</td>
-						<td><a id="altruism"> </a> Altruism</td>
-						<td><a id="liberalism"> </a> Liberalism</td>
-					</tr>
-					<tr>
-						<td><a id="memory"> </a> Memory</td>
-						<td><a id="anger"> </a> Anger</td>
-						<td><a id="modesty"> </a> Modesty</td>
-					</tr>
-					<tr>
-						<td><a id="creatvity"> </a> Creativity</td>
-						<td><a id="anxiety"> </a> Anxiety</td>
-						<td><a id="orderliness"> </a> Orderliness</td>
-					</tr>
-					<tr>
-						<td><a id="intuition"> </a> Intuition</td>
-						<td><a id="artistic-interest"> </a> Artistic Interest</td>
-						<td><a id="self-consciousness"> </a> Self-Consciousness</td>
-					</tr>
-					<tr>
-						<td><a id="focus"> </a> Focus</td>
-						<td><a id="assertiveness"> </a> Assertiveness</td>
-						<td><a id="self-discipline"> </a> Self-Discipline</td>
-					</tr>
-					<tr>
-						<td><a id="willpower"> </a> Willpower</td>
-						<td><a id="cautiousness"> </a> Cautiousness</td>
-						<td><a id="self-efficacy"> </a> Self-Efficacy</td>
-					</tr>
-					<tr>
-						<td><a id="patience"> </a> Patience</td>
-						<td><a id="cheerfulness"> </a> Cheerfulness</td>
-						<td><a id="straightforwardness"> </a> Straightforwardness</td>
-					</tr>
-					<tr>
-						<td><a id="spatial-sense"> </a> Spatial Sense</td>
-						<td><a id="cooperation"> </a> Cooperation</td>
-						<td><a id="sympathy"> </a> Sympathy</td>
-					</tr>
-					<tr>
-						<td><a id="kinaesthetic-sense"> </a> Kinaesthetic Sense</td>
-						<td><a id="depression"> </a> Depression</td>
-						<td><a id="trust"> </a> Trust</td>
-					</tr>
-					<tr>
-						<td><a id="linguistic-ability"> </a> Linguistic Ability</td>
-						<td><a id="dutifulness"> </a> Dutifulness</td>
-						<td><a id="vulnerability"> </a> Vulnerability</td>
-					</tr>
-				</table>
+				<div style="text-align:center">
+					<b>Guidance for: <span id="printdwarf2">Urist McAverage</span>, <a id="printdwarfgender2">&#9794;</a></b>
+				</div>
+				<div id="guidance">
+					A short, sturdy creature fond of drink and industry.
+				</div>
+			</div>
+			<div id="main-3">
+				<div style="text-align:center">
+					<h3>Attributes and Traits of: <a id="printdwarf">Urist McAverage</a>, <a id="printdwarfgender">&#9794;</a></h3>
+				</div>
+				<h4>Attributes</h4>
+				<div id="attributes"></div>
+				<h4>Traits</h4>
+				<div id="traits"></div>
 			</div>
 		</div>
 	</body>
