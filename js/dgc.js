@@ -1,4 +1,4 @@
-var dwarves = [];
+﻿var dwarves = [];
 var defaultDwarf = {
 	attributes: {
 		"strength": 1250,
@@ -879,15 +879,11 @@ function xmlUpdate() {
 	}
 	dwarves.sort(compareDwarves);
 
-	var dwarfList = $("#dwarves");
+	var dwarfList = $("#dwarves ol");
 	
 	var dList = gid("dwarflist");
 	dList.innerHTML = '';
 	dList.options.add(option("-Urist McAverage-"), dList.options.length);
-	
-	var dFrom = gid("dwarfsfrom");
-	dFrom.innerHTML = '';
-	dFrom.options.add(option("All Dwarves (" +dwarves.length+ ")"), dFrom.options.length);
 		
 	//add select options
     for (var d in dwarves) {
@@ -895,43 +891,27 @@ function xmlUpdate() {
 		
 		dList.options.add(option(dwarves[d].name), dList.options.length);
 		
-		dFrom.options.add(option(dwarves[d].name), dFrom.options.length);
-		
 		dwarfList.append(dwarfHTML(dwarves[d]));
 	}
-	
-	$('.dwarf a').click(function () {
-      $('.dwarf').removeClass("current");
-      $(this).parent().toggleClass("current");
-	  viewDwarf($(this).parent().attr('index'));
-	  return false;
-    });
-	
-	$('.dwarf input').click(function () {
-      $(this).parent().toggleClass("selected");
-    });
 	
     for (var j in jobs) {
 		var jList = gid("joblist");
 		jList.options.add(option(j.toCapitalize(), j), jList.options.length);
 	}
 	
-    gid("dwarfsfrom")[0].selected = true;
 	currentDwarf = undefined;
 }
 
-function checkbox(name, label) {
-	return '<input type="checkbox" name="'+name+'" id="'+name+'">'+(label?'<label for="'+name+'">'+label+'</label>':'');
-}
-
 function dwarfHTML(d) {
-	return '<div class="dwarf" id="dwarf-'+d.index+'" index="'+d.index+'">'+checkbox('dwarfcheck-'+d.index)+'<a href="#">'+d.name+'</a></div>';
+	return '<li class="ui-widget-content dwarf" id="dwarf-'+d.index+'" did="'+d.index+'" dname="'+d.name+'">'+genderSymbol(d.gender)+' '+d.name+'</li>';
 }
 
 /*
  * Works out which dwarf is selected and calls guide
  */
 function viewDwarf(did) {
+	
+	console.log('viewing dwarf');
 	
 	if (typeof did !== 'undefined'){
 		gid("dwarflist").selectedIndex = parseInt(did)+1;
@@ -959,7 +939,6 @@ function viewDwarf(did) {
 	guide();
 }
 
-
 function changelogupdate(message) {
 	if (message.toLowerCase().search('error') != -1) {
 		message = '<span class="error">' + message + '</span>';
@@ -976,16 +955,16 @@ function printname() {
 
 function printgender() {
 	var dwarf = dwarves[currentDwarf] || urist;
+	gid('printdwarfgender').innerHTML = genderSymbol(dwarf.gender); 
+	gid('printdwarfgender2').innerHTML = genderSymbol(dwarf.gender);
+}
 
-    if (dwarf.gender == "Male") {
-		gid("male").checked = true;
-        gid('printdwarfgender').innerHTML = '<span class="male">\u2642</span>';
-        gid('printdwarfgender2').innerHTML = '<span class="male">\u2642</span>';
-    } else {
-		gid("female").checked = true;
-        gid('printdwarfgender').innerHTML = '<span class="female">\u2640</span>';
-        gid('printdwarfgender2').innerHTML = '<span class="female">\u2640</span>';
-    };
+function genderSymbol(gender){
+	if (gender.toLowerCase() == 'male') {
+		return '<span class="male">♂</span>';
+	} else {
+		return '<span class="female">♀</span>';
+	}
 }
 
 function attributeUpdate() {
@@ -1127,8 +1106,8 @@ function bestdwarf() {
     }
 	else {
         for (var dwarfNum = 0, l = dwarves.length; dwarfNum<l; dwarfNum++) {
-            dwarf = dwarves[dwarfNum] || urist;
-            if (gid("dwarfsfrom")[0].selected || gid("dwarfsfrom")[dwarfNum + 1].selected) {
+            dwarf = dwarves[dwarfNum];
+            if (dwarf.selected) {
                 skillcomp[dwarfNum] = jobFitness(dwarf, job);
 				ratelist[dwarfNum] = namerate(dwarf, skillcomp[dwarfNum], jobName);;
             }
@@ -1190,7 +1169,7 @@ function bestdwarf() {
 function namerate(dwarf, pct, j) {
 	var job = jobs[j];
 	var pctName = pctToText(pct);
-	var newname = '<li class="' + pctName + '" onclick="goToName(\'' + dwarf.name + '\')">['+pct+'] ' + dwarf.name + relatedSkills(dwarf, job) + '</li>';
+	var newname = '<li class="' + pctName + '" onclick="goToDwarf(' + dwarf.index + ')">['+pct+'] ' + dwarf.name + relatedSkills(dwarf, job) + '</li>';
 	nameRates[pctName].unshift(newname);
 }
 /* appends a string to the appropriate array */
@@ -1240,13 +1219,26 @@ function pctToText(pct){
 	return text;
 }
 
-function goToName(name){
-	gid('dwarflist').value = name;
-	viewDwarf();
+function goToDwarf(did){
+	console.log('going to', did);
+	$('#dwarves ol')
+		.find('li')
+		  .removeClass('ui-selected')
+		  .end()
+		.find('[did="'+did+'"]')
+		  .addClass('ui-selected');
+
+	viewDwarf(did);
 }
 
 function goToJob(job){
 	gid('joblist').value = job;
+	
+	$('#dwarves ol')
+		.find('li')
+		  .addClass('ui-selected')
+		  .end();
+		  
 	bestdwarf();
 }
 
@@ -2897,7 +2889,6 @@ function verbalUpdate(dwarf, update) {
 	dwarf[(type == "Trait" ? "traits" : "attributes")][safeTrait] = value;
 }
 
-
 function rateDwarfForJob(dwarf, job) {
     var pcts = [];
 	for (var a in job.attributes) {
@@ -3065,7 +3056,62 @@ function setColors() {
 
 $(function (){
 
-	$("#main").tabs();
+	$( "#main" ).tabs();
+	$( "#dwarves ol" ).selectable({
+		stop: function() {
+			
+			var selected = $( ".ui-selected", this );
+			
+			if (selected.length === 1) {
+				var index = $( "#dwarves ol li" ).index( selected[0] )
+				viewDwarf(index);
+			} else {
+				
+				$( ".ui-selected", this ).each(function() {
+					var index = $( "#dwarves ol li" ).index( this );
+					
+					dwarves[index].selected = true;
+				});
+				$( ":not(.ui-selected)", this ).each(function() {
+					var index = $( "#dwarves ol li" ).index( this );
+					if (index > -1){
+						dwarves[index].selected = false;
+					}
+				});
+				bestdwarf();
+			}
+		}
+	});
+	$( "#dwarf-form" ).dialog({
+		autoOpen: false,
+		height: 400,
+		width: 450,
+		modal: true,
+		buttons: {
+			"Add Dwarf": function() {
+				
+				var name = $('dwarfname'), gender = $('gender');
+				
+				//TODO: Validation
+				addDwarf(name.val(), gender.val());
+				
+			},
+			Cancel: function() {
+				$( this ).dialog( "close" );
+			}
+		}
+	});
+	$( "#gender" ).buttonset();
+
+	$( "#add-dwarf" )
+		.button({
+            icons: {
+                primary: "ui-icon-plus"
+            }
+        })
+		.click(function() {
+			$( "#dwarf-form" ).dialog( "open" );
+		});
 	
 	xmlUpdate();
 	attributeUpdate();
