@@ -49,6 +49,7 @@
 	padding: 0.4em;
 	font-size: 1.4em;
 	height: 18px;
+	cursor: default; /*pointer*/
 }
 
 .dwarfworth {
@@ -56,8 +57,20 @@
 	font-size:60%;
 }
 
+#main-3 h4 {
+	clear: left;
+	padding-top:12px;
+}
+#attributes div, #traits div {
+	float:left;
+	width:25%;
+}
+
 #attributes label, #traits label {
-	display: block;
+	margin-left: .5em;
+}
+#attributes input, #traits input {
+	width: 3.5em;
 }
 
 button#add-dwarf {

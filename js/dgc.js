@@ -965,7 +965,8 @@ function attributeUpdate() {
 		
 		var safeName = attr.replace(/ /g,'-');
 		
-		attrsBox.append('<input type="text" id="'+safeName+'" name="'+safeName+'" value="'+attribute+'" style="background: '+getInfoColor(intensity, 210, 0)+';"><label for="'+safeName+'">'+attr+'</label>');
+		attrsBox.append('<div><input type="text" id="'+safeName+'" name="'+safeName+'" value="'+attribute+'" style="background: '+getInfoColor(intensity, 210, 0)+';">'
+						+'<label for="'+safeName+'">'+attr+'</label></div>');
 	}
 }
 
@@ -980,7 +981,8 @@ function traitUpdate() {
 			
 		var safeName = t.replace(/ /g,'-');
 		
-		traitsBox.append('<input type="text" id="'+safeName+'" name="'+safeName+'" value="'+trait+'" style="background: '+getInfoColor(intensity, 260)+';"><label for="'+safeName+'">'+t+'</label>');
+		traitsBox.append('<div><input type="text" id="'+safeName+'" name="'+safeName+'" value="'+trait+'" style="background: '+getInfoColor(intensity, 260)+';">'
+						+'<label for="'+safeName+'">'+t+'</label></div>');
 	
     }
 }
@@ -1101,7 +1103,7 @@ function bestdwarf() {
 	else {
         for (var dwarfNum = 0, l = dwarves.length; dwarfNum<l; dwarfNum++) {
             dwarf = dwarves[dwarfNum];
-            if (dwarf.selected) {
+            if ($( '#dwarves li[did='+dwarfNum+']' ).hasClass('ui-selected')) {
                 skillcomp[dwarfNum] = jobFitness(dwarf, job);
 				ratelist[dwarfNum] = namerate(dwarf, skillcomp[dwarfNum], jobName);;
             }
@@ -3054,24 +3056,23 @@ $(function (){
 	$( "#dwarves ol" ).selectable({
 		stop: function() {
 			
+			$( ".ui-selected", this ).each(function() {
+				var index = $( "#dwarves ol li" ).index( this );
+				
+				dwarves[index].selected = true;
+			});
+			$( ":not(.ui-selected)", this ).each(function() {
+				var index = $( "#dwarves ol li" ).index( this );
+				if (index > -1){
+					dwarves[index].selected = false;
+				}
+			});
+		
 			var selected = $( ".ui-selected", this );
-			
 			if (selected.length === 1) {
 				var index = $( "#dwarves ol li" ).index( selected[0] )
 				viewDwarf(index);
 			} else {
-				
-				$( ".ui-selected", this ).each(function() {
-					var index = $( "#dwarves ol li" ).index( this );
-					
-					dwarves[index].selected = true;
-				});
-				$( ":not(.ui-selected)", this ).each(function() {
-					var index = $( "#dwarves ol li" ).index( this );
-					if (index > -1){
-						dwarves[index].selected = false;
-					}
-				});
 				bestdwarf();
 			}
 		}
