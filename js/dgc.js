@@ -657,7 +657,7 @@ function avg(nums) {
 }
 
 /*Alias for getElementById*/
-function $(id, doc) {
+function gid(id, doc) {
 	return (doc || document).getElementById(id);
 };
 
@@ -685,7 +685,7 @@ function disablebodyenter(e) {
     else key = e.which; //firefox
     if (key == 13) {
         directBodySubmit();
-        $("directbodynum").value = ""
+        gid("directbodynum").value = ""
     };
     return (key != 13);
 }
@@ -696,7 +696,7 @@ function disablesoulenter(e) {
     else key = e.which; //firefox
     if (key == 13) {
         directSoulSubmit();
-        $("directsoulnum").value = ""
+        gid("directsoulnum").value = ""
     };
     return (key != 13);
 }
@@ -707,7 +707,7 @@ function disablepersenter(e) {
     else key = e.which; //firefox
     if (key == 13) {
         directTraitSubmit();
-        $("directpersnum").value = ""
+        gid("directpersnum").value = ""
     };
     return (key != 13);
 }
@@ -717,12 +717,12 @@ function disableverbenter(e) {
     if (window.event) key = window.event.keyCode; //IE
     else key = e.which; //firefox
     if (key == 13) {
-        var update = verbalevalsubmit($("verbaleval").value);
+        var update = verbalevalsubmit(gid("verbaleval").value);
 		if (update){
 			var dwarf = dwarves[currentDwarf] || urist;
 			verbalUpdate(dwarf, update);
 			changelogupdate(update[1] + " set to " + update[2] + " by Counselor.");
-			$("verbaleval").value = "";
+			gid("verbaleval").value = "";
 		}
 		attributeUpdate();
 		traitUpdate();
@@ -755,6 +755,7 @@ function getFiles(){
 }
 
 function getFile(filename){
+	filename = 'xml/'+filename;
 
 	var xhttp = new XMLHttpRequest();
     try {
@@ -784,7 +785,7 @@ function option(text, value){
 
 function xmlUpdate() {
 	
-	var fileList = $('filelist');
+	var fileList = gid('filelist');
 	var currentFile = fileList.value || false;
 	
 	fileList.innerHTML = ''; //faster than removing DOM nodes
@@ -796,6 +797,7 @@ function xmlUpdate() {
 	
 	for (f in files){
 		fileList.options.add(option(f), fileList.options.length);
+		currentFile = f;
 	}
 	
 	fileList.value = currentFile || '';
@@ -877,51 +879,78 @@ function xmlUpdate() {
 	}
 	dwarves.sort(compareDwarves);
 
-	var dList = $("dwarflist");
-	var dFrom = $("dwarfsfrom");
+	var dwarfList = $("#dwarves");
 	
+	var dList = gid("dwarflist");
 	dList.innerHTML = '';
-	dFrom.innerHTML = '';
-	
 	dList.options.add(option("-Urist McAverage-"), dList.options.length);
+	
+	var dFrom = gid("dwarfsfrom");
+	dFrom.innerHTML = '';
 	dFrom.options.add(option("All Dwarves (" +dwarves.length+ ")"), dFrom.options.length);
 		
 	//add select options
     for (var d in dwarves) {
+		dwarves[d].index = d;
+		
 		dList.options.add(option(dwarves[d].name), dList.options.length);
 		
 		dFrom.options.add(option(dwarves[d].name), dFrom.options.length);
+		
+		dwarfList.append(dwarfHTML(dwarves[d]));
 	}
 	
+	$('.dwarf a').click(function () {
+      $('.dwarf').removeClass("current");
+      $(this).parent().toggleClass("current");
+	  viewDwarf($(this).parent().attr('index'));
+	  return false;
+    });
+	
+	$('.dwarf input').click(function () {
+      $(this).parent().toggleClass("selected");
+    });
+	
     for (var j in jobs) {
-		var jList = $("joblist");
+		var jList = gid("joblist");
 		jList.options.add(option(j.toCapitalize(), j), jList.options.length);
 	}
 	
-	
-    $("dwarfsfrom")[0].selected = true;
+    gid("dwarfsfrom")[0].selected = true;
 	currentDwarf = undefined;
+}
+
+function checkbox(name, label) {
+	return '<input type="checkbox" name="'+name+'" id="'+name+'">'+(label?'<label for="'+name+'">'+label+'</label>':'');
+}
+
+function dwarfHTML(d) {
+	return '<div class="dwarf" id="dwarf-'+d.index+'" index="'+d.index+'">'+checkbox('dwarfcheck-'+d.index)+'<a href="#">'+d.name+'</a></div>';
 }
 
 /*
  * Works out which dwarf is selected and calls guide
  */
-function viewDwarf() {
+function viewDwarf(did) {
 	
-    if ($("dwarflist").selectedIndex == 0) {
+	if (typeof did !== 'undefined'){
+		gid("dwarflist").selectedIndex = parseInt(did)+1;
+	}
+	
+    if (gid("dwarflist").selectedIndex == 0) {
 		currentDwarf = undefined;
 		dwarf = urist;
 		dwarf.name = "Urist McAverage";
 		dwarf.gender = "Male";
 		
-        $("dwarfname").value = dwarf.name;
+        gid("dwarfname").value = dwarf.name;
     } else {
 		
-		currentDwarf = $("dwarflist").selectedIndex - 1;
+		currentDwarf = gid("dwarflist").selectedIndex - 1;
 		dwarf = dwarves[currentDwarf];
 		
-		$("dwarfname").value = dwarf.name;
-		$("verbaleval").value = "";
+		gid("dwarfname").value = dwarf.name;
+		gid("verbaleval").value = "";
 	}
     printname();
 	printgender();
@@ -937,25 +966,25 @@ function changelogupdate(message) {
 	}
 	changelog.unshift(message);
     changelog.length = 5;
-    $("changelogoutput").innerHTML = changelog.join("<br>");
+    gid("changelogoutput").innerHTML = changelog.join("<br>");
 }
 
 function printname() {
-    $("printdwarf").innerHTML = $("dwarfname").value;
-    $("printdwarf2").innerHTML = $("dwarfname").value;
+    gid("printdwarf").innerHTML = gid("dwarfname").value;
+    gid("printdwarf2").innerHTML = gid("dwarfname").value;
 }
 
 function printgender() {
 	var dwarf = dwarves[currentDwarf] || urist;
 
     if (dwarf.gender == "Male") {
-		$("male").checked = true;
-        $('printdwarfgender').innerHTML = '<span class="male">\u2642</span>';
-        $('printdwarfgender2').innerHTML = '<span class="male">\u2642</span>';
+		gid("male").checked = true;
+        gid('printdwarfgender').innerHTML = '<span class="male">\u2642</span>';
+        gid('printdwarfgender2').innerHTML = '<span class="male">\u2642</span>';
     } else {
-		$("female").checked = true;
-        $('printdwarfgender').innerHTML = '<span class="female">\u2640</span>';
-        $('printdwarfgender2').innerHTML = '<span class="female">\u2640</span>';
+		gid("female").checked = true;
+        gid('printdwarfgender').innerHTML = '<span class="female">\u2640</span>';
+        gid('printdwarfgender2').innerHTML = '<span class="female">\u2640</span>';
     };
 }
 
@@ -967,7 +996,7 @@ function attributeUpdate() {
 		var distance = Math.abs(attribute - defaultAttribute);
 		var intensity = distance / (attribute < defaultAttribute ? -defaultAttribute : 5000 - defaultAttribute);
 		var distance = Math.abs(attribute - defaultAttribute);
-		$(attr.replace(/ /g,'-')).innerHTML = '<span class="attribute" style="background:' + getInfoColor(intensity, 210, 0) + '">' + attribute + '</span>';
+		gid(attr.replace(/ /g,'-')).innerHTML = '<span class="attribute" style="background:' + getInfoColor(intensity, 210, 0) + '">' + attribute + '</span>';
 	}
 }
 
@@ -978,7 +1007,7 @@ function traitUpdate() {
 		var defaultTrait = defaultDwarf.traits[t];
 		var distance = Math.abs(trait - defaultTrait);
 		var intensity = distance / (trait < defaultTrait ? defaultTrait : 100 - defaultTrait);
-		$(t.replace(/ /g,'-')).innerHTML = '<span class="trait" style="background:' + getInfoColor(intensity, 260) + '">' + trait + '</span>';
+		gid(t.replace(/ /g,'-')).innerHTML = '<span class="trait" style="background:' + getInfoColor(intensity, 260) + '">' + trait + '</span>';
     }
 }
 
@@ -1011,20 +1040,20 @@ function directAttributeSubmit(rawAttribute, rawValue) {
 }
 
 function directSoulSubmit() {	
-    var rawAttribute = $("directsoul").value;
-	var rawValue = $("directsoulnum").value;
+    var rawAttribute = gid("directsoul").value;
+	var rawValue = gid("directsoulnum").value;
 	
 	directAttributeSubmit(rawAttribute, rawValue);
 }
 function directBodySubmit() {	
-    var rawAttribute = $("directbody").value;
-	var rawValue = $("directbodynum").value;
+    var rawAttribute = gid("directbody").value;
+	var rawValue = gid("directbodynum").value;
 	
 	directAttributeSubmit(rawAttribute, rawValue);
 }
 function directTraitSubmit() {
-    var rawTrait = $("directpers").value;
-	var rawValue = $("directpersnum").value;
+    var rawTrait = gid("directpers").value;
+	var rawValue = gid("directpersnum").value;
 	
 	var dwarf = dwarves[currentDwarf] || urist;
 	
@@ -1059,8 +1088,8 @@ function bestdwarf() {
 		horrible: [],
 		deek: []
 	};
-    var jobIndex = $("joblist").selectedIndex;
-    var jobName = $("joblist").value.toLowerCase();
+    var jobIndex = gid("joblist").selectedIndex;
+    var jobName = gid("joblist").value.toLowerCase();
 	var job = jobs[jobName];
     var dwarfallattrs = [];
     var dwarfbodyattrs = [];
@@ -1068,15 +1097,15 @@ function bestdwarf() {
     var attrsum = [];
     var skillcomp = [];
     var ratelist = [];
-    var ratejob = $("joblist").options[jobIndex].text;
+    var ratejob = gid("joblist").options[jobIndex].text;
     var fortsum = 0;
     var fortavg = 0;
     var dwarfworth = 0;
 	var dwarf;
 	
 	if (jobIndex == 0) {
-        $("printdwarf2").innerHTML = "\u263C " + "Your Embark";
-        $("printdwarfgender2").innerHTML = "\u263C";
+        gid("printdwarf2").innerHTML = "\u263C " + "Your Embark";
+        gid("printdwarfgender2").innerHTML = "\u263C";
 		
 		var dwarvesAttributeSum = 0;
         for (var i in dwarves) {
@@ -1091,7 +1120,7 @@ function bestdwarf() {
         dwarvesAttributeAvg = Math.round(dwarvesAttributeSum / dwarves.length);
         dwarvesAttributeAvg = Math.round(((dwarvesAttributeAvg * 89) / 1976) - (916735 / 988));
         dwarfworth = Math.round((dwarvesAttributeSum * 100) / 21835) / 100;
-        $("guidance").innerHTML = "Your " + dwarves.length + " dwarves have the attribute points of " 
+        gid("guidance").innerHTML = "Your " + dwarves.length + " dwarves have the attribute points of " 
 						+ dwarfworth + " average dwarves. If this is your starting seven, about " 
 						+ dwarvesAttributeAvg + "% of embarks will have as many or fewer attribute points as this embark.";
         return;
@@ -1099,7 +1128,7 @@ function bestdwarf() {
 	else {
         for (var dwarfNum = 0, l = dwarves.length; dwarfNum<l; dwarfNum++) {
             dwarf = dwarves[dwarfNum] || urist;
-            if ($("dwarfsfrom")[0].selected || $("dwarfsfrom")[dwarfNum + 1].selected) {
+            if (gid("dwarfsfrom")[0].selected || gid("dwarfsfrom")[dwarfNum + 1].selected) {
                 skillcomp[dwarfNum] = jobFitness(dwarf, job);
 				ratelist[dwarfNum] = namerate(dwarf, skillcomp[dwarfNum], jobName);;
             }
@@ -1144,9 +1173,9 @@ function bestdwarf() {
     };
 	
 	
-    $("printdwarf2").innerHTML = "\u263C " + "Best " + $("joblist").options[jobIndex].text;
-    $("printdwarfgender2").innerHTML = "\u263C";
-    $("guidance").innerHTML = nameRates.superb.join('') + " " 
+    gid("printdwarf2").innerHTML = "\u263C " + "Best " + gid("joblist").options[jobIndex].text;
+    gid("printdwarfgender2").innerHTML = "\u263C";
+    gid("guidance").innerHTML = nameRates.superb.join('') + " " 
 		+ nameRates.verygood.join('') + " " 
 		+ nameRates.good.join('') + " " 
 		+ nameRates.highavg.join('') + " " 
@@ -1212,12 +1241,12 @@ function pctToText(pct){
 }
 
 function goToName(name){
-	$('dwarflist').value = name;
+	gid('dwarflist').value = name;
 	viewDwarf();
 }
 
 function goToJob(job){
-	$('joblist').value = job;
+	gid('joblist').value = job;
 	bestdwarf();
 }
 
@@ -2972,7 +3001,7 @@ function guide() {
         analysis.deek.push("</ul></div>");
     };
 	
-	var brightside = $("brightside").checked;
+	var brightside = gid("brightside").checked;
     if (brightside) {
 		if (analysis.superb.length + analysis.verygood.length + analysis.good.length + analysis.highavg.length < 20) {
 			analysis.output.push(analysis.superb + " " + analysis.verygood + " " + analysis.good + " " + analysis.highavg + " " + analysis.lowavg);
@@ -3026,10 +3055,20 @@ function guide() {
     var guideprint = analysis.output.toString();
     guideprint = guideprint.replace(/,/g, " ");
     guideprint = guideprint.replace(/\u003B/g, "");
-    $("guidance").innerHTML = guideprint;
+    gid("guidance").innerHTML = guideprint;
 }
 
 
 function setColors() {
-	document.body.className = ($('colorcode').checked ? 'color' : 'no-color');
+	document.body.className = (gid('colorcode').checked ? 'color' : 'no-color');
 }
+
+$(function (){
+
+	$("#main").tabs();
+	
+	xmlUpdate();
+	attributeUpdate();
+	traitUpdate();
+	setColors();
+});

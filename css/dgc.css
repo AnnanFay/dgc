@@ -1,3 +1,52 @@
+body, html {
+	width: 100%;
+	height: 100%;
+	margin: 0;
+	padding: 0;
+	overflow: auto;
+}
+
+#dwarves {
+	width:20%;
+	height:100%;
+	float:left;
+	margin: 0;
+	padding: 0;
+	border: 0;
+	overflow: auto;
+}
+#main {
+	float:left;
+	width:80%;
+	height:100%;
+	margin: 0;
+	padding: 0;
+	border: 0;
+	overflow: auto;
+}
+
+
+.dwarf {
+	background-color: orange;
+	padding: 6px 0 6px 12px;
+}
+.dwarf  input {
+	margin-right: 12px;
+}
+.dwarf:hover {
+	background-color: darkorange;
+}
+.dwarf:active {
+	background-color: red;
+}
+.dwarf.selected {
+	background-color: purple;
+}
+.dwarf.current a {
+	font-weight: bold;
+}
+
+
 #guidance {
 	width:40em;
 }
@@ -9,10 +58,10 @@ div.guidances p {
     padding-top: 12px;
 }
 
-ul {
+div.guidances ul {
 	width: 36em;
 }
-ul li {
+div.guidances ul li {
 	float: left;
 	width: 12em;
 }

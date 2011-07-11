@@ -1,259 +1,273 @@
+﻿<!DOCTYPE html>
 <html>
-<head>
-<title>
-Dwarven Guidance Counselor
-</title>
-<link rel="stylesheet" type="text/css" href="dgc.css">
-<script type="text/javascript" src="dgc.js"></script>
-</head>
-<body class="color">
-Welcome to the Dwarven Guidance Counselor. I'll be offering you advice today. Shall I color-code your evaluation? <input type="checkbox" id="colorcode" onclick="setColors();" checked><br> 
-What's your name, please? <input type="text" id="dwarfname" value="Urist McAverage" onKeyPress="return disableEnterKey(event)" onkeyup="printname()">
-And your gender? <input type="radio" name="gender" id="male" value="Male" checked="checked" onclick="printgender(this.value)">Male</input> <input type="radio" name="gender" id="female" value="Female" onclick="printgender(this.value)">Female</input> 
-&nbsp;Are we looking on the bright side today? <input type="checkbox" id="brightside" onchange="viewDwarf()"><br>
+	<head>
+		<meta charset="UTF-8">
+		<title>Dwarven Guidance Counselor (DGC)</title>
+		
+		<link rel="stylesheet" type="text/css" href="css/ui/jquery-ui-1.8.14.custom.css" />	
+		<link rel="stylesheet" type="text/css" href="css/dgc.css" />
+		
+		<script type="text/javascript" src="js/jquery.js"></script>
+		<script type="text/javascript" src="js/jquery-ui-1.8.14.custom.min.js"></script>
+		<script type="text/javascript" src="js/dgc.js"></script>
+	</head>
+	<body class="color">
+		<div id="dwarves" class="ui-widget-content"></div>
+		<div id="main">
+			<ul>
+				<li><a href="#main-1">Info</a></li>
+				<li><a href="#main-2">Controls</a></li>
+				<li><a href="#main-3">Table</a></li>
+			</ul>
+			<div id="main-1">
+			
+		<h3>Instructions</h3>
+		<p>Enter your dwarf's name and gender to customize report.</p>
+		<p>Load from XML instructions in attached README.</p>
+		<p>Ctrl-click in Find Best Among to select additional dwarf. Shift-click to select range of dwarves.</p>
+		<p>View your dwarf's thoughts and preferences, and enter those phrases that reflect the level of an attribute or trait. The Counselor will update to an approximate value.</p>
+		<p>Tell the Counselor "average &lt;statname&gt;" and it'll return to default racial median. Try "strong", then "average strength". Refresh page to revert to average entirely.</p>
+		<p>Alternatively, use Runesmith and Dwarf Therapist to find attributes and traits respectively, and update by hand.</p>
+		<p>Runesmith/Dwarf Therapist trait names are those in parentheses in the dropdown.</p>
 
+		<h3>Thanks/Info</h3>
+		<p>To <a href="http://www.bay12forums.com/smf/index.php?topic=72616.0">Urist Da Vinci</a> for SCIENCE</p>
+		<p><a href="http://df.magmawiki.com/">The Dwarf Fortress Wiki</a> for all the intel.</p>
+		<p><a href="http://code.google.com/p/dwarftherapist/">Dwarf Therapist</a> for helping me manage my dwarfs.</p>
+		<p><a href="http://dffd.wimbli.com/file.php?id=2538">Runesmith</a> for that next level of fortress control.</p>
+		<p>And of course <a href="http://bay12games.com/dwarves/">Bay 12 Games</a> themselves, for allowing me to build and discard so many worlds.</p>
+		
+		<p>I am <a href="http://www.bay12forums.com/smf/index.php?action=profile;u=16843">knaveofstaves</a>, and this is <a href="http://www.bay12forums.com/smf/index.php?topic=83112">the DGC forum thread.</a></p>
+		<p><a href="http://dffd.wimbli.com/file.php?id=4238">Dwarven Guidance Counselor</a> project page at the Dwarf Fortress File Depot.</p>
+		<p>DGC 0.0.6 was tested against Firefox 4.0.1 and Internet Explorer 9.0.8, and designed with Dwarf Fortress 0.31.21, Dwarf Therapist 0.6.10, and Runesmith 0.1.9.</p>
+		
+			
+			</div>
+			<div id="main-2">
+			
+					
+			<p>
+			Welcome to the Dwarven Guidance Counselor. I'll be offering you advice today. Shall I color-code your evaluation? <input type="checkbox" id="colorcode" onclick="setColors();" checked><br> 
+			What's your name, please? <input type="text" id="dwarfname" value="Urist McAverage" onKeyPress="return disableEnterKey(event)" onkeyup="printname()">
+			And your gender? 
+				<input type="radio" name="gender" id="male" value="Male" checked="checked" onclick="printgender(this.value)">Male 
+				<input type="radio" name="gender" id="female" value="Female" onclick="printgender(this.value)">Female
+			 Are we looking on the bright side today? <input type="checkbox" id="brightside" onchange="viewDwarf()"></p>
 
-<p>
-<table>
+			<table>
 
-<tr>
-<td valign="top">Load from XML</td>
-<td><select id="filelist" onchange="xmlUpdate()"></select><button onclick="xmlUpdate()">U</button></td>
-</tr>
-<tr>
-<td valign="top">Dwarf</td>
-<td><select id="dwarflist" onchange="viewDwarf()"><option>Dwarf List</option></select><button onclick="viewDwarf()">U</button></td>
-<td>&nbsp;Find Best&nbsp;
-<select id="joblist" onchange="bestdwarf()">
+				<tr>
+					<td >Load from XML</td>
+					<td><select id="filelist" onchange="xmlUpdate()"></select><button onclick="xmlUpdate()">U</button></td>
+					<td></td>
+					<td></td>
+					<td></td>
+				</tr>
+				<tr>
+					<td >Dwarf</td>
+					<td><select id="dwarflist" onchange="viewDwarf()"><option>Dwarf List</option></select><button onclick="viewDwarf()">U</button></td>
+					<td> Find Best 
+					<select id="joblist" onchange="bestdwarf()">
 
-<option value="embark facts">Embark Facts</option>
-</select>
-<button onclick="bestdwarf()">U</button></td>
-<td valign="top" rowspan="5">Find Best Among:<p>
-<select id="dwarfsfrom" multiple="true" size="6" onchange="bestdwarf()">
-</select>
-</td>
-<td valign="top" rowspan="5">
-Last 5 updates (most recent first):<p>
-<a id="changelogoutput"> </a>
-</td>
-</tr>
+					<option value="embark facts">Embark Facts</option>
+					</select>
+					<button onclick="bestdwarf()">U</button></td>
+					<td  rowspan="5">Find Best Among:
+					<select id="dwarfsfrom" multiple="multiple" size="6" onchange="bestdwarf()">
+					</select>
+					</td>
+					<td  rowspan="5">
+					Last 5 updates (most recent first):
+					<a id="changelogoutput"> </a>
+					</td>
+				</tr>
 
-<tr>
-<td valign="top">Body Attributes&nbsp;</td>
-<td><input type="text" id="directbodynum" maxlength="4" onKeyPress="return disablebodyenter(event)"></td>
-<td>
-<select id="directbody">
-<option>Strength</option>
-<option>Agility</option>
-<option>Toughness</option>
-<option>Endurance</option>
-<option>Disease Resistance</option>
-<option>Recuperation</option>
-</select>
-<button type="button" onclick="directBodySubmit()">Update</button>
-</td>
-</tr>
+				<tr>
+					<td >Body Attributes </td>
+					<td><input type="text" id="directbodynum" maxlength="4" onKeyPress="return disablebodyenter(event)"></td>
+					<td>
+					<select id="directbody">
+					<option>Strength</option>
+					<option>Agility</option>
+					<option>Toughness</option>
+					<option>Endurance</option>
+					<option>Disease Resistance</option>
+					<option>Recuperation</option>
+					</select>
+					<button type="button" onclick="directBodySubmit()">Update</button>
+					</td>
+				</tr>
 
-<tr>
-<td valign="top">Soul Attributes&nbsp;</td>
-<td><input type="text" id="directsoulnum" maxlength="4" onKeyPress="return disablesoulenter(event)"></td>
-<td>
-<select id="directsoul">
-<option>Analytical Ability</option>
-<option>Memory</option>
-<option>Creativity</option>
-<option>Intuition</option>
-<option>Focus</option>
-<option>Willpower</option>
-<option>Patience</option>
-<option>Spatial Sense</option>
-<option>kinaesthetic Sense</option>
-<option>Linguistic Ability</option>
-<option>Musicality</option>
-<option>Empathy</option>
-<option>Social Awareness</option>
-</select>
-<button type="button" onclick="directSoulSubmit()">Update</button>
-</td>
-</tr>
+				<tr>
+					<td >Soul Attributes </td>
+					<td><input type="text" id="directsoulnum" maxlength="4" onKeyPress="return disablesoulenter(event)"></td>
+					<td>
+					<select id="directsoul">
+					<option>Analytical Ability</option>
+					<option>Memory</option>
+					<option>Creativity</option>
+					<option>Intuition</option>
+					<option>Focus</option>
+					<option>Willpower</option>
+					<option>Patience</option>
+					<option>Spatial Sense</option>
+					<option>kinaesthetic Sense</option>
+					<option>Linguistic Ability</option>
+					<option>Musicality</option>
+					<option>Empathy</option>
+					<option>Social Awareness</option>
+					</select>
+					<button type="button" onclick="directSoulSubmit()">Update</button>
+					</td>
+				</tr>
 
-<tr>
-<td valign="top">Personality Traits&nbsp;</td>
-<td><input type="text" id="directpersnum" maxlength="3" onKeyPress="return disablepersenter(event)"></td>
-<td>
-<select id="directpers">
-<option>Achievement Striving (Excellence)</option>
-<option>Activity Level (Activeness)</option>
-<option>Adventurousness (Adventure)</option>
-<option>Altruism (Helpfulness)</option>
-<option>Anger (Rage)</option>
-<option>Anxiety (Nervousness)</option>
-<option>Artistic Interest (Artistic)</option>
-<option>Assertiveness (Leadership)</option>
-<option>Cautiousness</option>
-<option>Cheerfulness (Optimism)</option>
-<option>Cooperation (Compromising)</option>
-<option>Depression</option>
-<option>Dutifulness (Lawfulness)</option>
-<option>Emotionality (Emotion)</option>
-<option>Excitement Seeking (Thrillseeking)</option>
-<option>Friendliness (Friendly)</option>
-<option>Gregariousness (Company)</option>
-<option>Imagination</option>
-<option>Immoderation (Urge)</option>
-<option>Intellectual Curiosity (Thinking)</option>
-<option>Liberalism (Rebelliousness)</option>
-<option>Modesty</option>
-<option>Orderliness (Organization)</option>
-<option>Self-Consciousness (Neurosis)</option>
-<option>Self-Discipline (Perseverance)</option>
-<option>Self-Efficacy (Confidence)</option>
-<option>Straightforwardness (Honesty)</option>
-<option>Sympathy (Compassion)</option>
-<option>Trust (Trusting)</option>
-<option>Vulnerability (Stress)</option>
-</select>
-<button type="button" onclick="directTraitSubmit()">Update</button>&nbsp;
-</td>
-</tr>
+				<tr>
+					<td >Personality Traits </td>
+					<td><input type="text" id="directpersnum" maxlength="3" onKeyPress="return disablepersenter(event)"></td>
+					<td>
+					<select id="directpers">
+					<option>Achievement Striving (Excellence)</option>
+					<option>Activity Level (Activeness)</option>
+					<option>Adventurousness (Adventure)</option>
+					<option>Altruism (Helpfulness)</option>
+					<option>Anger (Rage)</option>
+					<option>Anxiety (Nervousness)</option>
+					<option>Artistic Interest (Artistic)</option>
+					<option>Assertiveness (Leadership)</option>
+					<option>Cautiousness</option>
+					<option>Cheerfulness (Optimism)</option>
+					<option>Cooperation (Compromising)</option>
+					<option>Depression</option>
+					<option>Dutifulness (Lawfulness)</option>
+					<option>Emotionality (Emotion)</option>
+					<option>Excitement Seeking (Thrillseeking)</option>
+					<option>Friendliness (Friendly)</option>
+					<option>Gregariousness (Company)</option>
+					<option>Imagination</option>
+					<option>Immoderation (Urge)</option>
+					<option>Intellectual Curiosity (Thinking)</option>
+					<option>Liberalism (Rebelliousness)</option>
+					<option>Modesty</option>
+					<option>Orderliness (Organization)</option>
+					<option>Self-Consciousness (Neurosis)</option>
+					<option>Self-Discipline (Perseverance)</option>
+					<option>Self-Efficacy (Confidence)</option>
+					<option>Straightforwardness (Honesty)</option>
+					<option>Sympathy (Compassion)</option>
+					<option>Trust (Trusting)</option>
+					<option>Vulnerability (Stress)</option>
+					</select>
+					<button type="button" onclick="directTraitSubmit()">Update</button> 
+					</td>
+				</tr>
 
-<tr>
-<td valign="top">Thoughts and Preferences&nbsp;</td>
-<td colspan="2"><input type="text" id="verbaleval" size="71" onKeyPress="return disableverbenter(event)"></td>
-</tr>
+				<tr>
+					<td >Thoughts and Preferences </td>
+					<td colspan="2"><input type="text" id="verbaleval" size="71" onKeyPress="return disableverbenter(event)"></td>
+				</tr>
 
-</table>
-
-<br>
-<table border="1">
-<tr>
-<td colspan="3"><div style="text-align:center"><b>Attributes and Traits of: <a id="printdwarf">Urist McAverage</a>, <a id="printdwarfgender">&#9794;</a></b></div></td>
-<td rowspan="19" valign="top"><div style="text-align:center"><b>Guidance for: <a id="printdwarf2">Urist McAverage</a>, <a id="printdwarfgender2">&#9794;</a></b></div><div id="guidance">A short, sturdy creature fond of drink and industry.</div</td>
-</tr>
-<tr>
-<th>Body Attributes</th>
-<th>Soul Attributes</th>
-<th>Personality Traits</th>
-</tr>
-<tr>
-<td><a id="strength"> </a>&nbsp;Strength</td>
-<td><a id="musicality"> </a>&nbsp;Musicality</td>
-<td><a id="emotionality"> </a>&nbsp;Emotionality</td>
-</tr>
-<tr>
-<td><a id="agility"> </a>&nbsp;Agility</td>
-<td><a id="empathy"> </a>&nbsp;Empathy</td>
-<td><a id="excitement-seeking"> </a>&nbsp;Excitement Seeking</td>
-</tr>
-<tr>
-<td><a id="toughness"> </a>&nbsp;Toughness</td>
-<td><a id="social-awareness"> </a>&nbsp;Social Awareness</td>
-<td><a id="friendliness"> </a>&nbsp;Friendliness</td>
-</tr>
-<tr>
-<td><a id="endurance"> </a>&nbsp;Endurance</td>
-<th>Personality Traits</th>
-<td><a id="gregariousness"> </a>&nbsp;Gregariousness</td>
-</tr>
-<tr>
-<td><a id="disease-resistance"> </a>&nbsp;Disease Resistance</td>
-<td><a id="achievement-striving"> </a>&nbsp;Achievement Striving</td>
-<td><a id="imagination"> </a>&nbsp;Imagination</td>
-</tr>
-<tr>
-<td><a id="recuperation"> </a>&nbsp;Recuperation</td>
-<td><a id="activity-level"> </a>&nbsp;Activity Level</td>
-<td><a id="immoderation"> </a>&nbsp;Immoderation</td>
-</tr>
-<tr>
-<th>Soul Attributes</th>
-<td><a id="adventurousness"> </a>&nbsp;Adventurousness</td>
-<td><a id="intellectual-curiosity"> </a>&nbsp;Intellectual Curiosity</td>
-</tr>
-<tr>
-<td><a id="analytical-ability"> </a>&nbsp;Analytical Ability</td>
-<td><a id="altruism"> </a>&nbsp;Altruism</td>
-<td><a id="liberalism"> </a>&nbsp;Liberalism</td>
-</tr>
-<tr>
-<td><a id="memory"> </a>&nbsp;Memory</td>
-<td><a id="anger"> </a>&nbsp;Anger</td>
-<td><a id="modesty"> </a>&nbsp;Modesty</td>
-</tr>
-<tr>
-<td><a id="creatvity"> </a>&nbsp;Creativity</td>
-<td><a id="anxiety"> </a>&nbsp;Anxiety</td>
-<td><a id="orderliness"> </a>&nbsp;Orderliness</td>
-</tr>
-<tr>
-<td><a id="intuition"> </a>&nbsp;Intuition</td>
-<td><a id="artistic-interest"> </a>&nbsp;Artistic Interest</td>
-<td><a id="self-consciousness"> </a>&nbsp;Self-Consciousness</td>
-</tr>
-<tr>
-<td><a id="focus"> </a>&nbsp;Focus</td>
-<td><a id="assertiveness"> </a>&nbsp;Assertiveness</td>
-<td><a id="self-discipline"> </a>&nbsp;Self-Discipline</td>
-</tr>
-<tr>
-<td><a id="willpower"> </a>&nbsp;Willpower</td>
-<td><a id="cautiousness"> </a>&nbsp;Cautiousness</td>
-<td><a id="self-efficacy"> </a>&nbsp;Self-Efficacy</td>
-</tr>
-<tr>
-<td><a id="patience"> </a>&nbsp;Patience</td>
-<td><a id="cheerfulness"> </a>&nbsp;Cheerfulness</td>
-<td><a id="straightforwardness"> </a>&nbsp;Straightforwardness</td>
-</tr>
-<tr>
-<td><a id="spatial-sense"> </a>&nbsp;Spatial Sense</td>
-<td><a id="cooperation"> </a>&nbsp;Cooperation</td>
-<td><a id="sympathy"> </a>&nbsp;Sympathy</td>
-</tr>
-<tr>
-<td><a id="kinaesthetic-sense"> </a>&nbsp;Kinaesthetic Sense</td>
-<td><a id="depression"> </a>&nbsp;Depression</td>
-<td><a id="trust"> </a>&nbsp;Trust</td>
-</tr>
-<tr>
-<td><a id="linguistic-ability"> </a>&nbsp;Linguistic Ability</td>
-<td><a id="dutifulness"> </a>&nbsp;Dutifulness</td>
-<td><a id="vulnerability"> </a>&nbsp;Vulnerability</td>
-</tr>
-</table>
-<script type="text/javascript">
-<!--
-
-xmlUpdate();
-attributeUpdate();
-traitUpdate();
-setColors();
-
-//-->
-</script>
-
-<h3>Instructions</h3>
-<p>
-Enter your dwarf's name and gender to customize report.<br>
-Load from XML instructions in attached README.<br>
-Ctrl-click in Find Best Among to select additional dwarf. Shift-click to select range of dwarves.<br>
-View your dwarf's thoughts and preferences, and enter those phrases that reflect the level of an attribute or trait. The Counselor will update to an approximate value.<br>
-Tell the Counselor "average &lt;statname&gt;" and it'll return to default racial median. Try "strong", then "average strength". Refresh page to revert to average entirely.<br>
-Alternatively, use Runesmith and Dwarf Therapist to find attributes and traits respectively, and update by hand.<br>
-Runesmith/Dwarf Therapist trait names are those in parentheses in the dropdown.<br>
-</p>
-<h3>Thanks/Info</h3>
-<p>
-To <a href="http://www.bay12forums.com/smf/index.php?topic=72616.0">Urist Da Vinci</a> for SCIENCE<br>
-<a href="http://df.magmawiki.com/">The Dwarf Fortress Wiki</a> for all the intel.<br>
-<a href="http://code.google.com/p/dwarftherapist/">Dwarf Therapist</a> for helping me manage my dwarfs.<br>
-<a href="http://dffd.wimbli.com/file.php?id=2538">Runesmith</a> for that next level of fortress control.<br>
-And of course <a href="http://bay12games.com/dwarves/">Bay 12 Games</a> themselves, for allowing me to build and discard so many worlds.<br>
-<p>
-I am <a href="http://www.bay12forums.com/smf/index.php?action=profile;u=16843">knaveofstaves</a>, and this is <a href="http://www.bay12forums.com/smf/index.php?topic=83112">the DGC forum thread.</a><br>
-<a href="http://dffd.wimbli.com/file.php?id=4238">Dwarven Guidance Counselor</a> project page at the Dwarf Fortress File Depot.<br>
-DGC 0.0.6 was tested against Firefox 4.0.1 and Internet Explorer 9.0.8, and designed with Dwarf Fortress 0.31.21, Dwarf Therapist 0.6.10, and Runesmith 0.1.9.
-
-</body>
+			</table>
+			
+			</div>
+			<div id="main-3">
+					
+		<table border="1">
+			<tr>
+				<td colspan="3"><div style="text-align:center"><b>Attributes and Traits of: <a id="printdwarf">Urist McAverage</a>, <a id="printdwarfgender">&#9794;</a></b></div></td>
+				<td rowspan="19"><div style="text-align:center"><b>Guidance for: <a id="printdwarf2">Urist McAverage</a>, <a id="printdwarfgender2">&#9794;</a></b></div><div id="guidance">A short, sturdy creature fond of drink and industry.</div></td>
+			</tr>
+			<tr>
+				<th>Body Attributes</th>
+				<th>Soul Attributes</th>
+				<th>Personality Traits</th>
+			</tr>
+			<tr>
+				<td><a id="strength"> </a> Strength</td>
+				<td><a id="musicality"> </a> Musicality</td>
+				<td><a id="emotionality"> </a> Emotionality</td>
+			</tr>
+			<tr>
+				<td><a id="agility"> </a> Agility</td>
+				<td><a id="empathy"> </a> Empathy</td>
+				<td><a id="excitement-seeking"> </a> Excitement Seeking</td>
+			</tr>
+			<tr>
+				<td><a id="toughness"> </a> Toughness</td>
+				<td><a id="social-awareness"> </a> Social Awareness</td>
+				<td><a id="friendliness"> </a> Friendliness</td>
+			</tr>
+			<tr>
+				<td><a id="endurance"> </a> Endurance</td>
+				<th>Personality Traits</th>
+				<td><a id="gregariousness"> </a> Gregariousness</td>
+			</tr>
+			<tr>
+				<td><a id="disease-resistance"> </a> Disease Resistance</td>
+				<td><a id="achievement-striving"> </a> Achievement Striving</td>
+				<td><a id="imagination"> </a> Imagination</td>
+			</tr>
+			<tr>
+				<td><a id="recuperation"> </a> Recuperation</td>
+				<td><a id="activity-level"> </a> Activity Level</td>
+				<td><a id="immoderation"> </a> Immoderation</td>
+			</tr>
+			<tr>
+				<th>Soul Attributes</th>
+				<td><a id="adventurousness"> </a> Adventurousness</td>
+				<td><a id="intellectual-curiosity"> </a> Intellectual Curiosity</td>
+			</tr>
+			<tr>
+				<td><a id="analytical-ability"> </a> Analytical Ability</td>
+				<td><a id="altruism"> </a> Altruism</td>
+				<td><a id="liberalism"> </a> Liberalism</td>
+			</tr>
+			<tr>
+				<td><a id="memory"> </a> Memory</td>
+				<td><a id="anger"> </a> Anger</td>
+				<td><a id="modesty"> </a> Modesty</td>
+			</tr>
+			<tr>
+				<td><a id="creatvity"> </a> Creativity</td>
+				<td><a id="anxiety"> </a> Anxiety</td>
+				<td><a id="orderliness"> </a> Orderliness</td>
+			</tr>
+			<tr>
+				<td><a id="intuition"> </a> Intuition</td>
+				<td><a id="artistic-interest"> </a> Artistic Interest</td>
+				<td><a id="self-consciousness"> </a> Self-Consciousness</td>
+			</tr>
+			<tr>
+				<td><a id="focus"> </a> Focus</td>
+				<td><a id="assertiveness"> </a> Assertiveness</td>
+				<td><a id="self-discipline"> </a> Self-Discipline</td>
+			</tr>
+			<tr>
+				<td><a id="willpower"> </a> Willpower</td>
+				<td><a id="cautiousness"> </a> Cautiousness</td>
+				<td><a id="self-efficacy"> </a> Self-Efficacy</td>
+			</tr>
+			<tr>
+				<td><a id="patience"> </a> Patience</td>
+				<td><a id="cheerfulness"> </a> Cheerfulness</td>
+				<td><a id="straightforwardness"> </a> Straightforwardness</td>
+			</tr>
+			<tr>
+				<td><a id="spatial-sense"> </a> Spatial Sense</td>
+				<td><a id="cooperation"> </a> Cooperation</td>
+				<td><a id="sympathy"> </a> Sympathy</td>
+			</tr>
+			<tr>
+				<td><a id="kinaesthetic-sense"> </a> Kinaesthetic Sense</td>
+				<td><a id="depression"> </a> Depression</td>
+				<td><a id="trust"> </a> Trust</td>
+			</tr>
+			<tr>
+				<td><a id="linguistic-ability"> </a> Linguistic Ability</td>
+				<td><a id="dutifulness"> </a> Dutifulness</td>
+				<td><a id="vulnerability"> </a> Vulnerability</td>
+			</tr>
+		</table>
+			</div>
+		</div>
+	</body>
 </html>
