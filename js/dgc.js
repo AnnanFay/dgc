@@ -56,6 +56,14 @@ var defaultDwarf = {
 	skills: {}
 }
 var urist = {};
+
+
+/*So we can clone objects easily*/
+Object.create = function (o) {
+    function F() {}
+    F.prototype = o;
+    return new F();
+};
 //TODO: this is a bit silly!
 urist.skills = Object.create(defaultDwarf.skills);
 urist.attributes = Object.create(defaultDwarf.attributes);
@@ -344,14 +352,14 @@ var jobs = {
 		attributes: ['strength','agility','endurance','creatvity','spatial sense','kinaesthetic sense'], //SAECSsKs
 		traits: {},
 	},
-    'furnace operator': {
-		skills: ['furnace operation'],
-		attributes: ['strength','toughness','endurance','analytical ability','kinaesthetic sense'], //STEAaKs,
-		traits: {},
-	},
     'armorsmith': {
 		skills: ['armorsmithing'],
 		attributes: ['strength','agility','endurance','creatvity','spatial sense','kinaesthetic sense'], //SAECSsKs,
+		traits: {},
+	},
+    'furnace operator': {
+		skills: ['furnace operation'],
+		attributes: ['strength','toughness','endurance','analytical ability','kinaesthetic sense'], //STEAaKs,
 		traits: {},
 	},
     'fisherdwarf': {
@@ -661,15 +669,16 @@ function gid(id, doc) {
 	return (doc || document).getElementById(id);
 };
 
-/*So we can clone objects easily*/
-Object.create = function (o) {
-    function F() {}
-    F.prototype = o;
-    return new F();
-};
-
 String.prototype.toCapitalize = function() { 
    return this.toLowerCase().replace(/^.|\s\S/g, function(a) { return a.toUpperCase(); });
+}
+
+function oc(a){
+  var o = {};
+  for(var i=0;i<a.length;i++) {
+    o[a[i]]='';
+  }
+  return o;
 }
 
 function disableEnterKey(e) {
@@ -744,12 +753,10 @@ function getFiles(){
 	if (file = getFile('Dwarves.xml')){
 		files[filename] = file;
 	}
-	
-	for (var i=0; i<20; i++) {
-		filename = base+'-'+i+'.'+ext;
-		if (file = getFile(filename)){
-			files[filename] = file;
-		}
+	var i=0;
+	while(file = getFile(base+'-'+i+'.'+ext)) {
+		files[base+'-'+i+'.'+ext] = file;
+		i++;
 	}
 	return files;
 }
@@ -906,7 +913,7 @@ function xmlUpdate() {
 
 function dwarfHTML(d) {
 	return '<li class="ui-widget-content dwarf" id="dwarf-'+d.index+'" did="'+d.index+'" dname="'+d.name+'">'
-		+genderSymbol(d.gender)+' '+d.name+'<div class="dwarfworth">'+dwarfWorth(d.attributeSum)+'</div></li>';
+		+genderSymbol(d.gender)+' '+d.name+'<div class="dwarfworth">'+(dwarfWorth(d.attributeSum)*100)+'</div></li>';
 }
 
 /*
@@ -960,7 +967,8 @@ function attributeUpdate() {
 		var attribute = (dwarves[currentDwarf] || urist).attributes[attr];
 		var defaultAttribute = defaultDwarf.attributes[attr];
 		var distance = Math.abs(attribute - defaultAttribute);
-		var intensity = distance / (attribute < defaultAttribute ? -defaultAttribute : 5000 - defaultAttribute);
+		//var intensity = distance / (attribute < defaultAttribute ? -defaultAttribute : 5000 - defaultAttribute);
+		var intensity = distance / (attribute < defaultAttribute ? -defaultAttribute : defaultAttribute);
 		var distance = Math.abs(attribute - defaultAttribute);
 		
 		var safeName = attr.replace(/ /g,'-');
@@ -1150,7 +1158,7 @@ function bestdwarf() {
 	
     gid("printdwarf2").innerHTML = "\u263C " + "Best " + gid("joblist").options[jobIndex].text;
     gid("printdwarfgender2").innerHTML = "\u263C";
-    gid("guidance").innerHTML = nameRates.superb.join('') + " " 
+    gid("guidance").innerHTML = jobInfo(job) + nameRates.superb.join('') + " " 
 		+ nameRates.verygood.join('') + " " 
 		+ nameRates.good.join('') + " " 
 		+ nameRates.highavg.join('') + " " 
@@ -1160,6 +1168,64 @@ function bestdwarf() {
 		+ nameRates.horrible.join('') + " " 
 		+ nameRates.deek.join('');
 }
+
+function jobInfo(job){
+	var html = '<div class="job-info">Related Attributes:';
+	for (a in job.attributes) {
+		html += ' + ' + attributeHTML(job.attributes[a]);
+	}
+	html += '</div>';
+	return html;
+}
+
+function attributeInfo(attribute){
+	var html = '<div class="job-info">Related Jobs:';
+	var job;
+	
+	for (j in jobs) {
+		job = jobs[j];
+		if (attribute in oc(job.attributes)){
+			html += ' + '+jobHTML(j);
+		}
+	}
+	html += '</div>';
+	return html;
+}
+
+function dwarfInfo(dwarf){
+
+	var intenseAttributes = [];
+	for (var attr in defaultDwarf.attributes) {
+		var attribute = dwarf.attributes[attr];
+		var defaultAttribute = defaultDwarf.attributes[attr];
+		var distance = Math.abs(attribute - defaultAttribute);
+		var intensity = Math.round(distance / (attribute < defaultAttribute ? -defaultAttribute : defaultAttribute)*100);
+		if (intensity > 20){
+			intenseAttributes.push([intensity, attr]);
+		}
+	}
+	
+	intenseAttributes.sort(function(a,b){
+		return a[0]<b[0];
+	});
+	
+	console.log(intenseAttributes);
+	
+	var html = '<div class="dwarf-info"> Best Attributes: ';
+	for (ia in intenseAttributes){
+		html += '<span>+'+intenseAttributes[ia][0]+'% '+attributeHTML(intenseAttributes[ia][1])+'</span>';
+	}
+	html += '</div>';
+	return html;
+}
+
+function attributeHTML(attribute){
+	return '<span class="attribute" onclick="goToAttribute(\''+attribute+'\')">'+attribute+'</span>';
+}
+function jobHTML(job){
+	return '<span class="job" onclick="goToJob(\''+job+'\')">'+job+'</span>';
+}
+
 
 /* appends a string to the appropriate array */
 function namerate(dwarf, pct, j) {
@@ -1236,6 +1302,11 @@ function goToJob(job){
 		  .end();
 		  
 	bestdwarf();
+}
+
+function goToAttribute(attribute){
+    gid("printdwarf2").innerHTML = attribute;
+    gid("guidance").innerHTML = attributeInfo(attribute);
 }
 
 /* when given a text trait 
@@ -2467,7 +2538,7 @@ function verbalevalsubmit(verbal) {
         value = 50;
         trait = "Gregariousness";
 		type = "Trait";
-    } else if (verbal.search("spending time alone much more") != -1) {
+    } else if (verbal.search("time alone much more") != -1) {
         value = 5;
         trait = "Gregariousness";
 		type = "Trait";
@@ -2871,7 +2942,7 @@ function verbalevalsubmit(verbal) {
 		type = "Trait";
     } else {
         
-        changelogupdate("Error! Counselor could not evaluate your verbal input.");
+        changelogupdate("Error! Counselor could not evaluate your verbal input. " + verbal );
         return;
     }
     return [type, trait, value];
@@ -3039,7 +3110,7 @@ function guide() {
         analysis.output.push('<p>' + subjpro + ' is too straightforward to <span class="horrible"' + '>Lie</span> or <span class="horrible"' + ">Flatter</span>.");
     }
 	
-    var guideprint = analysis.output.toString();
+    var guideprint = dwarfInfo(dwarf) + analysis.output.toString();
     guideprint = guideprint.replace(/,/g, " ");
     guideprint = guideprint.replace(/\u003B/g, "");
     gid("guidance").innerHTML = guideprint;

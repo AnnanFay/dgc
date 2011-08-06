@@ -25,6 +25,9 @@
 	overflow: auto;
 }
 
+.dwarf-info span, .job-info span  {
+	text-transform:capitalize;
+}
 
 .dwarf {
 	background-color: orange;
@@ -64,6 +67,7 @@
 #attributes div, #traits div {
 	float:left;
 	width:25%;
+	text-transform:capitalize;
 }
 
 #attributes label, #traits label {
@@ -91,9 +95,6 @@ button#add-dwarf {
 	margin-top:25px;
 }
 
-#guidance {
-	width:40em;
-}
 div.guidances {
 	margin-bottom: 1em;
 }
@@ -102,12 +103,9 @@ div.guidances p {
     padding-top: 12px;
 }
 
-div.guidances ul {
-	width: 36em;
-}
 div.guidances ul li {
 	float: left;
-	width: 12em;
+	width: 20em;
 }
 br, p {
 	clear: left;
@@ -154,8 +152,13 @@ br, p {
 	cursor:pointer;
 }
 
+.attribute, .trait, .job {
+	cursor: pointer;
+}
+
+
 .attribute, .trait {
-	width: 2.2em;
+	/*width: 2.2em;*/
 	display: inline-block;
 	text-align:center;
 }
