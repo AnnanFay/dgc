@@ -1,0 +1,3 @@
+[submodule "src/defrecord2"]
+	path = src/defrecord2
+	url = git://github.com/david-mcneil/defrecord2.git
