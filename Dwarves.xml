@@ -1,0 +1,710 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<Creatures>
+    <Creature>
+        <Race>DWARF</Race>
+        <Name>Bomrek Atisdakost</Name>
+        <EnglishName>Bomrek Stakefloors</EnglishName>
+        <Nickname></Nickname>
+        <Happiness>Content [108]</Happiness>
+        <Profession>MINER</Profession>
+        <Sex>Female</Sex>
+        <DOB>23/3/-75</DOB>
+        <Age>81</Age>
+        <CustomProfession></CustomProfession>
+        <Skills>
+            <Skill>
+                <Name>Mining</Name>
+                <Level>Adequate [2]</Level>
+                <Experience>0</Experience>
+            </Skill>
+            <Skill>
+                <Name>Negotiation</Name>
+                <Level>Dabbling [0]</Level>
+                <Experience>1</Experience>
+            </Skill>
+            <Skill>
+                <Name>Judging Intent</Name>
+                <Level>Dabbling [0]</Level>
+                <Experience>1</Experience>
+            </Skill>
+            <Skill>
+                <Name>Consoling</Name>
+                <Level>Dabbling [0]</Level>
+                <Experience>1</Experience>
+            </Skill>
+            <Skill>
+                <Name>Pacification</Name>
+                <Level>Dabbling [0]</Level>
+                <Experience>2</Experience>
+            </Skill>
+        </Skills>
+        <Attributes>
+            <Strength>1438</Strength>
+            <Agility>995</Agility>
+            <Toughness>1852</Toughness>
+            <Endurance>348</Endurance>
+            <Recuperation>224</Recuperation>
+            <DiseaseResistance>1290</DiseaseResistance>
+            <Willpower>402</Willpower>
+            <Memory>821</Memory>
+            <Focus>1203</Focus>
+            <Intuition>860</Intuition>
+            <Patience>960</Patience>
+            <Empathy>543</Empathy>
+            <SocialAwareness>1368</SocialAwareness>
+            <Creatvity>1301</Creatvity>
+            <Musicality>1428</Musicality>
+            <AnalyticalAbility>1216</AnalyticalAbility>
+            <LinguisticAbility>555</LinguisticAbility>
+            <SpatialSense>1086</SpatialSense>
+            <KinaestheticSense>1229</KinaestheticSense>
+        </Attributes>
+        <Traits>
+            <Trait>Has a calm demeanor</Trait>
+            <Trait>Doesn't handle stress well</Trait>
+            <Trait>Relaxed</Trait>
+            <Trait>Prefers familiar routines</Trait>
+            <Trait>Admires tradition</Trait>
+            <Trait>Candid and sincere in dealings with others</Trait>
+            <Trait>Disorganized</Trait>
+            <Trait>Doesn't go out of own way to do more work than necessary</Trait>
+            <Trait>Takes time when making decisions</Trait>
+            <Trait>Has an incredibly calm demeanor</Trait>
+        </Traits>
+        <Labours>
+            <Labour>Mining</Labour>
+            <Labour>Stone Hauling</Labour>
+            <Labour>Wood Hauling</Labour>
+            <Labour>Burial</Labour>
+            <Labour>Food Hauling</Labour>
+            <Labour>Refuse Hauling</Labour>
+            <Labour>Item Hauling</Labour>
+            <Labour>Furniture Hauling</Labour>
+            <Labour>Animal Hauling</Labour>
+            <Labour>Cleaning</Labour>
+            <Labour>Feed Patients/Prisoners</Labour>
+            <Labour>Recovering Wounded</Labour>
+            <Labour>memory object not declared: type=labor key=94</Labour>
+            <Labour>memory object not declared: type=labor key=95</Labour>
+        </Labours>
+        <Mood>
+            <Type>None</Type>
+            <Skill> - </Skill>
+        </Mood>
+    </Creature>
+    <Creature>
+        <Race>DWARF</Race>
+        <Name>Vucar Gimoltar</Name>
+        <EnglishName>Vucar Twistedgilt</EnglishName>
+        <Nickname></Nickname>
+        <Happiness>Content [108]</Happiness>
+        <Profession>STONEWORKER</Profession>
+        <Sex>Male</Sex>
+        <DOB>4/10/-54</DOB>
+        <Age>60</Age>
+        <CustomProfession></CustomProfession>
+        <Skills>
+            <Skill>
+                <Name>Engraving</Name>
+                <Level>Novice [1]</Level>
+                <Experience>0</Experience>
+            </Skill>
+            <Skill>
+                <Name>Masonry</Name>
+                <Level>Novice [1]</Level>
+                <Experience>0</Experience>
+            </Skill>
+            <Skill>
+                <Name>Machinery</Name>
+                <Level>Novice [1]</Level>
+                <Experience>0</Experience>
+            </Skill>
+            <Skill>
+                <Name>Building Design</Name>
+                <Level>Novice [1]</Level>
+                <Experience>0</Experience>
+            </Skill>
+        </Skills>
+        <Attributes>
+            <Strength>1555</Strength>
+            <Agility>664</Agility>
+            <Toughness>1214</Toughness>
+            <Endurance>857</Endurance>
+            <Recuperation>911</Recuperation>
+            <DiseaseResistance>824</DiseaseResistance>
+            <Willpower>1270</Willpower>
+            <Memory>1170</Memory>
+            <Focus>1463</Focus>
+            <Intuition>817</Intuition>
+            <Patience>1361</Patience>
+            <Empathy>874</Empathy>
+            <SocialAwareness>844</SocialAwareness>
+            <Creatvity>1049</Creatvity>
+            <Musicality>934</Musicality>
+            <AnalyticalAbility>2172</AnalyticalAbility>
+            <LinguisticAbility>833</LinguisticAbility>
+            <SpatialSense>1594</SpatialSense>
+            <KinaestheticSense>1156</KinaestheticSense>
+        </Attributes>
+        <Traits>
+            <Trait>Never feels discouraged</Trait>
+            <Trait>Occassionally overindulges</Trait>
+            <Trait>Loves a good thrill</Trait>
+            <Trait>Rarely happy or enthusiastic</Trait>
+            <Trait>Has a good awareness of own emotions</Trait>
+            <Trait>Put off by authority and tradition</Trait>
+            <Trait>Very straightforward with others</Trait>
+            <Trait>Finds helping others very rewarding</Trait>
+            <Trait>Finds immodesty distasteful</Trait>
+            <Trait>Organized</Trait>
+            <Trait>Hates rules, contracts and other confining elements in own life</Trait>
+        </Traits>
+        <Labours>
+            <Labour>Stone Hauling</Labour>
+            <Labour>Wood Hauling</Labour>
+            <Labour>Burial</Labour>
+            <Labour>Food Hauling</Labour>
+            <Labour>Refuse Hauling</Labour>
+            <Labour>Item Hauling</Labour>
+            <Labour>Furniture Hauling</Labour>
+            <Labour>Animal Hauling</Labour>
+            <Labour>Cleaning</Labour>
+            <Labour>Stone Detailing</Labour>
+            <Labour>Masonry</Labour>
+            <Labour>Architecture</Labour>
+            <Labour>Feed Patients/Prisoners</Labour>
+            <Labour>Recovering Wounded</Labour>
+            <Labour>Mechanics</Labour>
+        </Labours>
+        <Mood>
+            <Type>None</Type>
+            <Skill> - </Skill>
+        </Mood>
+    </Creature>
+    <Creature>
+        <Race>DWARF</Race>
+        <Name>Erush Duthnurdodok</Name>
+        <EnglishName>Erush Guardclasped</EnglishName>
+        <Nickname></Nickname>
+        <Happiness>Content [115]</Happiness>
+        <Profession>JEWELER</Profession>
+        <Sex>Female</Sex>
+        <DOB>2/11/-53</DOB>
+        <Age>59</Age>
+        <CustomProfession></CustomProfession>
+        <Skills>
+            <Skill>
+                <Name>Gem Cutting</Name>
+                <Level>Novice [1]</Level>
+                <Experience>0</Experience>
+            </Skill>
+            <Skill>
+                <Name>Gem Setting</Name>
+                <Level>Novice [1]</Level>
+                <Experience>0</Experience>
+            </Skill>
+            <Skill>
+                <Name>Wood Crafting</Name>
+                <Level>Novice [1]</Level>
+                <Experience>0</Experience>
+            </Skill>
+            <Skill>
+                <Name>Stone Crafting</Name>
+                <Level>Novice [1]</Level>
+                <Experience>0</Experience>
+            </Skill>
+            <Skill>
+                <Name>Bone Carving</Name>
+                <Level>Novice [1]</Level>
+                <Experience>0</Experience>
+            </Skill>
+        </Skills>
+        <Attributes>
+            <Strength>1767</Strength>
+            <Agility>1306</Agility>
+            <Toughness>2236</Toughness>
+            <Endurance>608</Endurance>
+            <Recuperation>348</Recuperation>
+            <DiseaseResistance>986</DiseaseResistance>
+            <Willpower>920</Willpower>
+            <Memory>503</Memory>
+            <Focus>1548</Focus>
+            <Intuition>1317</Intuition>
+            <Patience>987</Patience>
+            <Empathy>1810</Empathy>
+            <SocialAwareness>1461</SocialAwareness>
+            <Creatvity>1317</Creatvity>
+            <Musicality>1645</Musicality>
+            <AnalyticalAbility>503</AnalyticalAbility>
+            <LinguisticAbility>1351</LinguisticAbility>
+            <SpatialSense>1381</SpatialSense>
+            <KinaestheticSense>1025</KinaestheticSense>
+        </Attributes>
+        <Traits>
+            <Trait>Has a calm demeanor</Trait>
+            <Trait>Self-conscious</Trait>
+            <Trait>Doesn't often experience strong cravings or urges</Trait>
+            <Trait>Has a fertile imagination</Trait>
+            <Trait>Appreciates art and natural beauty</Trait>
+            <Trait>Tends not to openly express emotions</Trait>
+            <Trait>Prefers familiar routines</Trait>
+            <Trait>Guarded in relationships with others</Trait>
+            <Trait>Finds rules confining</Trait>
+        </Traits>
+        <Labours>
+            <Labour>Stone Hauling</Labour>
+            <Labour>Wood Hauling</Labour>
+            <Labour>Burial</Labour>
+            <Labour>Food Hauling</Labour>
+            <Labour>Refuse Hauling</Labour>
+            <Labour>Item Hauling</Labour>
+            <Labour>Furniture Hauling</Labour>
+            <Labour>Animal Hauling</Labour>
+            <Labour>Cleaning</Labour>
+            <Labour>Feed Patients/Prisoners</Labour>
+            <Labour>Recovering Wounded</Labour>
+            <Labour>Gem Cutting</Labour>
+            <Labour>Gem Setting</Labour>
+            <Labour>Woodcrafting</Labour>
+            <Labour>Stonecrafting</Labour>
+            <Labour>Bone Carving</Labour>
+        </Labours>
+        <Mood>
+            <Type>None</Type>
+            <Skill> - </Skill>
+        </Mood>
+    </Creature>
+    <Creature>
+        <Race>DWARF</Race>
+        <Name>Fath Loloktangak</Name>
+        <EnglishName>Fath Granitespotted</EnglishName>
+        <Nickname></Nickname>
+        <Happiness>Content [108]</Happiness>
+        <Profession>WOODWORKER</Profession>
+        <Sex>Female</Sex>
+        <DOB>11/5/-75</DOB>
+        <Age>81</Age>
+        <CustomProfession></CustomProfession>
+        <Skills>
+            <Skill>
+                <Name>Carpentry</Name>
+                <Level>Novice [1]</Level>
+                <Experience>0</Experience>
+            </Skill>
+            <Skill>
+                <Name>Bowmaking</Name>
+                <Level>Novice [1]</Level>
+                <Experience>0</Experience>
+            </Skill>
+        </Skills>
+        <Attributes>
+            <Strength>1322</Strength>
+            <Agility>1046</Agility>
+            <Toughness>1656</Toughness>
+            <Endurance>820</Endurance>
+            <Recuperation>1132</Recuperation>
+            <DiseaseResistance>1060</DiseaseResistance>
+            <Willpower>710</Willpower>
+            <Memory>1343</Memory>
+            <Focus>2306</Focus>
+            <Intuition>593</Intuition>
+            <Patience>1240</Patience>
+            <Empathy>1023</Empathy>
+            <SocialAwareness>820</SocialAwareness>
+            <Creatvity>1230</Creatvity>
+            <Musicality>1627</Musicality>
+            <AnalyticalAbility>1169</AnalyticalAbility>
+            <LinguisticAbility>1020</LinguisticAbility>
+            <SpatialSense>2048</SpatialSense>
+            <KinaestheticSense>868</KinaestheticSense>
+        </Attributes>
+        <Traits>
+            <Trait>Is always tense and jittery</Trait>
+            <Trait>Occassionally overindulges</Trait>
+            <Trait>Can handle stress</Trait>
+            <Trait>Very friendly</Trait>
+            <Trait>Isn't given to flights of fancy</Trait>
+            <Trait>Appreciates art and natural beauty</Trait>
+            <Trait>Slow to trust others</Trait>
+            <Trait>Compassionate</Trait>
+            <Trait>Disorganized</Trait>
+        </Traits>
+        <Labours>
+            <Labour>Stone Hauling</Labour>
+            <Labour>Wood Hauling</Labour>
+            <Labour>Burial</Labour>
+            <Labour>Food Hauling</Labour>
+            <Labour>Refuse Hauling</Labour>
+            <Labour>Item Hauling</Labour>
+            <Labour>Furniture Hauling</Labour>
+            <Labour>Animal Hauling</Labour>
+            <Labour>Cleaning</Labour>
+            <Labour>Carpentry</Labour>
+            <Labour>Feed Patients/Prisoners</Labour>
+            <Labour>Recovering Wounded</Labour>
+            <Labour>Crossbow-making</Labour>
+            <Labour>memory object not declared: type=labor key=94</Labour>
+            <Labour>memory object not declared: type=labor key=95</Labour>
+        </Labours>
+        <Mood>
+            <Type>None</Type>
+            <Skill> - </Skill>
+        </Mood>
+    </Creature>
+    <Creature>
+        <Race>DWARF</Race>
+        <Name>Degel Likotkogan</Name>
+        <EnglishName>Degel Inkedboats</EnglishName>
+        <Nickname></Nickname>
+        <Happiness>Content [109]</Happiness>
+        <Profession>FISH_CLEANER</Profession>
+        <Sex>Male</Sex>
+        <DOB>27/0/-64</DOB>
+        <Age>70</Age>
+        <CustomProfession></CustomProfession>
+        <Skills>
+            <Skill>
+                <Name>Fish Cleaning</Name>
+                <Level>Novice [1]</Level>
+                <Experience>0</Experience>
+            </Skill>
+            <Skill>
+                <Name>Butchery</Name>
+                <Level>Novice [1]</Level>
+                <Experience>0</Experience>
+            </Skill>
+            <Skill>
+                <Name>Tanning</Name>
+                <Level>Novice [1]</Level>
+                <Experience>0</Experience>
+            </Skill>
+            <Skill>
+                <Name>Weaving</Name>
+                <Level>Novice [1]</Level>
+                <Experience>0</Experience>
+            </Skill>
+            <Skill>
+                <Name>Clothes Making</Name>
+                <Level>Novice [1]</Level>
+                <Experience>0</Experience>
+            </Skill>
+            <Skill>
+                <Name>Leatherworkering</Name>
+                <Level>Novice [1]</Level>
+                <Experience>0</Experience>
+            </Skill>
+            <Skill>
+                <Name>Persuasion</Name>
+                <Level>Dabbling [0]</Level>
+                <Experience>1</Experience>
+            </Skill>
+            <Skill>
+                <Name>Negotiation</Name>
+                <Level>Dabbling [0]</Level>
+                <Experience>1</Experience>
+            </Skill>
+            <Skill>
+                <Name>Judging Intent</Name>
+                <Level>Dabbling [0]</Level>
+                <Experience>2</Experience>
+            </Skill>
+            <Skill>
+                <Name>Intimidation</Name>
+                <Level>Dabbling [0]</Level>
+                <Experience>1</Experience>
+            </Skill>
+            <Skill>
+                <Name>Comedy</Name>
+                <Level>Dabbling [0]</Level>
+                <Experience>1</Experience>
+            </Skill>
+            <Skill>
+                <Name>Flattery</Name>
+                <Level>Dabbling [0]</Level>
+                <Experience>1</Experience>
+            </Skill>
+            <Skill>
+                <Name>Consoling</Name>
+                <Level>Dabbling [0]</Level>
+                <Experience>2</Experience>
+            </Skill>
+            <Skill>
+                <Name>Pacification</Name>
+                <Level>Dabbling [0]</Level>
+                <Experience>1</Experience>
+            </Skill>
+        </Skills>
+        <Attributes>
+            <Strength>1036</Strength>
+            <Agility>195</Agility>
+            <Toughness>1061</Toughness>
+            <Endurance>1101</Endurance>
+            <Recuperation>1265</Recuperation>
+            <DiseaseResistance>897</DiseaseResistance>
+            <Willpower>1188</Willpower>
+            <Memory>1168</Memory>
+            <Focus>1155</Focus>
+            <Intuition>1067</Intuition>
+            <Patience>958</Patience>
+            <Empathy>543</Empathy>
+            <SocialAwareness>991</SocialAwareness>
+            <Creatvity>1499</Creatvity>
+            <Musicality>802</Musicality>
+            <AnalyticalAbility>1045</AnalyticalAbility>
+            <LinguisticAbility>1219</LinguisticAbility>
+            <SpatialSense>1327</SpatialSense>
+            <KinaestheticSense>879</KinaestheticSense>
+        </Attributes>
+        <Traits>
+            <Trait>Almost never feels discouraged</Trait>
+            <Trait>Doesn't often experience strong cravings or urges</Trait>
+            <Trait>Relaxed</Trait>
+            <Trait>Open-minded to new ideas</Trait>
+            <Trait>Doesn't like to compromise with others</Trait>
+            <Trait>Lacks confidence</Trait>
+            <Trait>Finds rules confining</Trait>
+            <Trait>Does the bare minimum necessary to accomplish the task at hand</Trait>
+        </Traits>
+        <Labours>
+            <Labour>Stone Hauling</Labour>
+            <Labour>Wood Hauling</Labour>
+            <Labour>Burial</Labour>
+            <Labour>Food Hauling</Labour>
+            <Labour>Refuse Hauling</Labour>
+            <Labour>Item Hauling</Labour>
+            <Labour>Furniture Hauling</Labour>
+            <Labour>Animal Hauling</Labour>
+            <Labour>Cleaning</Labour>
+            <Labour>Feed Patients/Prisoners</Labour>
+            <Labour>Recovering Wounded</Labour>
+            <Labour>Butchery</Labour>
+            <Labour>Leatherworking</Labour>
+            <Labour>Tanning</Labour>
+            <Labour>Weaving</Labour>
+            <Labour>Clothesmaking</Labour>
+            <Labour>Fish Cleaning</Labour>
+            <Labour>memory object not declared: type=labor key=94</Labour>
+            <Labour>memory object not declared: type=labor key=95</Labour>
+        </Labours>
+        <Mood>
+            <Type>None</Type>
+            <Skill> - </Skill>
+        </Mood>
+    </Creature>
+    <Creature>
+        <Race>DWARF</Race>
+        <Name>Tosid Limultad</Name>
+        <EnglishName>Tosid Goldenmatched</EnglishName>
+        <Nickname></Nickname>
+        <Happiness>Content [108]</Happiness>
+        <Profession>WOODCUTTER</Profession>
+        <Sex>Male</Sex>
+        <DOB>2/5/-79</DOB>
+        <Age>85</Age>
+        <CustomProfession></CustomProfession>
+        <Skills>
+            <Skill>
+                <Name>Wood Cutting</Name>
+                <Level>Novice [1]</Level>
+                <Experience>0</Experience>
+            </Skill>
+            <Skill>
+                <Name>Brewing</Name>
+                <Level>Novice [1]</Level>
+                <Experience>0</Experience>
+            </Skill>
+            <Skill>
+                <Name>Cooking</Name>
+                <Level>Novice [1]</Level>
+                <Experience>0</Experience>
+            </Skill>
+            <Skill>
+                <Name>Growing</Name>
+                <Level>Novice [1]</Level>
+                <Experience>0</Experience>
+            </Skill>
+            <Skill>
+                <Name>Herbalism</Name>
+                <Level>Novice [1]</Level>
+                <Experience>0</Experience>
+            </Skill>
+            <Skill>
+                <Name>Furnace Operation</Name>
+                <Level>Novice [1]</Level>
+                <Experience>0</Experience>
+            </Skill>
+            <Skill>
+                <Name>Wood Burning</Name>
+                <Level>Novice [1]</Level>
+                <Experience>0</Experience>
+            </Skill>
+            <Skill>
+                <Name>Lye Making</Name>
+                <Level>Novice [1]</Level>
+                <Experience>0</Experience>
+            </Skill>
+            <Skill>
+                <Name>Potash Making</Name>
+                <Level>Novice [1]</Level>
+                <Experience>0</Experience>
+            </Skill>
+            <Skill>
+                <Name>Persuasion</Name>
+                <Level>Dabbling [0]</Level>
+                <Experience>1</Experience>
+            </Skill>
+            <Skill>
+                <Name>Judging Intent</Name>
+                <Level>Dabbling [0]</Level>
+                <Experience>1</Experience>
+            </Skill>
+            <Skill>
+                <Name>Comedy</Name>
+                <Level>Dabbling [0]</Level>
+                <Experience>1</Experience>
+            </Skill>
+            <Skill>
+                <Name>Consoling</Name>
+                <Level>Dabbling [0]</Level>
+                <Experience>1</Experience>
+            </Skill>
+            <Skill>
+                <Name>Pacification</Name>
+                <Level>Dabbling [0]</Level>
+                <Experience>1</Experience>
+            </Skill>
+        </Skills>
+        <Attributes>
+            <Strength>924</Strength>
+            <Agility>1082</Agility>
+            <Toughness>992</Toughness>
+            <Endurance>1300</Endurance>
+            <Recuperation>726</Recuperation>
+            <DiseaseResistance>943</DiseaseResistance>
+            <Willpower>1612</Willpower>
+            <Memory>1993</Memory>
+            <Focus>1521</Focus>
+            <Intuition>999</Intuition>
+            <Patience>1678</Patience>
+            <Empathy>1541</Empathy>
+            <SocialAwareness>810</SocialAwareness>
+            <Creatvity>592</Creatvity>
+            <Musicality>967</Musicality>
+            <AnalyticalAbility>1338</AnalyticalAbility>
+            <LinguisticAbility>851</LinguisticAbility>
+            <SpatialSense>1532</SpatialSense>
+            <KinaestheticSense>1152</KinaestheticSense>
+        </Attributes>
+        <Traits>
+            <Trait>Comfortable in social situations</Trait>
+            <Trait>Doesn't often experience strong cravings or urges</Trait>
+            <Trait>Can handle stress</Trait>
+            <Trait>Unassertive</Trait>
+            <Trait>Does not have a great aesthetic sensitivity</Trait>
+            <Trait>Dislikes intellectual discussions</Trait>
+            <Trait>Put off by authority and tradition</Trait>
+            <Trait>Candid and sincere in dealings with others</Trait>
+            <Trait>Would never claim to be better than somebody else</Trait>
+            <Trait>Not easily moved to pity</Trait>
+            <Trait>Takes time when making decisions</Trait>
+        </Traits>
+        <Labours>
+            <Labour>Stone Hauling</Labour>
+            <Labour>Wood Hauling</Labour>
+            <Labour>Burial</Labour>
+            <Labour>Food Hauling</Labour>
+            <Labour>Refuse Hauling</Labour>
+            <Labour>Item Hauling</Labour>
+            <Labour>Furniture Hauling</Labour>
+            <Labour>Animal Hauling</Labour>
+            <Labour>Cleaning</Labour>
+            <Labour>Wood Cutting</Labour>
+            <Labour>Feed Patients/Prisoners</Labour>
+            <Labour>Recovering Wounded</Labour>
+            <Labour>Brewing</Labour>
+            <Labour>Cooking</Labour>
+            <Labour>Farming (Fields)</Labour>
+            <Labour>Plant Gathering</Labour>
+            <Labour>Furnace Operating</Labour>
+            <Labour>Potash Making</Labour>
+            <Labour>Lye Making</Labour>
+            <Labour>Wood Burning</Labour>
+            <Labour>memory object not declared: type=labor key=94</Labour>
+            <Labour>memory object not declared: type=labor key=95</Labour>
+        </Labours>
+        <Mood>
+            <Type>None</Type>
+            <Skill> - </Skill>
+        </Mood>
+    </Creature>
+    <Creature>
+        <Race>DWARF</Race>
+        <Name>Thikut Dorenatol</Name>
+        <EnglishName>Thikut Diamondfound</EnglishName>
+        <Nickname></Nickname>
+        <Happiness>Content [108]</Happiness>
+        <Profession>FISHERMAN</Profession>
+        <Sex>Female</Sex>
+        <DOB>23/9/-64</DOB>
+        <Age>70</Age>
+        <CustomProfession></CustomProfession>
+        <Skills>
+            <Skill>
+                <Name>Fishing</Name>
+                <Level>Novice [1]</Level>
+                <Experience>0</Experience>
+            </Skill>
+        </Skills>
+        <Attributes>
+            <Strength>1258</Strength>
+            <Agility>952</Agility>
+            <Toughness>824</Toughness>
+            <Endurance>718</Endurance>
+            <Recuperation>226</Recuperation>
+            <DiseaseResistance>733</DiseaseResistance>
+            <Willpower>1437</Willpower>
+            <Memory>1191</Memory>
+            <Focus>1970</Focus>
+            <Intuition>1028</Intuition>
+            <Patience>1681</Patience>
+            <Empathy>841</Empathy>
+            <SocialAwareness>1284</SocialAwareness>
+            <Creatvity>1338</Creatvity>
+            <Musicality>1046</Musicality>
+            <AnalyticalAbility>573</AnalyticalAbility>
+            <LinguisticAbility>887</LinguisticAbility>
+            <SpatialSense>1443</SpatialSense>
+            <KinaestheticSense>846</KinaestheticSense>
+        </Attributes>
+        <Traits>
+            <Trait>Is often nervous</Trait>
+            <Trait>Loves a good thrill</Trait>
+            <Trait>Admires tradition</Trait>
+            <Trait>Does not trust others</Trait>
+            <Trait>Guarded in relationships with others</Trait>
+            <Trait>Has a sense of duty</Trait>
+            <Trait>Strives for excellence</Trait>
+            <Trait>Takes time when making decisions</Trait>
+        </Traits>
+        <Labours>
+            <Labour>Stone Hauling</Labour>
+            <Labour>Wood Hauling</Labour>
+            <Labour>Burial</Labour>
+            <Labour>Food Hauling</Labour>
+            <Labour>Refuse Hauling</Labour>
+            <Labour>Item Hauling</Labour>
+            <Labour>Furniture Hauling</Labour>
+            <Labour>Animal Hauling</Labour>
+            <Labour>Cleaning</Labour>
+            <Labour>Feed Patients/Prisoners</Labour>
+            <Labour>Recovering Wounded</Labour>
+            <Labour>Fishing</Labour>
+            <Labour>memory object not declared: type=labor key=94</Labour>
+            <Labour>memory object not declared: type=labor key=95</Labour>
+        </Labours>
+        <Mood>
+            <Type>None</Type>
+            <Skill> - </Skill>
+        </Mood>
+    </Creature>
+</Creatures>
