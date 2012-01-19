@@ -1,11 +1,10 @@
 (ns dgc.core
   ""
-  (:use [dgc.config]
-        [seesaw core table color]
+  (:use [dgc config read]
+        [seesaw core table color mig]
         [cheshire.core]
         [clojure.pprint])
   (:require [clojure.string :as s]))
-;(:import [darrylbu.renderer.VerticalTableHeaderCellRenderer])
 
 ;;;;
 ;;;; Utilities
@@ -25,64 +24,6 @@
 
 
 ;;;;
-;;;; Restructuring the JSON input
-;;;;
-
-(defn get-value [data p]
-  (if (nil? p)
-    nil
-    ((keyword p) data)))
-
-(defn get-body [data body]
-  {:physical (zipmap  physical-attributes
-                      (map #(:unk1 (get-value data %)) (:physical_attrs body)))})
-
-(defn get-skills [data raw-soul]
-  (let [soul        (get-value data raw-soul)
-        raw-skills  (:skills soul)
-        skills      (map (partial get-value data) raw-skills)]
-  (zipmap (map #(keyword (:id %)) skills) (map :rating skills))))
-          
-
-(defn get-soul [data raw-soul]
-  { :traits       (zipmap traits
-                          (->> raw-soul (get-value data) :traits))
-    :skills       (get-skills data raw-soul)
-    :mental       (zipmap mental-attributes
-                    (map #(:unk1 (get-value data %)) (->> raw-soul (get-value data) :mental_attrs)))
-    :preferences  (->> raw-soul (get-value data) :preferences)})
-
-(defn get-full-name [puffball]
-  (str (-> puffball :name :first) " " (-> puffball :name :nick) " " (-> puffball :name :last)))
-
-(defn get-name [data puffball]
-  (let [name (->> puffball :status :current_soul (get-value data) :name (get-value data))]
-    { :first  (:first_name name)
-      :last   (apply str (:translation name))
-      :nick   (:nickname name)}))
-
-(defn get-puffball [data raw-puffball]
-  (let [puffball (get-value data raw-puffball)]
-    {
-      :id         (:id puffball)
-      :name       (get-name data puffball)
-      :race       (:race_name puffball)
-      :civ        (:civ_id puffball)
-      :sex        (:sex puffball)
-      :age        (-> puffball :relations :old_year)
-      :profession (or (:custom_profession puffball) (:profession puffball))
-      :labors     (dissoc (zipmap labors
-                          (-> puffball :status :labors)) nil)
-      :happiness  (-> puffball :status :happiness)
-      :appearance (-> puffball :appearance)
-      :body       (get-body data (:body puffball))
-      :soul       (get-soul data (-> puffball :status :current_soul))}))
-
-(defn get-puffballs [data raw-puffballs]
-  (map (partial get-puffball data) raw-puffballs))
-
-
-;;;;
 ;;;; Menus
 ;;;;
 
@@ -95,7 +36,7 @@
                       :items [(seesaw.action/action :name "Info"    :tip "What to do"       :mnemonic \i :key (seesaw.keystroke/keystroke "menu I"))
                               (seesaw.action/action :name "About"   :tip "Version info"     :mnemonic \a :key (seesaw.keystroke/keystroke "menu A"))]))
 
-(def menu-bar (menubar :items [file-menu help-menu]))
+(def top-menubar (menubar :items [file-menu help-menu]))
 
 ;;;;
 ;;;; Make a table out of a list of maps
@@ -111,8 +52,6 @@
 (defn map-to-header [m & [extend]]
   (map #(merge extend (hash-map :key %1 :text (s/capitalize %2)))
         (keys m) (vals m)))
-
-
 
 (defn set-column-renderers [col head]
   (.setHeaderRenderer col (new darrylbu.renderer.VerticalTableHeaderCellRenderer))
@@ -183,61 +122,89 @@
 
 ;;;; BODY
 (defn puffball-body [puffball]
-  ;(prn (merge {:name (get-full-name puffball)} (-> puffball :body :physical)))
   (merge {:name (get-full-name puffball)} (-> puffball :body :physical)))
 
 (defn puffball-soul [puffball]
-  ;(prn (merge {:name (get-full-name puffball)} (-> puffball :body :physical)))
   (merge {:name (get-full-name puffball)} (-> puffball :soul :mental)))
 
 
-(defn -main
-  []
-  (let [height        800
-        data          (parse-string (slurp "Dwarves.json") true)
-        raw-puffballs (:root data)
-        puffballs     (get-puffballs data raw-puffballs)
-        ;creatures     (filter #(= (:race %) "") puffballs)
-        tabs          [{:title    "Dwarves"
-                        :tip      ""
-                        :icon     ""
-                        :content  (scrollable (make-table puffballs identity))}
-                        ;{:title    "Creatures"
-                        ;:tip      ""
-                        ;:icon     ""
-                        ;:content  (scrollable (make-table creatures identity))}
-                        {:title   "Labors"
-                        :tip      ""
-                        :icon     ""
-                        :content  (scrollable (make-table puffballs puffball-labors puffball-labor-header))}
-                        {:title   "Skills"
-                        :tip      ""
-                        :icon     ""
-                        :content  (scrollable (make-table puffballs puffball-skills puffball-skill-header))}
-                        {:title   "Body"
-                        :tip      ""
-                        :icon     ""
-                        :content  (scrollable (make-table puffballs puffball-body))}
-                        {:title   "Soul"
-                        :tip      ""
-                        :icon     ""
-                        :content  (scrollable (make-table puffballs puffball-soul))}]]
-    ;(pprint (first puffballs))
-    (-> (frame 
-          :title    "Dwarven Guidance Councilor" 
-          :height   height
-          :width    (* height 1.618)
-          :menubar  menu-bar
-          :content  (border-panel
-                      ;:north (text :multi-line? true :wrap-lines? false :rows 3 :text (apply str (-> puffballs first :soul :mental)))
-                      :center (tabbed-panel
+(defn dwarf-list [puffballs]
+  (map #(str "[" (:sex %) "] " (get-full-name %)) puffballs))
+
+(defn profession-list []
+  ["Miner" "Leader" "Marksdwarf"])
+
+
+(defn profession-info [profession]
+  (mig-panel
+      :constraints ["insets 0" "" ""]
+      :items [
+        [(label "Miner") "dock north, shrink 0"]
+         ]))
+
+
+(defn puffball-info [puffball]
+  (mig-panel
+      :constraints ["insets 0" "" ""]
+      :items [
+        [(label (get-full-name puffball)) "dock north, shrink 0"]
+         ]))
+
+
+(defn -main [& args]
+ (let [height        800
+       data          (parse-string (slurp "Dwarves.json") true)
+       raw-puffballs (:root data)
+       puffballs     (get-puffballs data raw-puffballs)
+       puffballs     (filter #(= (:race %) "DWARF") puffballs) 
+       tabs          [{:title    "Dwarf"
+                       :tip      ""
+                      :icon     ""
+                      :content  (puffball-info (first puffballs))}
+                      {:title    "Dwarves"
+                      :tip      ""
+                      :icon     ""
+                      :content  (scrollable (make-table puffballs identity))}
+                      {:title   "Labors"
+                      :tip      ""
+                      :icon     ""
+                      :content  (scrollable (make-table puffballs puffball-labors puffball-labor-header))}
+                      {:title   "Skills"
+                      :tip      ""
+                      :icon     ""
+                      :content  (scrollable (make-table puffballs puffball-skills puffball-skill-header))}
+                            {:title   "Body"
+                            :tip      ""
+                            :icon     ""
+                            :content  (scrollable (make-table puffballs puffball-body))}
+                            {:title   "Soul"
+                            :tip      ""
+                            :icon     ""
+                            :content  (scrollable (make-table puffballs puffball-soul))}]
+        dwarf-list      (listbox :model (dwarf-list puffballs)) 
+        content         (mig-panel
+                          :constraints ["insets 0" "[]12[grow]12[]" "[]12[grow]12[]"]
+                          :items [
+                            [(scrollable dwarf-list) "dock west"]
+                            [(scrollable (listbox :model (profession-list)))      "dock east"]
+                            [top-menubar "dock north, shrink 0"]
+                            [(label :id :sel :text "Status Bar: ...") "dock south"]
+                            [(tabbed-panel
                                 :placement  :top
                                 :overflow   :scroll
-                                :tabs tabs)
-
-                      ;:center (scrollable (make-table data to-dwarf))
-                      :south  (label :id :sel :text "Selection: "))
-          :on-close :exit)
+                                :tabs tabs) "growx, wrap"]])]
+    ;(pprint (first puffballs))
+    (listen dwarf-list :selection 
+      (fn [e]
+        (if-let [s (selection e {:multi? true})]
+          (alert s))))
+    (-> (frame 
+          :title      "Dwarven Guidance Councilor" 
+          :height     height
+          :width      (* height 1.618)
+          ;:menubar   top-menubar
+          :content    content
+          :on-close   :hide) ;:exit)
         ;pack!
         show!)))
 
