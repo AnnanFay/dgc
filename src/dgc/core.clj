@@ -1,27 +1,126 @@
 (ns dgc.core
   ""
-  (:use [dgc config read]
-        [seesaw core table color mig]
+  (:use [dgc util config read compat]
+        [seesaw core table color mig font chooser keystroke]
+        [seesaw.event :only [events-for]]
         [cheshire.core]
         [clojure.pprint])
   (:require [clojure.string :as s]))
 
+(native!)
+
 ;;;;
-;;;; Utilities
+;;;; Action Handlers
 ;;;;
 
-; Like map but works on a maps values leaving keys unchanged
-(defn map-vals [f m]
-    (zipmap (keys m) (map f (vals m))))
+(defn sort-by-name [e] (alert "foo"))
+(defn sort-by-age  [e] (alert "bar"))
 
-(defn not-nil? [foo]
-  (not (nil? foo)))
+(defn load-export [e]
+    (if-let [f (choose-file :filters [["JSON Files" ["json"]]])]
+        (alert f)))
 
-(defn in? 
-  "true if seq contains elm"
-  [elm seq]  
-  (some #(= elm %) seq))
+(defn reload-export [e]
+    (if-let [f (choose-file)]
+        (alert f)))
 
+
+(defn selection-change[e]
+  (let [root          (to-root e)
+        dwarf-list (select root [:#dwarf-list])
+        prof-list  (select root [:#prof-list])
+        puffballs  (selection dwarf-list {:multi? true})
+        profs      (selection prof-list {:multi? true})]
+    (prn :profs)
+    (pprint profs)
+
+    (prn :puffballs)
+    (pprint puffballs)
+    (cond
+      (nil? profs)
+        (cond
+          (nil? puffballs)        ""
+          (= (count puffballs) 1) ""
+          :else                   "")
+      (= (count profs) 1)
+        (cond
+          (nil? puffballs)        ""
+          (= (count puffballs) 1) ""
+          :else                   "")
+ 
+      :else
+        (cond
+          (nil? puffballs)        ""
+          (= (count puffballs) 1) ""
+          :else                   ""))))
+        ;(display-puffball-info (first prof))
+        ;(value! content {:main (str (:name (first prof)))})
+
+
+; puffball selection changes
+(defn puffball-selection-change[e]
+  (selection-change e))
+    
+(defn prof-selection-change[e]
+  (selection-change e))
+
+
+;;;
+;;; Selections
+;;;
+
+; No puff    / No profs
+; display help message
+
+; A puff     / No profs
+; display puff info
+
+; Multi puff / No profs
+; Display summary info of selected / comparison
+
+; No puff    / A prof
+; display prof info
+
+; A puff     / A prof
+; display single compatability
+
+; Multi puff / A prof
+; display compatability for all puffs
+
+; No puff    / Multi profs
+; display symmary info of selected / comparison
+
+; A puff     / Multi profs
+; display compatability for all profs
+
+; Multi puff / Multi profs
+; ???????????????????
+; display Not Implemented message
+
+
+
+
+
+
+;;;;
+;;;; Actions
+;;;;
+
+; Menubar
+(def load-export-action   (action :name "Open"   :tip "Open JSON export"
+                                  :mnemonic \o   :key (keystroke "menu O")
+                                  :handler load-export))
+(def reload-export-action (action :name "Reload" :tip "Reload file"      
+                                  :mnemonic \r   :key (keystroke "menu R")
+                                  :handler reload-export))
+(def show-help-action     (action :name "Info"   :tip "What to do"       
+                                  :mnemonic \i   :key (keystroke "menu I")))
+(def show-version-action  (action :name "About"  :tip "Version info"     
+                                  :mnemonic \a   :key (keystroke "menu A")))
+
+;Dwarf list
+(def sort-by-name-action (action :name "Sort By Name" :handler sort-by-name))
+(def sort-by-age-action  (action :name "Sort By Age"  :handler sort-by-age))
 
 ;;;;
 ;;;; Menus
@@ -29,12 +128,10 @@
 
 (def file-menu (menu  :text "File"
                       :mnemonic \F
-                      :items [(seesaw.action/action :name "Open"    :tip "Open JSON export" :mnemonic \o :key (seesaw.keystroke/keystroke "menu O"))
-                              (seesaw.action/action :name "Reload"  :tip "Reload file"      :mnemonic \r :key (seesaw.keystroke/keystroke "menu R"))]))
+                      :items [load-export-action reload-export-action]))
 (def help-menu (menu  :text "Help"
                       :mnemonic \H
-                      :items [(seesaw.action/action :name "Info"    :tip "What to do"       :mnemonic \i :key (seesaw.keystroke/keystroke "menu I"))
-                              (seesaw.action/action :name "About"   :tip "Version info"     :mnemonic \a :key (seesaw.keystroke/keystroke "menu A"))]))
+                      :items [show-help-action show-version-action]))
 
 (def top-menubar (menubar :items [file-menu help-menu]))
 
@@ -87,18 +184,11 @@
   ;(.setText this (str "foo"))
   this)
 
-
-
-
-
-
 ;;;;
 ;;;; Dwarf transformers
 ;;;;
 
 ;; REMEMBER: Rows are maps, a header is a sequences of {:key :foo :text "Foo"} maps
-
-
 
 ;;;; LABORS
 (defn puffball-labor-header [puffball]
@@ -127,21 +217,12 @@
 (defn puffball-soul [puffball]
   (merge {:name (get-full-name puffball)} (-> puffball :soul :mental)))
 
-
-(defn dwarf-list [puffballs]
-  (map #(str "[" (:sex %) "] " (get-full-name %)) puffballs))
-
-(defn profession-list []
-  ["Miner" "Leader" "Marksdwarf"])
-
-
 (defn profession-info [profession]
   (mig-panel
       :constraints ["insets 0" "" ""]
       :items [
         [(label "Miner") "dock north, shrink 0"]
          ]))
-
 
 (defn puffball-info [puffball]
   (mig-panel
@@ -150,54 +231,54 @@
         [(label (get-full-name puffball)) "dock north, shrink 0"]
          ]))
 
+(defn sex-symbol [s]
+    (if s "♂" "♀"))
+
+(defn prof-list-renderer [this {prof :value}]
+    (.setText this (str (s/capitalize (name (first prof)))))
+    this)
+
+(defn puffball-list-renderer [this {puffball :value}]
+    (.setText this (str "[" (sex-symbol (:sex puffball)) "] " (get-full-name puffball)))
+    this)
 
 (defn -main [& args]
- (let [height        800
+  (let [height        800
        data          (parse-string (slurp "Dwarves.json") true)
        raw-puffballs (:root data)
        puffballs     (get-puffballs data raw-puffballs)
        puffballs     (filter #(= (:race %) "DWARF") puffballs) 
-       tabs          [{:title    "Dwarf"
-                       :tip      ""
-                      :icon     ""
-                      :content  (puffball-info (first puffballs))}
-                      {:title    "Dwarves"
-                      :tip      ""
-                      :icon     ""
-                      :content  (scrollable (make-table puffballs identity))}
-                      {:title   "Labors"
-                      :tip      ""
-                      :icon     ""
-                      :content  (scrollable (make-table puffballs puffball-labors puffball-labor-header))}
-                      {:title   "Skills"
-                      :tip      ""
-                      :icon     ""
-                      :content  (scrollable (make-table puffballs puffball-skills puffball-skill-header))}
-                            {:title   "Body"
-                            :tip      ""
-                            :icon     ""
-                            :content  (scrollable (make-table puffballs puffball-body))}
-                            {:title   "Soul"
-                            :tip      ""
-                            :icon     ""
-                            :content  (scrollable (make-table puffballs puffball-soul))}]
-        dwarf-list      (listbox :model (dwarf-list puffballs)) 
+        prof-list       (listbox :id        :prof-list
+                                 :model     professions
+                                 :renderer  prof-list-renderer
+                                 :popup     (fn [e] [sort-by-name-action sort-by-age-action]))
+        dwarf-list      (listbox :id        :dwarf-list
+                                 :model     puffballs
+                                 :renderer  puffball-list-renderer
+                                 :popup     (fn [e] [sort-by-name-action sort-by-age-action]))
+        title           (label :id :title :text "Title" :h-text-position :center)
         content         (mig-panel
                           :constraints ["insets 0" "[]12[grow]12[]" "[]12[grow]12[]"]
                           :items [
-                            [(scrollable dwarf-list) "dock west"]
-                            [(scrollable (listbox :model (profession-list)))      "dock east"]
-                            [top-menubar "dock north, shrink 0"]
-                            [(label :id :sel :text "Status Bar: ...") "dock south"]
-                            [(tabbed-panel
-                                :placement  :top
-                                :overflow   :scroll
-                                :tabs tabs) "growx, wrap"]])]
+                            [(scrollable dwarf-list)                            "dock west"]
+                            [(scrollable prof-list)                             "dock east"]
+                            [top-menubar                                        "dock north, shrink 0"]
+                            [title                                              "dock north, shrink 0, growx"]
+                            [(label :id :sel          :text "Status Bar: ...")  "dock south"]
+                            [(label :id :main         :text "Foo")              "growx, wrap"]
+                            [test-chart                                         "growx, wrap"]])]
     ;(pprint (first puffballs))
-    (listen dwarf-list :selection 
-      (fn [e]
-        (if-let [s (selection e {:multi? true})]
-          (alert s))))
+    ;(prn (compat (first puffballs) (:miner professions)))
+    (pprint (events-for dwarf-list))
+
+    (config! title :font (font :name :monospaced
+                               :style #{:bold :italic}
+                               :size 24)
+                   :background :pink)
+
+    (listen dwarf-list :selection puffball-selection-change)
+    (listen  prof-list :selection     prof-selection-change)
+    
     (-> (frame 
           :title      "Dwarven Guidance Councilor" 
           :height     height
