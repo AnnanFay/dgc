@@ -10,6 +10,139 @@
 (native!)
 
 ;;;;
+;;;; ???????????????????????????????????????????????
+;;;;
+
+(defn html [s]
+  (str
+    "<html>"
+    s
+    "</html>"))
+
+(defn ul [s]
+  (if (coll? s)
+    (str
+      "<ul>"
+      (apply str (map #(str "<li>" (ul %) "</li>") s))
+      "</ul>")
+    (str s)))
+
+(defn profession-info [profession]
+  (let [prof-name (first profession)
+        prof      (second profession)
+        title     (label :id :title :text (str prof-name) :h-text-position :center)]
+    (config! title :font (font :name :monospaced
+                               :style #{:bold :italic}
+                               :size 24)
+                   :background :pink)
+   (mig-panel
+      :id :main
+      :constraints ["insets 0" "" ""]
+      :items [[title                            "dock north, shrink 0, growx"]
+             [(listbox :model (:attributes prof)) ""]
+             [(listbox :model (:traits prof)) ""]
+             [(listbox :model (:preferences prof)) ""]])))
+
+(defn puffball-info [puffball]
+  (let [title     (label :id :title :text (get-full-name puffball) :h-text-position :center)]
+    (config! title :font (font :name :monospaced
+                               :style #{:bold :italic}
+                               :size 24)
+                   :background :yellow)
+    (mig-panel
+        :id :main
+        :constraints ["insets 0" "" ""]
+        :items [[title                            "dock north, shrink 0, growx"]
+               [(listbox :model (-> puffball :body :physical))    ""]
+               [(listbox :model (-> puffball :soul :mental))      "wrap"]
+               [(listbox :model (-> puffball :soul :traits))      ""]
+               [(listbox :model (-> puffball :soul :preferences)) ""]])))
+
+
+(defn puffball-compats [puffball profs]
+  (let [title          (label :id :title :text (str (get-full-name puffball) "'s Profession Compatability") :h-text-position :center)
+        compats        (map #(vector (compat puffball (second %)) (first %)) profs)
+        sorted-compats (reverse (sort compats))]
+    (config! title :font (font :name :monospaced
+                               :style #{:bold :italic}
+                               :size 24)
+                   :background :orange)
+    (mig-panel
+        :id :main
+        :constraints ["insets 0" "" ""]
+        :items [[title                            "dock north, shrink 0, growx"]
+               [(listbox :model (map #(str (second %) ":" (first %)) sorted-compats))]])))
+
+
+;;;
+;;; Selections
+;;;
+
+; No puff    / No profs
+; display help message
+
+(defn no-puff-no-prof [root]
+    nil)
+
+; A puff     / No profs
+; display puff info
+
+(defn a-puff-no-prof [root puffball]
+  (let [p (select root [:#container])
+        c (select root [:#smain])]
+    (replace! p c (scrollable (puffball-info puffball) :id :smain))))
+
+; Multi puff / No profs
+; Display summary info of selected / comparison
+
+(defn m-puff-no-prof [root puffballs]
+    nil)
+
+; No puff    / A prof
+; display prof info
+
+(defn no-puff-a-prof [root prof]
+  (let [p (select root [:#container])
+        c (select root [:#smain])]
+    (replace! p c (scrollable (profession-info prof) :id :smain))))
+
+; A puff     / A prof
+; display single compatability
+
+(defn a-puff-a-prof [root puffball prof]
+  (let [p (select root [:#container])
+        c (select root [:#smain])]
+    (replace! p c (scrollable
+                    (label :text (str "Compatability: " (compat puffball (second prof)))) :id :smain))))
+
+; Multi puff / A prof
+; display compatability for all puffs
+
+(defn m-puff-a-prof [root puffballs prof]
+    nil)
+
+; No puff    / Multi profs
+; display symmary info of selected / comparison
+
+(defn no-puff-m-prof [root profs]
+    nil)
+
+; A puff     / Multi profs
+; display compatability for all selected profs
+
+(defn a-puff-m-prof [root puffball profs]
+  (let [p (select root [:#container])
+        c (select root [:#smain])]
+    (replace! p c (scrollable (puffball-compats puffball profs) :id :smain))))
+
+; Multi puff / Multi profs
+; ???????????????????
+; display Not Implemented message
+
+(defn m-puff-m-prof [root puffballs profs]
+    nil)
+
+;;;;
 ;;;; Action Handlers
 ;;;;
 
@@ -31,30 +164,22 @@
         prof-list  (select root [:#prof-list])
         puffballs  (selection dwarf-list {:multi? true})
         profs      (selection prof-list {:multi? true})]
-    (prn :profs)
-    (pprint profs)
-
-    (prn :puffballs)
-    (pprint puffballs)
     (cond
       (nil? profs)
         (cond
-          (nil? puffballs)        ""
-          (= (count puffballs) 1) ""
-          :else                   "")
+          (nil? puffballs)        (no-puff-no-prof root)
+          (= (count puffballs) 1) (a-puff-no-prof root (first puffballs))
+          :else                   (m-puff-no-prof root puffballs))
       (= (count profs) 1)
         (cond
-          (nil? puffballs)        ""
-          (= (count puffballs) 1) ""
-          :else                   "")
- 
+          (nil? puffballs)        (no-puff-a-prof root (first profs))
+          (= (count puffballs) 1) (a-puff-a-prof root (first puffballs) (first profs))
+          :else                   (m-puff-a-prof root puffballs (first profs)))
       :else
         (cond
-          (nil? puffballs)        ""
-          (= (count puffballs) 1) ""
-          :else                   ""))))
-        ;(display-puffball-info (first prof))
-        ;(value! content {:main (str (:name (first prof)))})
+          (nil? puffballs)        (no-puff-m-prof root profs)
+          (= (count puffballs) 1) (a-puff-m-prof root (first puffballs) profs)
+          :else                   (m-puff-m-prof root puffballs profs)))))
 
 
 ; puffball selection changes
@@ -63,44 +188,6 @@
     
 (defn prof-selection-change[e]
   (selection-change e))
-
-
-;;;
-;;; Selections
-;;;
-
-; No puff    / No profs
-; display help message
-
-; A puff     / No profs
-; display puff info
-
-; Multi puff / No profs
-; Display summary info of selected / comparison
-
-; No puff    / A prof
-; display prof info
-
-; A puff     / A prof
-; display single compatability
-
-; Multi puff / A prof
-; display compatability for all puffs
-
-; No puff    / Multi profs
-; display symmary info of selected / comparison
-
-; A puff     / Multi profs
-; display compatability for all profs
-
-; Multi puff / Multi profs
-; ???????????????????
-; display Not Implemented message
-
-
-
-
-
 
 ;;;;
 ;;;; Actions
@@ -217,20 +304,6 @@
 (defn puffball-soul [puffball]
   (merge {:name (get-full-name puffball)} (-> puffball :soul :mental)))
 
-(defn profession-info [profession]
-  (mig-panel
-      :constraints ["insets 0" "" ""]
-      :items [
-        [(label "Miner") "dock north, shrink 0"]
-         ]))
-
-(defn puffball-info [puffball]
-  (mig-panel
-      :constraints ["insets 0" "" ""]
-      :items [
-        [(label (get-full-name puffball)) "dock north, shrink 0"]
-         ]))
-
 (defn sex-symbol [s]
     (if s "♂" "♀"))
 
@@ -244,10 +317,10 @@
 
 (defn -main [& args]
   (let [height        800
-       data          (parse-string (slurp "Dwarves.json") true)
-       raw-puffballs (:root data)
-       puffballs     (get-puffballs data raw-puffballs)
-       puffballs     (filter #(= (:race %) "DWARF") puffballs) 
+        data          (parse-string (slurp "Dwarves.json") true)
+        raw-puffballs (:root data)
+        puffballs     (get-puffballs data raw-puffballs)
+        puffballs     (filter #(= (:race %) "DWARF") puffballs) 
         prof-list       (listbox :id        :prof-list
                                  :model     professions
                                  :renderer  prof-list-renderer
@@ -256,25 +329,16 @@
                                  :model     puffballs
                                  :renderer  puffball-list-renderer
                                  :popup     (fn [e] [sort-by-name-action sort-by-age-action]))
-        title           (label :id :title :text "Title" :h-text-position :center)
         content         (mig-panel
-                          :constraints ["insets 0" "[]12[grow]12[]" "[]12[grow]12[]"]
+                          :id          :container
+                          :constraints ["insets 0" "[pref!]12[grow]12[pref!]" "[pref!]12[grow]12[pref!]"]
                           :items [
                             [(scrollable dwarf-list)                            "dock west"]
                             [(scrollable prof-list)                             "dock east"]
-                            [top-menubar                                        "dock north, shrink 0"]
-                            [title                                              "dock north, shrink 0, growx"]
-                            [(label :id :sel          :text "Status Bar: ...")  "dock south"]
-                            [(label :id :main         :text "Foo")              "growx, wrap"]
-                            [test-chart                                         "growx, wrap"]])]
-    ;(pprint (first puffballs))
-    ;(prn (compat (first puffballs) (:miner professions)))
-    (pprint (events-for dwarf-list))
-
-    (config! title :font (font :name :monospaced
-                               :style #{:bold :italic}
-                               :size 24)
-                   :background :pink)
+                            [top-menubar                                        "wrap"]
+                            [(scrollable (mig-panel :id :main) :id :smain)      "wrap"]
+                            [(label :id :status :text "Status Bar: ...")        ""]])]
+                            ;[test-chart                                         "growx, wrap"]])]
 
     (listen dwarf-list :selection puffball-selection-change)
     (listen  prof-list :selection     prof-selection-change)
@@ -283,10 +347,8 @@
           :title      "Dwarven Guidance Councilor" 
           :height     height
           :width      (* height 1.618)
-          ;:menubar   top-menubar
           :content    content
           :on-close   :hide) ;:exit)
-        ;pack!
         show!)))
 
 ; If called on the command line

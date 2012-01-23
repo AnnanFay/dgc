@@ -90,11 +90,15 @@
 })
 
 (defn average [data]
-  (/ (apply + data) (count data)))
+  (if (empty? data)
+    0
+    (/ (apply + data) (count data))))
 
 (defn compat [puffball prof]
-  (let [attributes (merge (-> puffball :soul :mental) (-> puffball :body :physical))]
-    (average (map #(((first %) attributeFunctionMap) (second %)) (select-keys attributes (:attributes prof)) ))))
+  (let [attributes      (merge (-> puffball :soul :mental) (-> puffball :body :physical))
+        prof-attributes (select-keys attributes (:attributes prof))]
+    ;(prn attributes prof-attributes)
+    (average (map #(((first %) attributeFunctionMap) (second %)) prof-attributes ))))
 
 
 (def test-chart (ChartPanel. (doto (function-plot  avgattrtopct     0 5000)
