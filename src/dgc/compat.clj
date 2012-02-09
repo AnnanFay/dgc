@@ -1,9 +1,10 @@
 (ns dgc.compat
   ""
   (:import [org.jfree.chart ChartPanel])
-  (:import [java.awt Component Dimension])
+  (:import [java.awt Component Color Dimension])
   (:import [javax.swing JFrame])
-  (:use [incanter core stats charts]))
+  (:use [incanter core stats charts]
+        [seesaw color]))
 
 
 
@@ -97,8 +98,12 @@
 (defn compat [puffball prof]
   (let [attributes      (merge (-> puffball :soul :mental) (-> puffball :body :physical))
         prof-attributes (select-keys attributes (:attributes prof))]
-    ;(prn attributes prof-attributes)
     (average (map #(((first %) attributeFunctionMap) (second %)) prof-attributes ))))
+
+; maps to red > orange > yellow > green
+(defn compat-colour [compat]
+  (if (number? compat)
+    (Color. (Color/HSBtoRGB (/ compat 166) 1 1))))
 
 
 (def test-chart (ChartPanel. (doto (function-plot  avgattrtopct     0 5000)

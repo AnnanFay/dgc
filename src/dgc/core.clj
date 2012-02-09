@@ -1,6 +1,6 @@
 (ns dgc.core
   ""
-  (:use [dgc util config read compat]
+  (:use [dgc util config read compat presets]
         [seesaw core table color mig font chooser keystroke]
         [seesaw.event :only [events-for]]
         [cheshire.core]
@@ -13,65 +13,103 @@
 ;;;; ???????????????????????????????????????????????
 ;;;;
 
-(defn html [s]
-  (str
-    "<html>"
-    s
-    "</html>"))
+(defn key-title [k]
+  (if (keyword? k)
+    (s/capitalize (name k))
+    (str k)))
+
+(defn title [s]
+  (config! (label :id :title :text (str s) :h-text-position :center)
+           :font (font
+             :name :monospaced
+             :style #{:bold :italic}
+             :size 24)
+           :background :pink))
+
 
 (defn ul [s]
-  (if (coll? s)
-    (str
-      "<ul>"
-      (apply str (map #(str "<li>" (ul %) "</li>") s))
-      "</ul>")
-    (str s)))
+  ;(prn s)
+  (cond
+    (map? s)
+      (mig-panel
+        :constraints ["insets 0" "" ""]
+        :items (interleave
+                (map #(vector (ul %) "") (keys s))
+                (map #(vector (ul %) "wrap") (vals s)) ))
+    (coll? s)
+      (mig-panel
+        :constraints ["insets 0" "" ""]
+        :items (map #(vector (ul %) "wrap") s))
+    :else
+      (label :text (key-title s))))
 
 (defn profession-info [profession]
   (let [prof-name (first profession)
-        prof      (second profession)
-        title     (label :id :title :text (str prof-name) :h-text-position :center)]
-    (config! title :font (font :name :monospaced
-                               :style #{:bold :italic}
-                               :size 24)
-                   :background :pink)
+        prof      (second profession)]
    (mig-panel
       :id :main
-      :constraints ["insets 0" "" ""]
-      :items [[title                            "dock north, shrink 0, growx"]
-             [(listbox :model (:attributes prof)) ""]
-             [(listbox :model (:traits prof)) ""]
-             [(listbox :model (:preferences prof)) ""]])))
+      :constraints ["insets 0, fill" "" ""]
+      :items [[(title prof-name) "dock north, shrink 0, growx"]
+             [(ul prof)          ""]])))
 
 (defn puffball-info [puffball]
-  (let [title     (label :id :title :text (get-full-name puffball) :h-text-position :center)]
-    (config! title :font (font :name :monospaced
-                               :style #{:bold :italic}
-                               :size 24)
-                   :background :yellow)
     (mig-panel
         :id :main
         :constraints ["insets 0" "" ""]
-        :items [[title                            "dock north, shrink 0, growx"]
-               [(listbox :model (-> puffball :body :physical))    ""]
-               [(listbox :model (-> puffball :soul :mental))      "wrap"]
-               [(listbox :model (-> puffball :soul :traits))      ""]
-               [(listbox :model (-> puffball :soul :preferences)) ""]])))
+        :items [[(title (get-full-name puffball))            "dock north, shrink 0, growx"]
+                [(ul puffball)]]))
+
+(defn compat-info [puffball prof]
+    (mig-panel
+        :id :main
+        :constraints ["insets 0" "" ""]
+        :items [[(title (get-full-name puffball))       "dock north, shrink 0, growx"]
+                [(label :text (str "Compatability: " (compat puffball (second prof))))]]))
 
 
 (defn puffball-compats [puffball profs]
-  (let [title          (label :id :title :text (str (get-full-name puffball) "'s Profession Compatability") :h-text-position :center)
-        compats        (map #(vector (compat puffball (second %)) (first %)) profs)
+  (let [compats        (map #(vector (compat puffball (second %)) (first %)) profs)
         sorted-compats (reverse (sort compats))]
-    (config! title :font (font :name :monospaced
-                               :style #{:bold :italic}
-                               :size 24)
-                   :background :orange)
     (mig-panel
         :id :main
         :constraints ["insets 0" "" ""]
-        :items [[title                            "dock north, shrink 0, growx"]
+        :items [[(title (str (get-full-name puffball) "'s Profession Compatability")) "dock north, shrink 0, growx"]
                [(listbox :model (map #(str (second %) ":" (first %)) sorted-compats))]])))
+
+; like map however returns a matrix of f applied to every combintion of c1 and c2
+(defn map-prod [f c1 c2]
+  (map #(map (partial f %) c2) c1))
+
+(defn vv-to-map [vv]
+    (apply hash-map (flatten vv)))
+
+(defn compat-cell-renderer [this obj]
+  (prn obj)
+  (prn (compat-colour obj))
+  (.setBackground this (compat-colour obj))
+  (if (float? obj)
+    (.setText this (format "%.2f" obj))
+    (.setText this (str obj)))
+  this)
+
+(declare key-seq-to-header make-table)
+
+(defn compat-header [compats]
+  (key-seq-to-header (keys compats) { :renderer compat-cell-renderer}))
+
+(defn puffball-compats-table [puffballs profs]
+  ;(prn puffballs profs)
+  (let [data    (map-prod #(vector (first %2) (compat %1 (second %2))) puffballs profs)
+        data    (map vv-to-map data)
+        data    (map #(merge %1 (hash-map :name (get-full-name %2))) data puffballs)
+        ;data    (map #(hash-map :foo %) (range 0 0.6 0.10001))
+        tablith (make-table data identity compat-header)
+        mp      (mig-panel
+          :id :main
+          :constraints ["insets 0, fill" "" "[pref!]r[]"]
+          :items [[(title  "Compatability Matrix")       "wrap"]
+                  [(scrollable tablith) "grow"]])]
+  (config! mp :background :orange)))
 
 
 ;;;
@@ -112,8 +150,7 @@
 (defn a-puff-a-prof [root puffball prof]
   (let [p (select root [:#container])
         c (select root [:#smain])]
-    (replace! p c (scrollable
-                    (label :text (str "Compatability: " (compat puffball (second prof)))) :id :smain))))
+    (replace! p c (scrollable (compat-info puffball prof) :id :smain))))
 
 ; Multi puff / A prof
 ; display compatability for all puffs
@@ -136,18 +173,19 @@
     (replace! p c (scrollable (puffball-compats puffball profs) :id :smain))))
 
 ; Multi puff / Multi profs
-; ???????????????????
-; display Not Implemented message
+; Table of dwarf/profession compatabilities.
 
 (defn m-puff-m-prof [root puffballs profs]
-    nil)
+  (let [p (select root [:#container])
+        c (select root [:#smain])]
+    (replace! p c (scrollable (puffball-compats-table puffballs profs) :id :smain))))
 
 ;;;;
 ;;;; Action Handlers
 ;;;;
 
-(defn sort-by-name [e] (alert "foo"))
-(defn sort-by-age  [e] (alert "bar"))
+(defn sort-by-name [e] (prn "sort-by-name" e) (alert "Sorry, not implemented"))
+(defn sort-by-age  [e] (prn "sort-by-age" e)  (alert "Sorry, not implemented"))
 
 (defn load-export [e]
     (if-let [f (choose-file :filters [["JSON Files" ["json"]]])]
@@ -158,7 +196,7 @@
         (alert f)))
 
 
-(defn selection-change[e]
+(defn selection-change [e]
   (let [root          (to-root e)
         dwarf-list (select root [:#dwarf-list])
         prof-list  (select root [:#prof-list])
@@ -183,10 +221,10 @@
 
 
 ; puffball selection changes
-(defn puffball-selection-change[e]
+(defn puffball-selection-change [e]
   (selection-change e))
     
-(defn prof-selection-change[e]
+(defn prof-selection-change [e]
   (selection-change e))
 
 ;;;;
@@ -206,8 +244,11 @@
                                   :mnemonic \a   :key (keystroke "menu A")))
 
 ;Dwarf list
-(def sort-by-name-action (action :name "Sort By Name" :handler sort-by-name))
-(def sort-by-age-action  (action :name "Sort By Age"  :handler sort-by-age))
+(def sort-by-name-action      (action :name "Sort by Name" :handler sort-by-name))
+(def sort-by-age-action       (action :name "Sort by Age"  :handler sort-by-age))
+
+(def add-prof-preset-action   (action :name "Add selection as preset" :handler add-prof-preset))
+(def add-dwarf-preset-action  (action :name "Add selection as preset" :handler add-dwarf-preset))
 
 ;;;;
 ;;;; Menus
@@ -248,7 +289,7 @@
                             (getTableCellRendererComponent [tbl obj isSelected hasFocus r c]
                               ((:renderer head) this obj))))))
 
-(defn make-table [data to-row & [to-header cell-renderer]]
+(defn make-table [data to-row & [to-header]]
   (let [header  (if (nil? to-header)
                   (key-seq-to-header  (keys (first data)))
                   (to-header          (first data)))
@@ -308,37 +349,58 @@
     (if s "♂" "♀"))
 
 (defn prof-list-renderer [this {prof :value}]
-    (.setText this (str (s/capitalize (name (first prof)))))
-    this)
+  (.setText this (str (s/capitalize (name (first prof)))))
+  this)
 
 (defn puffball-list-renderer [this {puffball :value}]
-    (.setText this (str "[" (sex-symbol (:sex puffball)) "] " (get-full-name puffball)))
-    this)
+  (.setText this (str "[" (sex-symbol (:sex puffball)) "] " (get-full-name puffball)))
+  this)
+
+(defn preset-list-renderer [this {preset :value}]
+  (.setText this (str (first preset)))
+  this)
 
 (defn -main [& args]
-  (let [height        800
-        data          (parse-string (slurp "Dwarves.json") true)
-        raw-puffballs (:root data)
-        puffballs     (get-puffballs data raw-puffballs)
-        puffballs     (filter #(= (:race %) "DWARF") puffballs) 
-        prof-list       (listbox :id        :prof-list
-                                 :model     professions
-                                 :renderer  prof-list-renderer
-                                 :popup     (fn [e] [sort-by-name-action sort-by-age-action]))
-        dwarf-list      (listbox :id        :dwarf-list
-                                 :model     puffballs
-                                 :renderer  puffball-list-renderer
-                                 :popup     (fn [e] [sort-by-name-action sort-by-age-action]))
-        content         (mig-panel
-                          :id          :container
-                          :constraints ["insets 0" "[pref!]12[grow]12[pref!]" "[pref!]12[grow]12[pref!]"]
-                          :items [
-                            [(scrollable dwarf-list)                            "dock west"]
-                            [(scrollable prof-list)                             "dock east"]
-                            [top-menubar                                        "wrap"]
-                            [(scrollable (mig-panel :id :main) :id :smain)      "wrap"]
-                            [(label :id :status :text "Status Bar: ...")        ""]])]
-                            ;[test-chart                                         "growx, wrap"]])]
+  (let [height            800
+        data              (parse-string (slurp "Dwarves.json") true)
+        raw-puffballs     (:root data)
+        puffballs         (get-puffballs data raw-puffballs)
+        puffballs         (filter #(= (:race %) "DWARF") puffballs) 
+        prof-list         (listbox :id        :prof-list
+                                   :model     (sort professions)
+                                   :renderer  prof-list-renderer
+                                   :popup     (fn [e] [sort-by-name-action sort-by-age-action add-prof-preset-action]))
+        dwarf-list        (listbox :id        :dwarf-list
+                                   :model     (sort-by get-full-name puffballs)
+                                   :renderer  puffball-list-renderer
+                                   :popup     (fn [e] [sort-by-name-action sort-by-age-action add-dwarf-preset-action]))
+        default-presets   {:none nil}
+        dwarf-preset-list (combobox :id       :dwarf-presets
+                                    :model    (conj (get-presets "dwarves") default-presets)
+                                    :renderer preset-list-renderer
+                                    :listen   [:selection (partial change-dwarf-preset puffballs)])
+        prof-preset-list  (combobox :id       :prof-presets
+                                    :model    (conj (get-presets "profs") default-presets)
+                                    :renderer preset-list-renderer
+                                    :listen   [:selection (partial change-prof-preset professions)])
+        button-rem-dwarf-preset (button :text "-" :listen [:action rem-dwarf-preset])
+        button-rem-prof-preset  (button :text "-" :listen [:action rem-prof-preset])
+        content           (mig-panel
+                            :id          :container
+                            :constraints ["insets 0, fill" "[pref!]r[grow]r[pref!]" "[pref!]r[grow]r[pref!]"]
+                            :items [
+                              [dwarf-preset-list                                  "split 2"]
+                              [button-rem-dwarf-preset                            ""]
+                              [top-menubar                                        ""]
+                              [prof-preset-list                                   "split 2"]
+                              [button-rem-prof-preset                             "wrap"]
+
+                              [(scrollable dwarf-list)                            "span 1 2, growy"]
+                              [(scrollable (mig-panel :id :main) :id :smain)      "grow"]
+                              [(scrollable prof-list)                             "span 1 2, growy, wrap"]
+                              [(label :id :status :text "Status Bar: ...")        ""]])]
+                              ;[test-chart                                         "growx, wrap"]])]
+
 
     (listen dwarf-list :selection puffball-selection-change)
     (listen  prof-list :selection     prof-selection-change)
@@ -349,7 +411,10 @@
           :width      (* height 1.618)
           :content    content
           :on-close   :hide) ;:exit)
-        show!)))
+        show!)
+    (selection! dwarf-list {:multi? true} [(first puffballs) (second puffballs)])
+    (selection! prof-list {:multi? true} [(first professions) (second professions)])
+))
 
 ; If called on the command line
 (if *command-line-args*
