@@ -716,13 +716,13 @@ String.prototype.toCapitalize = function() {
 function xmlUpdate() {
     var xhttp = new XMLHttpRequest();
     try {
-        xhttp.open('GET', 'Dwarves.xml', false);
+        xhttp.open('GET', 'xml/Dwarves.xml', false);
         xhttp.send(null);
         xmlDoc = xhttp.responseXML;
     } catch (e) {
         microsoft = "yes";
         var xml = document.createElement("xml");
-        xml.src = "Dwarves.xml";
+        xml.src = "xml/Dwarves.xml";
         document.body.appendChild(xml);
         xmlDoc = xml.XMLDocument;
         document.body.removeChild(xml);
@@ -954,7 +954,7 @@ function verbalevalsubmit(verbal) {
 		type = "Body";
     } else if (verbal.search("abysmally clumsy") != -1) {
         
-        changelogupdate("No dwarf is abysmally clumsy!");
+        alert("No dwarf is abysmally clumsy!");
         return;
     } else if (verbal.search("totally clumsy") != -1) {
         value = 75;
@@ -2112,7 +2112,7 @@ function verbalevalsubmit(verbal) {
         value = 50;
         trait = "Gregariousness";
 		type = "Trait";
-    } else if (verbal.search("spending time alone much more") != -1) {
+    } else if (verbal.search("time alone much more important") != -1) {
         value = 5;
         trait = "Gregariousness";
 		type = "Trait";
@@ -2516,7 +2516,7 @@ function verbalevalsubmit(verbal) {
 		type = "Trait";
     } else {
         
-        changelogupdate("Error! Counselor could not evaluate your verbal input.");
+        alert("Error! Counselor could not evaluate your verbal input. Input: " + verbal);
         return;
     }
     return [type, trait, value];
