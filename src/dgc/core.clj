@@ -1,7 +1,7 @@
 (ns dgc.core
   ""
-  (:use [dgc util config read compat presets]
-        [seesaw core table color mig font chooser keystroke]
+  (:use [dgc util config read compat presets menus]
+        [seesaw core table color mig font]
         [seesaw.event :only [events-for]]
         [cheshire.core]
         [clojure.pprint])
@@ -95,7 +95,7 @@
 (declare key-seq-to-header make-table)
 
 (defn compat-header [compats]
-  (key-seq-to-header (keys compats) { :renderer compat-cell-renderer}))
+  (conj (key-seq-to-header (keys (dissoc compats :name)) { :renderer compat-cell-renderer :width 36}) {:key :name :text "Name"}))
 
 (defn puffball-compats-table [puffballs profs]
   ;(prn puffballs profs)
@@ -184,17 +184,6 @@
 ;;;; Action Handlers
 ;;;;
 
-(defn sort-by-name [e] (prn "sort-by-name" e) (alert "Sorry, not implemented"))
-(defn sort-by-age  [e] (prn "sort-by-age" e)  (alert "Sorry, not implemented"))
-
-(defn load-export [e]
-    (if-let [f (choose-file :filters [["JSON Files" ["json"]]])]
-        (alert f)))
-
-(defn reload-export [e]
-    (if-let [f (choose-file)]
-        (alert f)))
-
 
 (defn selection-change [e]
   (let [root          (to-root e)
@@ -227,41 +216,7 @@
 (defn prof-selection-change [e]
   (selection-change e))
 
-;;;;
-;;;; Actions
-;;;;
 
-; Menubar
-(def load-export-action   (action :name "Open"   :tip "Open JSON export"
-                                  :mnemonic \o   :key (keystroke "menu O")
-                                  :handler load-export))
-(def reload-export-action (action :name "Reload" :tip "Reload file"      
-                                  :mnemonic \r   :key (keystroke "menu R")
-                                  :handler reload-export))
-(def show-help-action     (action :name "Info"   :tip "What to do"       
-                                  :mnemonic \i   :key (keystroke "menu I")))
-(def show-version-action  (action :name "About"  :tip "Version info"     
-                                  :mnemonic \a   :key (keystroke "menu A")))
-
-;Dwarf list
-(def sort-by-name-action      (action :name "Sort by Name" :handler sort-by-name))
-(def sort-by-age-action       (action :name "Sort by Age"  :handler sort-by-age))
-
-(def add-prof-preset-action   (action :name "Add selection as preset" :handler add-prof-preset))
-(def add-dwarf-preset-action  (action :name "Add selection as preset" :handler add-dwarf-preset))
-
-;;;;
-;;;; Menus
-;;;;
-
-(def file-menu (menu  :text "File"
-                      :mnemonic \F
-                      :items [load-export-action reload-export-action]))
-(def help-menu (menu  :text "Help"
-                      :mnemonic \H
-                      :items [show-help-action show-version-action]))
-
-(def top-menubar (menubar :items [file-menu help-menu]))
 
 ;;;;
 ;;;; Make a table out of a list of maps
@@ -338,12 +293,7 @@
           (-> puffball :soul :skills)))
 
 
-;;;; BODY
-(defn puffball-body [puffball]
-  (merge {:name (get-full-name puffball)} (-> puffball :body :physical)))
-
-(defn puffball-soul [puffball]
-  (merge {:name (get-full-name puffball)} (-> puffball :soul :mental)))
+;;; List Renderers
 
 (defn sex-symbol [s]
     (if s "♂" "♀"))
@@ -359,6 +309,7 @@
 (defn preset-list-renderer [this {preset :value}]
   (.setText this (str (first preset)))
   this)
+
 
 (defn -main [& args]
   (let [height            800
@@ -387,7 +338,7 @@
         button-rem-prof-preset  (button :text "-" :listen [:action rem-prof-preset])
         content           (mig-panel
                             :id          :container
-                            :constraints ["insets 0, fill" "[pref!]r[grow]r[pref!]" "[pref!]r[grow]r[pref!]"]
+                            :constraints ["insets 0, fill, hidemode 3" "[pref!]r[grow]r[pref!]" "[pref!]r[grow]r[pref!]"]
                             :items [
                               [dwarf-preset-list                                  "split 2"]
                               [button-rem-dwarf-preset                            ""]
@@ -395,9 +346,10 @@
                               [prof-preset-list                                   "split 2"]
                               [button-rem-prof-preset                             "wrap"]
 
-                              [(scrollable dwarf-list)                            "span 1 2, growy"]
+                              [(scrollable dwarf-list :id :dwarf-list-scrollable) "span 1 2, growy"]
                               [(scrollable (mig-panel :id :main) :id :smain)      "grow"]
-                              [(scrollable prof-list)                             "span 1 2, growy, wrap"]
+                              [(scrollable prof-list  :id :prof-list-scrollable)  "span 1 2, growy, wrap"]
+
                               [(label :id :status :text "Status Bar: ...")        ""]])]
                               ;[test-chart                                         "growx, wrap"]])]
 
@@ -412,6 +364,7 @@
           :content    content
           :on-close   :hide) ;:exit)
         show!)
+
     (selection! dwarf-list {:multi? true} [(first puffballs) (second puffballs)])
     (selection! prof-list {:multi? true} [(first professions) (second professions)])
 ))
