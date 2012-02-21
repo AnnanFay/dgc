@@ -1,10 +1,11 @@
 (ns dgc.compat
   ""
-  (:import [org.jfree.chart ChartPanel])
+  ;(:import [org.jfree.chart ChartPanel])
   (:import [java.awt Component Color Dimension])
   (:import [javax.swing JFrame])
-  (:use [incanter core stats charts]
-        [seesaw color]))
+  (:use
+    ;[incanter core stats charts]
+    [seesaw color]))
 
 
 
@@ -106,9 +107,9 @@
     (Color. (Color/HSBtoRGB (/ compat 166) 1 1))))
 
 
-(def test-chart (ChartPanel. (doto (function-plot  avgattrtopct     0 5000)
-                                   (add-function   plusattrtopct    0 5000)
-                                   (add-function   minusattrtopct   0 5000)
-                                   (add-function   dubplusattrtopct 0 5000))))
+;(def test-chart (ChartPanel. (doto (function-plot  avgattrtopct     0 5000)
+;                                   (add-function   plusattrtopct    0 5000)
+;                                   (add-function   minusattrtopct   0 5000)
+;                                   (add-function   dubplusattrtopct 0 5000))))
 
 

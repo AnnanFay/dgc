@@ -5,7 +5,8 @@
         [seesaw.event :only [events-for]]
         [cheshire.core]
         [clojure.pprint])
-  (:require [clojure.string :as s]))
+  (:require [clojure.string :as s])
+  (:gen-class))
 
 (native!)
 
@@ -28,20 +29,21 @@
 
 
 (defn ul [s]
-  ;(prn s)
-  (cond
-    (map? s)
-      (mig-panel
-        :constraints ["insets 0" "" ""]
-        :items (interleave
-                (map #(vector (ul %) "") (keys s))
-                (map #(vector (ul %) "wrap") (vals s)) ))
-    (coll? s)
-      (mig-panel
-        :constraints ["insets 0" "" ""]
-        :items (map #(vector (ul %) "wrap") s))
-    :else
-      (label :text (key-title s))))
+  (let [panel (cond
+                (map? s)
+                  (mig-panel
+                    :constraints ["insets 0" "" ""]
+                    :items (interleave
+                            (map #(vector (ul %) "") (keys s))
+                            (map #(vector (ul %) "wrap") (vals s)) ))
+                (coll? s)
+                  (mig-panel
+                    :constraints ["insets 0" "" ""]
+                    :items (map #(vector (ul %) "wrap") s))
+                :else
+                  (label :text (key-title s)))]
+    (config! panel
+     :background :white)))
 
 (defn profession-info [profession]
   (let [prof-name (first profession)
@@ -52,12 +54,33 @@
       :items [[(title prof-name) "dock north, shrink 0, growx"]
              [(ul prof)          ""]])))
 
+; tabbed panel
 (defn puffball-info [puffball]
-    (mig-panel
-        :id :main
-        :constraints ["insets 0" "" ""]
-        :items [[(title (get-full-name puffball))            "dock north, shrink 0, growx"]
-                [(ul puffball)]]))
+  (let [general-puff  (dissoc puffball :soul :body :labors)
+        attr-puff     {:physical  (-> puffball :body :physical)
+                       :mental    (-> puffball :soul :mental)}
+        trait-puff    (-> puffball :soul :traits)
+        skill-puff    (-> puffball :soul :skills)
+        labors-puff   (:labors puffball)
+        tabs [{:title   "General"
+               :content (ul general-puff)}
+              {:title   "Attributes"
+               :content (ul attr-puff)}
+              {:title   "Traits"
+               :content (ul trait-puff)}
+              {:title   "Skills"
+               :content (ul skill-puff)}
+              {:title   "Labours"
+               :content (ul labors-puff)}
+              {:title   "Equipment"
+               :content (mig-panel)}]]
+  (mig-panel
+    :constraints ["insets 0, fill" "" ""]
+    :items [[(title (get-full-name puffball)) "dock north, shrink 0, growx"]
+            [(tabbed-panel
+                :placement :top
+                :overflow  :scroll
+                :tabs      tabs)              "grow"]])))
 
 (defn compat-info [puffball prof]
     (mig-panel
@@ -112,101 +135,53 @@
   (config! mp :background :orange)))
 
 
-;;;
-;;; Selections
-;;;
-
-; No puff    / No profs
-; display help message
-
-(defn no-puff-no-prof [root]
-    nil)
-
-; A puff     / No profs
-; display puff info
-
-(defn a-puff-no-prof [root puffball]
-  (let [p (select root [:#container])
-        c (select root [:#smain])]
-    (replace! p c (scrollable (puffball-info puffball) :id :smain))))
-
-; Multi puff / No profs
-; Display summary info of selected / comparison
-
-(defn m-puff-no-prof [root puffballs]
-    nil)
-
-; No puff    / A prof
-; display prof info
-
-(defn no-puff-a-prof [root prof]
-  (let [p (select root [:#container])
-        c (select root [:#smain])]
-    (replace! p c (scrollable (profession-info prof) :id :smain))))
-
-; A puff     / A prof
-; display single compatability
-
-(defn a-puff-a-prof [root puffball prof]
-  (let [p (select root [:#container])
-        c (select root [:#smain])]
-    (replace! p c (scrollable (compat-info puffball prof) :id :smain))))
-
-; Multi puff / A prof
-; display compatability for all puffs
-
-(defn m-puff-a-prof [root puffballs prof]
-    nil)
-
-; No puff    / Multi profs
-; display symmary info of selected / comparison
-
-(defn no-puff-m-prof [root profs]
-    nil)
-
-; A puff     / Multi profs
-; display compatability for all selected profs
-
-(defn a-puff-m-prof [root puffball profs]
-  (let [p (select root [:#container])
-        c (select root [:#smain])]
-    (replace! p c (scrollable (puffball-compats puffball profs) :id :smain))))
-
-; Multi puff / Multi profs
-; Table of dwarf/profession compatabilities.
-
-(defn m-puff-m-prof [root puffballs profs]
-  (let [p (select root [:#container])
-        c (select root [:#smain])]
-    (replace! p c (scrollable (puffball-compats-table puffballs profs) :id :smain))))
-
 ;;;;
 ;;;; Action Handlers
 ;;;;
+; No puff    / No profs
+; display help message
+; A puff     / No profs
+; display puff info
+; Multi puff / No profs
+; Display summary info of selected / comparison
+; No puff    / A prof
+; display prof info
+; A puff     / A prof
+; display single compatability
+; Multi puff / A prof
+; display compatability for all puffs
+; No puff    / Multi profs
+; display symmary info of selected / comparison
+; A puff     / Multi profs
+; display compatability for all selected profs
+; Multi puff / Multi profs
+; Table of dwarf/profession compatabilities.
 
+
+(defn rep! [root screen]
+  (let [p           (select root [:#container])
+        c           (select root [:#smain])]
+    (replace! p c (scrollable screen :id :smain))))
 
 (defn selection-change [e]
   (let [root          (to-root e)
-        dwarf-list (select root [:#dwarf-list])
-        prof-list  (select root [:#prof-list])
-        puffballs  (selection dwarf-list {:multi? true})
-        profs      (selection prof-list {:multi? true})]
+        dwarf-list  (select root [:#dwarf-list])
+        prof-list   (select root [:#prof-list])
+        puffballs   (selection dwarf-list {:multi? true})
+        profs       (selection prof-list {:multi? true})]
     (cond
-      (nil? profs)
-        (cond
-          (nil? puffballs)        (no-puff-no-prof root)
-          (= (count puffballs) 1) (a-puff-no-prof root (first puffballs))
-          :else                   (m-puff-no-prof root puffballs))
-      (= (count profs) 1)
-        (cond
-          (nil? puffballs)        (no-puff-a-prof root (first profs))
-          (= (count puffballs) 1) (a-puff-a-prof root (first puffballs) (first profs))
-          :else                   (m-puff-a-prof root puffballs (first profs)))
-      :else
-        (cond
-          (nil? puffballs)        (no-puff-m-prof root profs)
-          (= (count puffballs) 1) (a-puff-m-prof root (first puffballs) profs)
-          :else                   (m-puff-m-prof root puffballs profs)))))
+      (nil? profs) (cond
+              (nil? puffballs)          nil
+              (= (count puffballs) 1)   (rep! root (puffball-info (first puffballs)))
+              :else                     nil)
+      (= (count profs) 1) (cond
+              (nil? puffballs)          (rep! root (profession-info (first profs)))
+              (= (count puffballs) 1)   (rep! root (compat-info (first puffballs) (first profs)))
+              :else                     nil)
+      :else (cond
+              (nil? puffballs)          nil
+              (= (count puffballs) 1)   (rep! root (puffball-compats (first puffballs) profs))
+              :else                     (rep! root (puffball-compats-table puffballs profs))))))
 
 
 ; puffball selection changes
@@ -218,48 +193,6 @@
 
 
 
-;;;;
-;;;; Make a table out of a list of maps
-;;;;
-
-(defn base-header [k]
-  {:key k :text (s/capitalize (name k))})
-
-; [:foo :bar :baz] -> [{:key :foo :text "Foo" } {...}]
-(defn key-seq-to-header [key-seq & [extend]]
-  (map #(merge extend (base-header %)) (remove nil? key-seq)))
-
-(defn map-to-header [m & [extend]]
-  (map #(merge extend (hash-map :key %1 :text (s/capitalize %2)))
-        (keys m) (vals m)))
-
-(defn set-column-renderers [col head]
-  (.setHeaderRenderer col (new darrylbu.renderer.VerticalTableHeaderCellRenderer))
-  
-  (if (not-nil? (:width head))
-    (.setMaxWidth col (:width head)))
-
-  (if (not-nil? (:renderer head))
-    (.setCellRenderer col (proxy [javax.swing.table.DefaultTableCellRenderer] []
-                            (getTableCellRendererComponent [tbl obj isSelected hasFocus r c]
-                              ((:renderer head) this obj))))))
-
-(defn make-table [data to-row & [to-header]]
-  (let [header  (if (nil? to-header)
-                  (key-seq-to-header  (keys (first data)))
-                  (to-header          (first data)))
-        table   (table  :id           :table
-                        :auto-resize  :off
-                        :model        [ :columns  header
-                                        :rows     (map to-row data)])
-        columns   (enumeration-seq (-> table .getColumnModel .getColumns))]
-    (.setAutoCreateRowSorter table true)
-    (doall (map set-column-renderers columns header))
-    ;(.setBackground table (color 255 142 10))
-    ;setForeground
-    table))
-
-
 (defn labor-cell-renderer [this obj]
   (if obj 
     (.setBackground this (color 130 110 160))
@@ -267,43 +200,19 @@
   ;(.setText this (str "foo"))
   this)
 
-;;;;
-;;;; Dwarf transformers
-;;;;
-
-;; REMEMBER: Rows are maps, a header is a sequences of {:key :foo :text "Foo"} maps
-
-;;;; LABORS
-(defn puffball-labor-header [puffball]
-  (cons {:key :name :text "Name"} (key-seq-to-header labors { :renderer labor-cell-renderer
-                                                              :width 14})))
-
-; name and checkboxes for labors
-(defn puffball-labors [puffball]
-  (merge  {:name (get-full-name puffball)}
-          (-> puffball :labors)))
-
-
-;;;; SKILLS
-(defn puffball-skill-header [puffball]
-  (cons {:key :name :text "Name"} (map-to-header skills  {:width 14})))
-
-(defn puffball-skills [puffball]
-  (merge  {:name (get-full-name puffball)}
-          (-> puffball :soul :skills)))
-
-
 ;;; List Renderers
 
 (defn sex-symbol [s]
-    (if s "♂" "♀"))
+  (if (= s 1) "♂" "♀"))
 
 (defn prof-list-renderer [this {prof :value}]
   (.setText this (str (s/capitalize (name (first prof)))))
+  (config! this :font (font :size 12))
   this)
 
 (defn puffball-list-renderer [this {puffball :value}]
   (.setText this (str "[" (sex-symbol (:sex puffball)) "] " (get-full-name puffball)))
+  (config! this :font (font :size 12))
   this)
 
 (defn preset-list-renderer [this {preset :value}]
@@ -357,16 +266,16 @@
     (listen dwarf-list :selection puffball-selection-change)
     (listen  prof-list :selection     prof-selection-change)
     
-    (-> (frame 
+    (doto (frame 
           :title      "Dwarven Guidance Councilor" 
           :height     height
           :width      (* height 1.618)
           :content    content
           :on-close   :hide) ;:exit)
         show!)
-
-    (selection! dwarf-list {:multi? true} [(first puffballs) (second puffballs)])
-    (selection! prof-list {:multi? true} [(first professions) (second professions)])
+    
+    ;(selection! dwarf-list {:multi? true} [(first puffballs)])
+    ;(selection! prof-list {:multi? true} [(first professions) (second professions)])
 ))
 
 ; If called on the command line

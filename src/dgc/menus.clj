@@ -2,13 +2,50 @@
   ""
   (:use [dgc util presets]
         [seesaw core keystroke chooser]
-        [cheshire.core]))
+        [cheshire.core])
+  (:import java.awt.GraphicsEnvironment))
+
+;;;;
+;;;; Full Screen Mode
+;;;;
+
+;TODO: Refactor!
+
+(defn set-full-screen-frame! [f]
+  (-> (GraphicsEnvironment/getLocalGraphicsEnvironment)
+    .getDefaultScreenDevice
+    (.setFullScreenWindow f)))
+
+(defn set-full-screen-none! [f]
+  (-> (GraphicsEnvironment/getLocalGraphicsEnvironment)
+    .getDefaultScreenDevice
+    (.setFullScreenWindow nil)))
 
 (defn toggle-full-screen [e]
+  (if (.isUndecorated (to-root e))
+    ;disable full screen
+    (do
+      (doto (to-root e)
+        .dispose
+        (.setUndecorated false)
+        (.setResizable true)
+        set-full-screen-none!
+        show!)
+      ;(show! (select (to-root e) [:#dwarf-list-scrollable]))
+      ;(show! (select (to-root e) [:#prof-list-scrollable]))
+      )
+    ;enable full screen
+    (do
+      (doto (to-root e)
+        .dispose
+        (.setUndecorated true)
+        (.setResizable false)
+        set-full-screen-frame!
+        show!)
+      ;(hide! (select (to-root e) [:#dwarf-list-scrollable]))
+      ;(hide! (select (to-root e) [:#prof-list-scrollable]))
+      )))
 
-  (hide! (select (to-root e) [:#dwarf-list-scrollable]))
-  (hide! (select (to-root e) [:#prof-list-scrollable]))
-  (prn (select (to-root e) [:#container])))
 
 ;;;;
 ;;;; Action Handlers
