@@ -1,5 +1,7 @@
 (ns dgc.util
-  "A few generic often used functions")
+  "A few generic often used functions"
+  (:use [seesaw core table color mig font])
+  (:require [clojure.string :as s]))
 
 ;;;;
 ;;;; Utilities

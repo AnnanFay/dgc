@@ -1,9 +1,10 @@
 (ns dgc.menus
   ""
-  (:use [dgc util presets]
+  (:use [dgc util presets read]
         [seesaw core keystroke chooser]
         [cheshire.core])
   (:import java.awt.GraphicsEnvironment))
+
 
 ;;;;
 ;;;; Full Screen Mode
@@ -59,8 +60,7 @@
         (alert f)))
 
 (defn reload-export [e]
-    (if-let [f (choose-file)]
-        (alert f)))
+    (update-content! (to-root e) (get-content @export-filename)))
 
 ;;;;
 ;;;; Actions
@@ -104,3 +104,4 @@
                       :items [show-help-action show-version-action]))
 
 (def top-menubar (menubar :items [file-menu view-menu help-menu]))
+

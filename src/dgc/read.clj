@@ -1,6 +1,7 @@
 (ns dgc.read
   ""
-  (:use [dgc config])
+  (:use [dgc config]
+        [cheshire.core])
   (:require [clojure.string :as s]))
 
 ;;;;
@@ -61,3 +62,12 @@
   (map (partial get-puffball data) raw-puffballs))
 
 
+(def export-filename (atom "Dwarves.json"))
+
+(defn get-content [filename]
+  (swap! export-filename #(or filename %))
+  (let [data              (parse-string (slurp filename) true)
+        raw-puffballs     (:root data)
+        puffballs         (get-puffballs data raw-puffballs)
+        puffballs         (filter #(= (:race %) "DWARF") puffballs)]
+    puffballs))
