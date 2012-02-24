@@ -1,27 +1,32 @@
 (ns dgc.core
   ""
-  (:use [dgc ui util config read compat presets menus]
+  (:use [dgc ui util config read compat presets]
         [seesaw core])
   (:gen-class))
 
 (native!)
 
 (defn -main [& args]
-  (let [puffballs []
+  (let [puffballs (get-content "Dwarves.json")
         height    800
-        content   (make-content puffballs)]
-    (doto (frame 
-          :title      "Dwarven Guidance Councilor" 
-          :height     height
-          :width      (* height 1.618)
-          :content    content
-          :on-close   :hide) ;:exit)
-        show!
-        ; load puffballs
-        (update-content! "Dwarves.json"))
+        content   (make-content puffballs)
+        f         (doto (frame 
+                          :title      "Dwarven Guidance Councilor" 
+                          :height     height
+                          :width      (* height 1.618)
+                          :content    content
+                          :on-close   :hide) ;:exit)
+                        show!
+                        ; load puffballs
+                        (update-content! puffballs))]
     
-    ;(selection! dwarf-list {:multi? true} [(first puffballs)])
-    ;(selection! prof-list {:multi? true} [(first professions) (second professions)])
+    ; some initial selections for easy debugging
+    (selection! (select f [:#dwarf-list]) {:multi? true} [(first puffballs)])
+    ;(selection! (select f [:#dwarf-list]) {:multi? true} [(first puffballs) (second puffballs)])
+    ;(selection! (select f [:#prof-list]) {:multi? true} [(first professions) (second professions)])
+
+    ;return the frame
+    f
 ))
 
 ; If called on the command line
