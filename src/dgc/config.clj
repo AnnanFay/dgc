@@ -315,458 +315,460 @@
 ; * If a trait is negetive only dwarves with less than the value will be selected.
 ; */
 (def professions {
-    :leader {
-        :skills [:consoling  :pacification]
-        :attributes [:linguistic-ability :empathy :social-awareness  :analytical-ability :creatvity] ;LEmSaAaC
-        :traits {
-            :cooperation +39,
-            :straightforwardness +39
+    :admin {
+        :leader {
+            :skills [:consoling  :pacification]
+            :attributes [:linguistic-ability :empathy :social-awareness  :analytical-ability :creatvity] ;LEmSaAaC
+            :traits {
+                :cooperation +39,
+                :straightforwardness +39
+            }
         }
-    }
-    :broker {
-        :skills [:appraisal  :judging-intent]
-        :attributes [:intuition :empathy :social-awareness  :analytical-ability :memory :linguistic-ability] ;IEmSaAaML
-    }
-    :bookkeeper {
-        :skills [:record-keeping]
-        :attributes [:analytical-ability :memory :focus] ;AaMF
-        :traits {}
-    }
-    :chief-medical-dwarf {
-        :skills [:diagnostics]
-        :attributes [:analytical-ability :memory :intuition] ;AaMI
-        :traits {}
-    }
-    :ranged-soldier {
-        :skills [:observation  :crossbow :hammer   :ambusher  :archer  :blowgunner  :bow]
-        :attributes [:agility :focus :spatial-sense :kinaesthetic-sense] ;AFSsKs
-        :traits {}
-    }
-    :melee-soldier {
-        :skills [:kick  :strike  :pike  :ax  :observation  :sword  :spear  :armour  :shield  :wrestling  :dodging  :mace  :dagger  :hammer  :whip  :blowgun  :throw  :fighting]
-        :attributes [:strength :agility :toughness :willpower :spatial-sense :kinaesthetic-sense] ;SATWSsKs
-        :traits {}
-    }
-    :socializer {
-        :skills [:conversationalist  :flatterer  :negotiator  :persuader  :consoler  :leader  :pacifier  :teacher]
-        :attributes [:linguistic-ability :empathy :social-awareness] ;LEmSa
-        :traits {}
-    }
-    :balance {
-        :skills [:balance]
-        :attributes [:strength :agility :kinaesthetic-sense] ;SAKs
-        
-    }
-    :coordination {
-        :skills [:coordination]
-        :attributes [:agility :kinaesthetic-sense :kinaesthetic-sense] ;ASsK 
-        
-    }
-    :speaker {
-        :skills [:speaking]
-        :attributes [:linguistic-ability] ;L
-        
-    }
-    :reader {
-        :skills [:reading]
-        :attributes [:memory :focus :linguistic-ability] ;MFL
-        
-    }
-    :writer {
-        :skills [:writing]
-        :attributes [:creatvity :intuition :linguistic-ability] ;CIL
-        
-    }
-    :wordsmith {
-        :skills [:wordsmith]
-        :attributes [:creatvity :intuition :linguistic-ability] ;CIL
-        
-    }
-    :poet {
-        :skills [:poet]
-        :attributes [:creatvity :intuition :linguistic-ability] ;CIL
-        
-    }
-    :disciplinarian {
-        :skills [:disciplinarian]
-        :attributes [:disease-resistance :willpower] ;FW
-        
-    }
-    :tracker {
-        :skills [:tracking]
-        :attributes [:analytical-ability :focus :spatial-sense] ;AaFSs
-        
-    }
-    :druid {
-        :skills [:druid]
-        :attributes [:agility :toughness :endurance :focus :willpower :empathy] ;ATEFWEm
-        
-    }
-    :military-tactician {
-        :skills [:military-tactician]
-        :attributes [:analytical-ability :creatvity :intuition] ;AaCI
-        
-    }
-    :student {
-        :skills [:student]
-        :attributes [:analytical-ability :memory :focus] ;AaMF
-        
-    }
-    :observer {
-        :skills [:observation]
-        :attributes [:intuition :focus :spatial-sense] ;IFSs
-        
-    }
-    :concentrator {
-        :skills [:concentrator]
-        :attributes [:focus :willpower :patience] ;FWP
-        
-    } 
-    :liar {
-        :skills [:lying]
-        :attributes  [:creatvity :linguistic-ability :social-awareness] ;CLSa
-        :traits {
-            :straightforwardness -61
+        :broker {
+            :skills [:appraisal  :judging-intent]
+            :attributes [:intuition :empathy :social-awareness  :analytical-ability :memory :linguistic-ability] ;IEmSaAaML
         }
-    }
-    :judge-of-intent {
-        :skills [:judging-intent]
-        :attributes [:intuition :empathy :social-awareness] ;IEmSa
-        
-    }
-    :intimidator {
-        :skills [:intimidation]
-        :attributes [:agility :kinaesthetic-sense :linguistic-ability] ;AKsL
-        :traits {
-            :cooperation -61
+        :bookkeeper {
+            :skills [:record-keeping]
+            :attributes [:analytical-ability :memory :focus] ;AaMF
+            :traits {}
         }
-    }
-    :comedian {
-        :skills [:comedy]
-        :attributes [:agility :creatvity :kinaesthetic-sense :linguistic-ability] ;ACKsL
-        :traits {
-            :self-consciousness -76
+        :chief-medical-dwarf {
+            :skills [:diagnostics]
+            :attributes [:analytical-ability :memory :intuition] ;AaMI
+            :traits {}
+        }}
+    :gathering {
+        :miner {
+            :skills [:mining]
+            :attributes [:strength :toughness :endurance :willpower :spatial-sense :kinaesthetic-sense] ;STEWSsKs
         }
-    }
-    :wrestler {
-        :skills [:wrestling]
-        :attributes [:strength :agility :endurance :willpower :spatial-sense :kinaesthetic-sense] ;SAEWSsKs
-        
-    }
-    :dodger {
-        :skills [:dodging]
-        :attributes [:agility :toughness :endurance :willpower :spatial-sense :kinaesthetic-sense] ;ATEWSsKs
-        
-    }
-    :biter {
-        :skills [:bitting]
-        :attributes [:strength :toughness :endurance :willpower :spatial-sense :kinaesthetic-sense] ;STEWSsKs
-        
-    }
-    :armor-user {
-        :skills [:armor]
-        :attributes [:strength :toughness :endurance :willpower :kinaesthetic-sense] ;STEWKs
-        
-    }
-    :record-keeper {
-        :skills [:record-keeping]
-        :attributes [:analytical-ability :memory :focus] ;AaMF
-        
-    }
-    :organizer {
-        :skills [:organization]
-        :attributes [:analytical-ability :creatvity :social-awareness] ;AaCSa
-        
-    }
-    :building-designer {
-        :skills [:building-design]
-        :attributes [:analytical-ability :creatvity :spatial-sense] ;AaCSs
-        
-    }
-    :appraiser {
-        :skills [:appraisal]
-        :attributes [:analytical-ability :memory :intuition] ;AaMI
-        
-    }
-    :knapper {
-        :skills [:knapping]
-        :attributes [:strength :agility :analytical-ability :spatial-sense :kinaesthetic-sense] ;SAAaSsKs
-        
-    }
-    :swimmer {
-        :skills [:swimming]
-        :attributes [:strength :agility :endurance :willpower :spatial-sense :kinaesthetic-sense] ;SAEWSsKs
-        
-    }
-    :alchemist {
-        :skills [:alchemist]
-        :attributes [:agility :analytical-ability :creatvity :intuition] ;AAaCI
-        
-    }
-    :siege-operator {
-        :skills [:siege-operation]
-        :attributes [:strength :toughness :endurance :analytical-ability :focus :spatial-sense] ;STEAaFSs
-        
-    }
-    :siege-engineer {
-        :skills [:siege-engineering]
-        :attributes [:strength :agility :endurance :analytical-ability :creatvity :spatial-sense] ;SAEAaCSs
-        
-    }
-    :pump-operator {
-        :skills [:pump-operation]
-        :attributes [:strength :toughness :endurance :willpower :kinaesthetic-sense] ;STEWKs
-        
-    }
-    :mechanic {
-        :skills [:machinery]
-        :attributes [:strength :agility :endurance :analytical-ability :creatvity :spatial-sense] ;SAEAaCSs
-        
-    }
-    :strand-extractor {
-        :skills [:strand-extracting]
-        :attributes [:strength :agility :endurance :analytical-ability :kinaesthetic-sense] ;SAEAaKs
-        
-    }
-    :wood-crafter {
-        :skills [:wood-crafting]
-        :attributes [:agility :creatvity :spatial-sense :kinaesthetic-sense] ;ACSsKs
-        
-    }
-    :weaver {
-        :skills [:weaving]
-        :attributes [:agility :creatvity :spatial-sense :kinaesthetic-sense] ;ACSsKs,
-        
-    }
-    :stone-crafter {
-        :skills [:stone-crafting]
-        :attributes [:agility :creatvity :spatial-sense :kinaesthetic-sense] ;ACSsKs
-        
-    }
-    :leatherworker {
-        :skills [:leatherworkering]
-        :attributes [:strength :agility :endurance :creatvity :spatial-sense :kinaesthetic-sense] ;SAECSsKs
-        
-    }
-    :glassmaker {
-        :skills [:glassmaking]
-        :attributes [:strength :agility :endurance :creatvity :spatial-sense :kinaesthetic-sense] ;SAECSsKs
-        
-    }
-    :clothier {
-        :skills [:clothiing]
-        :attributes [:agility :creatvity :spatial-sense :kinaesthetic-sense] ;ACSsKs,
-        
-    }
-    :bone-carver {
-        :skills [:bone-carving]
-        :attributes [:agility :creatvity :spatial-sense :kinaesthetic-sense] ;ACSsKs,
-        
-    }
-    :gem-setter {
-        :skills [:gem-setting]
-        :attributes [:agility :creatvity :spatial-sense :kinaesthetic-sense] ;ACSsKs,
-        
-    }
-    :gem-cutter {
-        :skills [:gem-cutting]
-        :attributes  [:agility :analytical-ability :spatial-sense :kinaesthetic-sense] ;AAaSsKs
-        
-    }
-    :weaponsmith {
-        :skills [:weaponsmithing]
-        :attributes [:strength :agility :endurance :creatvity :spatial-sense :kinaesthetic-sense] ;SAECSsKs
-        
-    }
-    :metalsmith {
-        :skills [:metalsmithing]
-        :attributes [:strength :agility :endurance :creatvity :spatial-sense :kinaesthetic-sense] ;SAECSsKs
-        
-    }
-    :metal-crafter {
-        :skills [:metal-crafting]
-        :attributes [:strength :agility :endurance :creatvity :spatial-sense :kinaesthetic-sense] ;SAECSsKs
-        
-    }
-    :armorsmith {
-        :skills [:armorsmithing]
-        :attributes [:strength :agility :endurance :creatvity :spatial-sense :kinaesthetic-sense] ;SAECSsKs
-        
-    }
-    :furnace-operator {
-        :skills [:furnace-operation]
-        :attributes [:strength :toughness :endurance :analytical-ability :kinaesthetic-sense] ;STEAaKs
-        
-    }
-    :fisherdwarf {
-        :skills [:fishing]
-        :attributes [:strength :agility :focus :patience :kinaesthetic-sense] ;SAFPKs
-        
-    }
-    :fish-dissector {
-        :skills [:fish-dissection]
-        :attributes [:agility :kinaesthetic-sense]
-        
-    }
-    :fish-cleaner {
-        :skills [:fish-cleaning]
-        :attributes [:agility :endurance :kinaesthetic-sense] ;AEKs
-        
-    }
-    :wood-burner {
-        :skills [:wood-burning]
-        :attributes  [:strength :toughness :endurance :kinaesthetic-sense] ;STEKs
-        
-    }
-    :thresher {
-        :skills [:threshing]
-        :attributes [:strength :agility :endurance :kinaesthetic-sense] ;SAEKs
-        
-    }
-    :tanner {
-        :skills [:tanning]
-        :attributes [:agility :kinaesthetic-sense]
-        
-    }
-    :soaper {
-        :skills [:soap-making]
-        :attributes  [:strength :toughness :endurance :kinaesthetic-sense] ;STEKs
-        
-    }
-    :potash-maker {
-        :skills [:potash-making]
-        :attributes  [:strength :toughness :endurance :kinaesthetic-sense] ;STEKs
-        
-    }
-    :miller {
-        :skills [:milling]
-        :attributes [:strength :agility :endurance :kinaesthetic-sense] ;SAEKs
-        
-    }
-    :milker {
-        :skills [:milking]
-        :attributes [:strength :agility :endurance :kinaesthetic-sense] ;SAEKs
-        
-    }
-    :lye-maker {
-        :skills [:lye-making]
-        :attributes  [:strength :toughness :endurance :kinaesthetic-sense] ;STEKs
-        
-    }
-    :herbalist {
-        :skills [:herbalist];??
-        :attributes [:agility :memory :kinaesthetic-sense] ;AMKs
-        
-    }
-    :grower {
-        :skills [:growing]
-        :attributes [:strength :agility :endurance :kinaesthetic-sense] ;SAEKs
-        
-    }
-    :dyer {
-        :skills [:dying];??
-        :attributes [:strength :agility :endurance :kinaesthetic-sense] ;SAEKs
-        
-    }
-    :cook {
-        :skills [:cooking]
-        :attributes [:agility :analytical-ability :creatvity :kinaesthetic-sense] ;AAaCKs
-        
-    }
-    :cheese-maker {
-        :skills [:cheese-making]
-        :attributes [:strength :agility :endurance :analytical-ability :creatvity :kinaesthetic-sense] ;SAEAaCKs
-        
-    }
-    :butcher {
-        :skills [:butchery]
-        :attributes [:strength :agility :endurance :kinaesthetic-sense] ;SAEKs
-        
-    }
-    :brewer {
-        :skills [:brewing]
-        :attributes [:strength :agility :kinaesthetic-sense] ;SAKs
-        
-    }
-    :wound-dresser {
-        :skills [:wound-dressing]
-        :attributes [:agility :spatial-sense :kinaesthetic-sense :empathy] ;ASsKsEm
-        
-    }
-    :suturer {
-        :skills [:suturing]
-        :attributes [:agility :focus :spatial-sense :kinaesthetic-sense] ;AFSsKs
-        
-    }
-    :surgeon {
-        :skills [:surgery]
-        :attributes [:agility :focus :spatial-sense :kinaesthetic-sense] ;AFSsKs
-        
-    }
-    :crutch-walker {
-        :skills [:crutch-walking]
-        :attributes [:agility :endurance :willpower :spatial-sense :kinaesthetic-sense] ;AEWSsKs
-        
-    }
-    :bone-doctor {
-        :skills [:bone-setting]
-        :attributes [:strength :agility :focus :spatial-sense :kinaesthetic-sense] ;SAFSsKs
-        
-    }
-    :trapper {
-        :skills [:trapping]
-        :attributes [:agility :analytical-ability :creatvity :spatial-sense] ;AAaCSs
-        
-    }
-    :animal-trainer {
-        :skills [:animal-training]
-        :attributes [:agility :toughness :endurance :intuition :patience :empathy] ;ATEIPEm
-        
-    }
-    :animal-dissector {
-        :skills [:small-animal-dissection]
-        :attributes [:agility :kinaesthetic-sense]
-        
-    }
-    :animal-caretaker {
-        :skills [:animal-caretaking]
-        :attributes [:agility :analytical-ability :memory :empathy] ;AAaMEm
-        
-    }
-    :ambusher {
-        :skills [:ambushing]
-        :attributes [:agility :focus :spatial-sense :kinaesthetic-sense] ;AFSsKs
-        
-    }
-    :mason {
-        :skills [:masonry]
-        :attributes [:strength :agility :endurance :creatvity :spatial-sense :kinaesthetic-sense] ;SAECSsKs
-        
-    }
-    :engraver {
-        :skills [:engraving]
-        :attributes [:agility :creatvity :spatial-sense :kinaesthetic-sense] ;ACSsKs,
-        
-    }
-    :wood-cutter {
-        :skills [:wood-cutting]
-        :attributes [:strength :agility :endurance :willpower :spatial-sense :kinaesthetic-sense] ;SAEWSsKs
-        
-    }
-    :carpenter {
-        :skills [:carpentry]
-        :attributes [:strength :agility :creatvity :spatial-sense :kinaesthetic-sense] ;SACSsKs
-        
-    }
-    :bowyer {
-        :skills [:bowmaking]
-        :attributes [:agility :creatvity :spatial-sense :kinaesthetic-sense] ;ACSsKs,
-        
-    }
-    :miner {
-        :skills [:mining]
-        :attributes [:strength :toughness :endurance :willpower :spatial-sense :kinaesthetic-sense] ;STEWSsKs
-    }
-})
+        :wood-cutter {
+            :skills [:wood-cutting]
+            :attributes [:strength :agility :endurance :willpower :spatial-sense :kinaesthetic-sense] ;SAEWSsKs
+            
+        }}
+    :military {
+        :ranged-soldier {
+            :skills [:observation  :crossbow :hammer   :ambusher  :archer  :blowgunner  :bow]
+            :attributes [:agility :focus :spatial-sense :kinaesthetic-sense] ;AFSsKs
+        }
+        :melee-soldier {
+            :skills [:kick  :strike  :pike  :ax  :observation  :sword  :spear  :armour  :shield  :wrestling  :dodging  :mace  :dagger  :hammer  :whip  :blowgun  :throw  :fighting]
+            :attributes [:strength :agility :toughness :willpower :spatial-sense :kinaesthetic-sense] ;SATWSsKs
+        }
+        :military-tactician {
+            :skills [:military-tactician]
+            :attributes [:analytical-ability :creatvity :intuition] ;AaCI
+            
+        }
+        :wrestler {
+            :skills [:wrestling]
+            :attributes [:strength :agility :endurance :willpower :spatial-sense :kinaesthetic-sense] ;SAEWSsKs
+            
+        }
+        :dodger {
+            :skills [:dodging]
+            :attributes [:agility :toughness :endurance :willpower :spatial-sense :kinaesthetic-sense] ;ATEWSsKs
+            
+        }
+        :biter {
+            :skills [:bitting]
+            :attributes [:strength :toughness :endurance :willpower :spatial-sense :kinaesthetic-sense] ;STEWSsKs
+            
+        }
+        :armor-user {
+            :skills [:armor]
+            :attributes [:strength :toughness :endurance :willpower :kinaesthetic-sense] ;STEWKs
+            
+        }
+        :siege-operator {
+            :skills [:siege-operation]
+            :attributes [:strength :toughness :endurance :analytical-ability :focus :spatial-sense] ;STEAaFSs
+            
+        }
+        :siege-engineer {
+            :skills [:siege-engineering]
+            :attributes [:strength :agility :endurance :analytical-ability :creatvity :spatial-sense] ;SAEAaCSs
+            
+        }}
+    :crafts {
+        :building-designer {
+            :skills [:building-design]
+            :attributes [:analytical-ability :creatvity :spatial-sense] ;AaCSs
+            
+        }
+        :pump-operator {
+            :skills [:pump-operation]
+            :attributes [:strength :toughness :endurance :willpower :kinaesthetic-sense] ;STEWKs
+            
+        }
+        :mechanic {
+            :skills [:machinery]
+            :attributes [:strength :agility :endurance :analytical-ability :creatvity :spatial-sense] ;SAEAaCSs
+            
+        }
+        :strand-extractor {
+            :skills [:strand-extracting]
+            :attributes [:strength :agility :endurance :analytical-ability :kinaesthetic-sense] ;SAEAaKs
+            
+        }
+        :wood-crafter {
+            :skills [:wood-crafting]
+            :attributes [:agility :creatvity :spatial-sense :kinaesthetic-sense] ;ACSsKs
+            
+        }
+        :weaver {
+            :skills [:weaving]
+            :attributes [:agility :creatvity :spatial-sense :kinaesthetic-sense] ;ACSsKs,
+            
+        }
+        :stone-crafter {
+            :skills [:stone-crafting]
+            :attributes [:agility :creatvity :spatial-sense :kinaesthetic-sense] ;ACSsKs
+            
+        }
+        :leatherworker {
+            :skills [:leatherworkering]
+            :attributes [:strength :agility :endurance :creatvity :spatial-sense :kinaesthetic-sense] ;SAECSsKs
+            
+        }
+        :glassmaker {
+            :skills [:glassmaking]
+            :attributes [:strength :agility :endurance :creatvity :spatial-sense :kinaesthetic-sense] ;SAECSsKs
+            
+        }
+        :clothier {
+            :skills [:clothiing]
+            :attributes [:agility :creatvity :spatial-sense :kinaesthetic-sense] ;ACSsKs,
+            
+        }
+        :bone-carver {
+            :skills [:bone-carving]
+            :attributes [:agility :creatvity :spatial-sense :kinaesthetic-sense] ;ACSsKs,
+            
+        }
+        :gem-setter {
+            :skills [:gem-setting]
+            :attributes [:agility :creatvity :spatial-sense :kinaesthetic-sense] ;ACSsKs,
+            
+        }
+        :gem-cutter {
+            :skills [:gem-cutting]
+            :attributes  [:agility :analytical-ability :spatial-sense :kinaesthetic-sense] ;AAaSsKs
+            
+        }
+        :weaponsmith {
+            :skills [:weaponsmithing]
+            :attributes [:strength :agility :endurance :creatvity :spatial-sense :kinaesthetic-sense] ;SAECSsKs
+            
+        }
+        :metalsmith {
+            :skills [:metalsmithing]
+            :attributes [:strength :agility :endurance :creatvity :spatial-sense :kinaesthetic-sense] ;SAECSsKs
+            
+        }
+        :metal-crafter {
+            :skills [:metal-crafting]
+            :attributes [:strength :agility :endurance :creatvity :spatial-sense :kinaesthetic-sense] ;SAECSsKs
+            
+        }
+        :armorsmith {
+            :skills [:armorsmithing]
+            :attributes [:strength :agility :endurance :creatvity :spatial-sense :kinaesthetic-sense] ;SAECSsKs
+            
+        }
+        :furnace-operator {
+            :skills [:furnace-operation]
+            :attributes [:strength :toughness :endurance :analytical-ability :kinaesthetic-sense] ;STEAaKs
+            
+        }
+        :fisherdwarf {
+            :skills [:fishing]
+            :attributes [:strength :agility :focus :patience :kinaesthetic-sense] ;SAFPKs
+            
+        }
+        :fish-dissector {
+            :skills [:fish-dissection]
+            :attributes [:agility :kinaesthetic-sense]
+            
+        }
+        :fish-cleaner {
+            :skills [:fish-cleaning]
+            :attributes [:agility :endurance :kinaesthetic-sense] ;AEKs
+            
+        }
+        :wood-burner {
+            :skills [:wood-burning]
+            :attributes  [:strength :toughness :endurance :kinaesthetic-sense] ;STEKs
+            
+        }
+        :thresher {
+            :skills [:threshing]
+            :attributes [:strength :agility :endurance :kinaesthetic-sense] ;SAEKs
+            
+        }
+        :tanner {
+            :skills [:tanning]
+            :attributes [:agility :kinaesthetic-sense]
+            
+        }
+        :soaper {
+            :skills [:soap-making]
+            :attributes  [:strength :toughness :endurance :kinaesthetic-sense] ;STEKs
+            
+        }
+        :potash-maker {
+            :skills [:potash-making]
+            :attributes  [:strength :toughness :endurance :kinaesthetic-sense] ;STEKs
+            
+        }
+        :miller {
+            :skills [:milling]
+            :attributes [:strength :agility :endurance :kinaesthetic-sense] ;SAEKs
+            
+        }
+        :milker {
+            :skills [:milking]
+            :attributes [:strength :agility :endurance :kinaesthetic-sense] ;SAEKs
+            
+        }
+        :lye-maker {
+            :skills [:lye-making]
+            :attributes  [:strength :toughness :endurance :kinaesthetic-sense] ;STEKs
+            
+        }
+        :herbalist {
+            :skills [:herbalist];??
+            :attributes [:agility :memory :kinaesthetic-sense] ;AMKs
+            
+        }
+        :grower {
+            :skills [:growing]
+            :attributes [:strength :agility :endurance :kinaesthetic-sense] ;SAEKs
+            
+        }
+        :dyer {
+            :skills [:dying];??
+            :attributes [:strength :agility :endurance :kinaesthetic-sense] ;SAEKs
+            
+        }
+        :cook {
+            :skills [:cooking]
+            :attributes [:agility :analytical-ability :creatvity :kinaesthetic-sense] ;AAaCKs
+            
+        }
+        :cheese-maker {
+            :skills [:cheese-making]
+            :attributes [:strength :agility :endurance :analytical-ability :creatvity :kinaesthetic-sense] ;SAEAaCKs
+            
+        }
+        :butcher {
+            :skills [:butchery]
+            :attributes [:strength :agility :endurance :kinaesthetic-sense] ;SAEKs
+            
+        }
+        :brewer {
+            :skills [:brewing]
+            :attributes [:strength :agility :kinaesthetic-sense] ;SAKs
+            
+        }
+        :wound-dresser {
+            :skills [:wound-dressing]
+            :attributes [:agility :spatial-sense :kinaesthetic-sense :empathy] ;ASsKsEm
+            
+        }
+        :suturer {
+            :skills [:suturing]
+            :attributes [:agility :focus :spatial-sense :kinaesthetic-sense] ;AFSsKs
+            
+        }
+        :surgeon {
+            :skills [:surgery]
+            :attributes [:agility :focus :spatial-sense :kinaesthetic-sense] ;AFSsKs
+            
+        }
+        :crutch-walker {
+            :skills [:crutch-walking]
+            :attributes [:agility :endurance :willpower :spatial-sense :kinaesthetic-sense] ;AEWSsKs
+            
+        }
+        :bone-doctor {
+            :skills [:bone-setting]
+            :attributes [:strength :agility :focus :spatial-sense :kinaesthetic-sense] ;SAFSsKs
+            
+        }
+        :trapper {
+            :skills [:trapping]
+            :attributes [:agility :analytical-ability :creatvity :spatial-sense] ;AAaCSs
+            
+        }
+        :animal-trainer {
+            :skills [:animal-training]
+            :attributes [:agility :toughness :endurance :intuition :patience :empathy] ;ATEIPEm
+            
+        }
+        :animal-dissector {
+            :skills [:small-animal-dissection]
+            :attributes [:agility :kinaesthetic-sense]
+            
+        }
+        :animal-caretaker {
+            :skills [:animal-caretaking]
+            :attributes [:agility :analytical-ability :memory :empathy] ;AAaMEm
+            
+        }
+        :ambusher {
+            :skills [:ambushing]
+            :attributes [:agility :focus :spatial-sense :kinaesthetic-sense] ;AFSsKs
+            
+        }
+        :mason {
+            :skills [:masonry]
+            :attributes [:strength :agility :endurance :creatvity :spatial-sense :kinaesthetic-sense] ;SAECSsKs
+            
+        }
+        :engraver {
+            :skills [:engraving]
+            :attributes [:agility :creatvity :spatial-sense :kinaesthetic-sense] ;ACSsKs,
+            
+        }
+        :carpenter {
+            :skills [:carpentry]
+            :attributes [:strength :agility :creatvity :spatial-sense :kinaesthetic-sense] ;SACSsKs
+            
+        }
+        :bowyer {
+            :skills [:bowmaking]
+            :attributes [:agility :creatvity :spatial-sense :kinaesthetic-sense] ;ACSsKs,
+            
+        }}
+    :misc {
+        :socializer {
+            :skills [:conversationalist  :flatterer  :negotiator  :persuader  :consoler  :leader  :pacifier  :teacher]
+            :attributes [:linguistic-ability :empathy :social-awareness] ;LEmSa
+            :traits {}
+        }
+        :balance {
+            :skills [:balance]
+            :attributes [:strength :agility :kinaesthetic-sense] ;SAKs
+            
+        }
+        :coordination {
+            :skills [:coordination]
+            :attributes [:agility :kinaesthetic-sense :kinaesthetic-sense] ;ASsK 
+            
+        }
+        :speaker {
+            :skills [:speaking]
+            :attributes [:linguistic-ability] ;L
+            
+        }
+        :reader {
+            :skills [:reading]
+            :attributes [:memory :focus :linguistic-ability] ;MFL
+            
+        }
+        :writer {
+            :skills [:writing]
+            :attributes [:creatvity :intuition :linguistic-ability] ;CIL
+            
+        }
+        :wordsmith {
+            :skills [:wordsmith]
+            :attributes [:creatvity :intuition :linguistic-ability] ;CIL
+            
+        }
+        :poet {
+            :skills [:poet]
+            :attributes [:creatvity :intuition :linguistic-ability] ;CIL
+            
+        }
+        :disciplinarian {
+            :skills [:disciplinarian]
+            :attributes [:disease-resistance :willpower] ;FW
+            
+        }
+        :tracker {
+            :skills [:tracking]
+            :attributes [:analytical-ability :focus :spatial-sense] ;AaFSs
+            
+        }
+        :druid {
+            :skills [:druid]
+            :attributes [:agility :toughness :endurance :focus :willpower :empathy] ;ATEFWEm
+            
+        }
+        :student {
+            :skills [:student]
+            :attributes [:analytical-ability :memory :focus] ;AaMF
+            
+        }
+        :observer {
+            :skills [:observation]
+            :attributes [:intuition :focus :spatial-sense] ;IFSs
+            
+        }
+        :concentrator {
+            :skills [:concentrator]
+            :attributes [:focus :willpower :patience] ;FWP
+            
+        } 
+        :liar {
+            :skills [:lying]
+            :attributes  [:creatvity :linguistic-ability :social-awareness] ;CLSa
+            :traits {
+                :straightforwardness -61
+            }
+        }
+        :judge-of-intent {
+            :skills [:judging-intent]
+            :attributes [:intuition :empathy :social-awareness] ;IEmSa
+            
+        }
+        :intimidator {
+            :skills [:intimidation]
+            :attributes [:agility :kinaesthetic-sense :linguistic-ability] ;AKsL
+            :traits {
+                :cooperation -61
+            }
+        }
+        :record-keeper {
+            :skills [:record-keeping]
+            :attributes [:analytical-ability :memory :focus] ;AaMF
+            
+        }
+        :organizer {
+            :skills [:organization]
+            :attributes [:analytical-ability :creatvity :social-awareness] ;AaCSa
+            
+        }
+        :appraiser {
+            :skills [:appraisal]
+            :attributes [:analytical-ability :memory :intuition] ;AaMI
+            
+        }
+        :comedian {
+            :skills [:comedy]
+            :attributes [:agility :creatvity :kinaesthetic-sense :linguistic-ability] ;ACKsL
+            :traits {
+                :self-consciousness -76
+            }
+        }
+        :knapper {
+            :skills [:knapping]
+            :attributes [:strength :agility :analytical-ability :spatial-sense :kinaesthetic-sense] ;SAAaSsKs
+            
+        }
+        :swimmer {
+            :skills [:swimming]
+            :attributes [:strength :agility :endurance :willpower :spatial-sense :kinaesthetic-sense] ;SAEWSsKs
+            
+        }
+        :alchemist {
+            :skills [:alchemist]
+            :attributes [:agility :analytical-ability :creatvity :intuition] ;AAaCI
+            
+        }}})
 
 

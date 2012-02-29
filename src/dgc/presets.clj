@@ -78,7 +78,8 @@
     (selection! selection-list {:multi? true} selected-dwarfs)))
 
 (defn change-prof-preset [profs e]
-  (let [source          (.getSource e)
+  (let [profs           (remove keyword? profs)
+        source          (.getSource e)
         selected        (second (selection source))
         selected-profs  (filter #(in? (name (first %)) selected) profs)
         preset          (second selected)

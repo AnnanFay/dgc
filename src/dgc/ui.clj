@@ -5,7 +5,8 @@
         [seesaw.event :only [events-for]]
         [clojure.pprint]
         [cheshire.core])
-  (:import java.awt.GraphicsEnvironment)
+  (:import [java.awt.GraphicsEnvironment]
+           [javax.swing ImageIcon])
   (:require [clojure.string :as s]))
 
 
@@ -58,11 +59,11 @@
 (defn sort-by-name [e] (prn "sort-by-name" e) (alert "Sorry, not implemented"))
 (defn sort-by-age  [e] (prn "sort-by-age" e)  (alert "Sorry, not implemented"))
 
+(declare update-content!)
+
 (defn load-export [e]
     (if-let [f (choose-file :dir "." :filters [["JSON Files" ["json"]]])]
       (update-content! (to-root e) (get-content f))))
-
-(declare update-content!)
 
 (defn reload-export [e]
     (update-content! (to-root e) (get-content @export-filename)))
@@ -261,12 +262,19 @@
         c           (select root [:#smain])]
     (replace! p c (scrollable screen :id :smain))))
 
+(defn update-status! [root & msg]
+  (let [s (select root [:#status])]
+    (value! s (apply str msg))))
+
 (defn selection-change [e]
   (let [root          (to-root e)
         dwarf-list  (select root [:#dwarf-list])
         prof-list   (select root [:#prof-list])
         puffballs   (selection dwarf-list {:multi? true})
-        profs       (selection prof-list {:multi? true})]
+        profs       (selection prof-list {:multi? true})
+        profs       (remove keyword? profs)]
+    (prn )
+    (update-status! root "Dwarves: " (count puffballs) "/" (-> dwarf-list .getModel .getSize) ", Professions: " (count profs))
     (cond
       (nil? profs) (cond
               (nil? puffballs)          nil
@@ -303,7 +311,11 @@
   (if (= s 1) "♂" "♀"))
 
 (defn prof-list-renderer [this {prof :value}]
-  (.setText this (str (s/capitalize (name (first prof)))))
+  (if (keyword? prof)
+    (do
+      (.setText this (str (s/capitalize (name prof))))
+      (config! this :foreground :red))
+    (.setText this (str (s/capitalize (name (first prof))))))
   (config! this :font (font :size 12))
   this)
 
@@ -317,8 +329,9 @@
   this)
 
 (defn make-content [puffballs]
-  (let [prof-list         (listbox  :id       :prof-list
-                                    :model    (sort professions)
+  (let [profs             (apply concat (map #(cons (first %) (sort (second %))) professions))
+        prof-list         (listbox  :id       :prof-list
+                                    :model    profs
                                     :renderer prof-list-renderer
                                     :popup    (fn [e] [sort-by-name-action sort-by-age-action add-prof-preset-action])
                                     :listen   [:selection prof-selection-change])
@@ -335,9 +348,10 @@
         prof-preset-list  (combobox :id       :prof-presets
                                     :model    (conj (get-presets "profs") default-presets)
                                     :renderer preset-list-renderer
-                                    :listen   [:selection (partial change-prof-preset professions)])
-        button-rem-dwarf-preset (button :text "-" :icon "" :listen [:action rem-dwarf-preset])
-        button-rem-prof-preset  (button :text "-" :listen [:action rem-prof-preset])]
+                                    :listen   [:selection (partial change-prof-preset profs)])
+        rem-icon          (ImageIcon. "icons/list-remove-16.png")
+        button-rem-dwarf-preset (button :margin 0 :icon rem-icon :listen [:action rem-dwarf-preset])
+        button-rem-prof-preset  (button :margin 0 :icon rem-icon :listen [:action rem-prof-preset])]
     (mig-panel
       :id          :container
       :constraints ["insets 0, fill, hidemode 3" "[pref!]r[grow]r[pref!]" "[pref!]r[grow]r[pref!]"]
