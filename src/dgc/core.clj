@@ -1,6 +1,6 @@
 (ns dgc.core
   ""
-  (:use [dgc ui util config read compat presets]
+  (:use [dgc ui read]
         [seesaw core])
   (:gen-class))
 

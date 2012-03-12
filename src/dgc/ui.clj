@@ -5,7 +5,7 @@
         [seesaw.event :only [events-for]]
         [clojure.pprint]
         [cheshire.core])
-  (:import [java.awt.GraphicsEnvironment]
+  (:import [java.awt GraphicsEnvironment]
            [javax.swing ImageIcon])
   (:require [clojure.string :as s]))
 
@@ -94,6 +94,8 @@
 
 (def add-prof-preset-action   (action :name "Add selection as preset" :handler add-prof-preset))
 (def add-dwarf-preset-action  (action :name "Add selection as preset" :handler add-dwarf-preset))
+
+(def add-prof-action  (action :name "Add selection as preset" :handler add-prof))
 
 ;;;;
 ;;;; Menus
@@ -212,7 +214,7 @@
 (defn compat-cell-renderer [this obj]
   (.setBackground this (compat-colour obj))
   (if (float? obj)
-    (.setText this (format "%.2f" obj))
+    (.setText this (format "%.0f" obj))
     (.setText this (str obj)))
   this)
 
@@ -273,7 +275,7 @@
         puffballs   (selection dwarf-list {:multi? true})
         profs       (selection prof-list {:multi? true})
         profs       (remove keyword? profs)]
-    (prn )
+    (prn profs)
     (update-status! root "Dwarves: " (count puffballs) "/" (-> dwarf-list .getModel .getSize) ", Professions: " (count profs))
     (cond
       (nil? profs) (cond
@@ -333,7 +335,7 @@
         prof-list         (listbox  :id       :prof-list
                                     :model    profs
                                     :renderer prof-list-renderer
-                                    :popup    (fn [e] [sort-by-name-action sort-by-age-action add-prof-preset-action])
+                                    :popup    (fn [e] [sort-by-name-action sort-by-age-action add-prof-action add-prof-preset-action])
                                     :listen   [:selection prof-selection-change])
         dwarf-list        (listbox  :id       :dwarf-list
                                     :model    (sort-by get-full-name puffballs)

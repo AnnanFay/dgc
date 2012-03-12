@@ -59,16 +59,22 @@
 (defn add-prof-preset [e]
   (add-preset e :#prof-list :#prof-presets "profs" first))
 
-(defn add-dwarf-preset [e]
-  (add-preset e :#dwarf-list :#dwarf-presets "dwarves" :id))
-
-
 (defn rem-prof-preset [e]
   (rem-preset e :#prof-presets "profs"))
+
+(defn add-dwarf-preset [e]
+  (add-preset e :#dwarf-list :#dwarf-presets "dwarves" :id))
 
 (defn rem-dwarf-preset [e]
   (rem-preset e :#dwarf-presets "dwarves"))
 
+(defn add-prof [e]
+  ())
+
+(defn rem-profs [e]
+  ())
+
+;TODO: Refactor these
 (defn change-dwarf-preset [puffballs e]
   (let [source          (.getSource e)
         selected        (second (selection source))
