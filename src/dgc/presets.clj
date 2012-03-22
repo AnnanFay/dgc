@@ -1,21 +1,21 @@
 (ns dgc.presets
   ""
-  (:use [dgc util]
+  (:use [dgc util config]
         [seesaw.core]
-        [cheshire.core]))
+        [cheshire.core]
+        [clojure.walk])
+  (:import [java.io File]))
 
 ;;;; Preset handlers
 
-; get presets from a file
+; get presets from a file, returns presets
 (defn get-presets [filename]
-  (try
-    (parse-string (slurp (str "presets/" filename ".json")) true)
-    (catch Exception e {})))
+  (in filename {}))
 
 ; writes presets to file
 ; returns presets
 (defn set-presets [filename presets]
-  (spit (str "presets/" filename ".json") (generate-string presets))
+  (out filename presets)
   presets)
 
 ; appends preset to preset file
@@ -24,7 +24,8 @@
   (try
     (set-presets filename (assoc (get-presets filename) (first preset) (second preset)))
     (catch Exception e
-      (set-presets filename [preset])))
+      (prn e)
+      (set-presets filename {(first preset) (second preset)})))
   preset)
 
 
@@ -69,10 +70,38 @@
   (rem-preset e :#dwarf-presets "dwarves"))
 
 (defn add-prof [e]
-  ())
+  (prn "adding prof")
+  (let [prof-list (select (to-root e) [:#prof-list])
+        prof      [ :new-profession
+                    {:traits {},
+                     :skills [],
+                     :attributes []}]]
+    ; add to interface
+    (-> prof-list 
+        .getModel
+        (.addElement prof))
+    ; update professions
+    (swap! professions #(assoc % :misc (assoc (:misc %) (first prof) (second prof))))
+    ; write to file
+    (out "professions.clj" @professions)))
+
+; recursivly search map for a key and dissoc it
+(defn find-dissoc-all [m ks]
+  (postwalk #(if (map? %) (apply (partial dissoc %) ks) %) m))
 
 (defn rem-profs [e]
-  ())
+  (let [prof-list       (select (to-root e) [:#prof-list])
+        list-model      (-> prof-list .getModel)
+        selected        (selection prof-list {:multi? true})
+        selected-profs  (filter vector? selected)
+        selected-keys   (map first selected-profs)]
+    (prn selected-keys)
+    ; remove from list
+    (doall (map #(.removeElement list-model %) selected-profs))
+    ; remove from professions
+    (swap! professions #(find-dissoc-all % selected-keys))
+    ; write to file
+    (out "professions.clj" @professions)))
 
 ;TODO: Refactor these
 (defn change-dwarf-preset [puffballs e]
@@ -87,8 +116,7 @@
   (let [profs           (remove keyword? profs)
         source          (.getSource e)
         selected        (second (selection source))
-        selected-profs  (filter #(in? (name (first %)) selected) profs)
+        selected-profs  (filter #(in? (first %) selected) profs)
         preset          (second selected)
         selection-list  (select (to-root e) [:#prof-list])]
-    ;(prn selected-profs)
     (selection! selection-list {:multi? true} selected-profs)))

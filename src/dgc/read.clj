@@ -21,7 +21,7 @@
   (let [soul        (get-value data raw-soul)
         raw-skills  (:skills soul)
         skills      (map (partial get-value data) raw-skills)]
-  (zipmap (map #(keyword (:id %)) skills) (map :rating skills))))
+  (zipmap (map #(keyword (clojure.string/replace (clojure.string/lower-case (:id %)) "_" "-")) skills) (map :rating skills))))
           
 
 (defn get-soul [data raw-soul]

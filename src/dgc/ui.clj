@@ -1,14 +1,14 @@
 (ns dgc.ui
   ""
-  (:use [dgc util config read compat presets]
+  (:use [dgc util config read compat presets form]
         [seesaw core table color mig font keystroke chooser]
         [seesaw.event :only [events-for]]
-        [clojure.pprint]
+        [clojure pprint walk]
         [cheshire.core])
   (:import [java.awt GraphicsEnvironment]
-           [javax.swing ImageIcon])
+           [javax.swing ImageIcon UIManager]
+           [javax.swing.plaf ColorUIResource])
   (:require [clojure.string :as s]))
-
 
 ;;;;
 ;;;; Full Screen Mode
@@ -89,13 +89,14 @@
                                   :handler toggle-full-screen))
 
 ;Dwarf list
-(def sort-by-name-action      (action :name "Sort by Name" :handler sort-by-name))
-(def sort-by-age-action       (action :name "Sort by Age"  :handler sort-by-age))
+(def sort-by-name-action      (action :name "Sort by Name"            :handler sort-by-name))
+(def sort-by-age-action       (action :name "Sort by Age"             :handler sort-by-age))
 
 (def add-prof-preset-action   (action :name "Add selection as preset" :handler add-prof-preset))
 (def add-dwarf-preset-action  (action :name "Add selection as preset" :handler add-dwarf-preset))
 
-(def add-prof-action  (action :name "Add selection as preset" :handler add-prof))
+(def add-prof-action          (action :name "Add new profession"      :handler add-prof))
+(def rem-profs-action         (action :name "Remove selected"         :handler rem-profs))
 
 ;;;;
 ;;;; Menus
@@ -119,36 +120,24 @@
 ;;;; ???????????????????????????????????????????????
 ;;;;
 
-(defn key-title [k]
-  (if (keyword? k)
-    (s/capitalize (name k))
-    (str k)))
+(defn find-assoc [m k v]
+  (postwalk #(if (and (map? %) (in? k (keys %))) (assoc % k v) %) m))
 
-(defn title [s]
-  (config! (label :id :title :text (str s) :h-text-position :center)
-           :font (font
-             :name :monospaced
-             :style #{:bold :italic}
-             :size 24)
-           :background :pink))
+(defn set-prof [profession prof e]
+  (let [prof-name   (first profession)
+        old-prof    (second profession)
+        prof-list   (select (to-root e) [:#prof-list])
+        list-model  (-> prof-list .getModel)
+        i           (.indexOf list-model profession)]
 
+    ; edit in list
+    (.set list-model i [prof-name prof])
 
-(defn ul [s]
-  (let [panel (cond
-                (map? s)
-                  (mig-panel
-                    :constraints ["insets 0" "" ""]
-                    :items (interleave
-                            (map #(vector (ul %) "") (keys s))
-                            (map #(vector (ul %) "wrap") (vals s)) ))
-                (coll? s)
-                  (mig-panel
-                    :constraints ["insets 0" "" ""]
-                    :items (map #(vector (ul %) "wrap") s))
-                :else
-                  (label :text (key-title s)))]
-    (config! panel
-     :background :white)))
+    ; assoc professions
+    (swap! professions #(find-assoc % prof-name prof))
+
+    ; write to file
+    (out "professions.clj" @professions)))
 
 (defn profession-info [profession]
   (let [prof-name (first profession)
@@ -156,8 +145,10 @@
    (mig-panel
       :id :main
       :constraints ["insets 0, fill" "" ""]
-      :items [[(title prof-name) "dock north, shrink 0, growx"]
-             [(ul prof)          ""]])))
+      :items [[(title prof-name)    "dock north, shrink 0, growx"]
+             [(form prof #(set-prof profession %1 %2))  ""]])))
+
+(def current-tab (atom 0))
 
 ; tabbed panel
 (defn puffball-info [puffball]
@@ -167,37 +158,45 @@
         trait-puff    (-> puffball :soul :traits)
         skill-puff    (-> puffball :soul :skills)
         labors-puff   (:labors puffball)
-        tabs [{:title   "General"
-               :content (ul general-puff)}
-              {:title   "Attributes"
-               :content (ul attr-puff)}
-              {:title   "Traits"
-               :content (ul trait-puff)}
-              {:title   "Skills"
-               :content (ul skill-puff)}
-              {:title   "Labours"
-               :content (ul labors-puff)}
-              {:title   "Equipment"
-               :content (mig-panel)}]]
+        tabs          [ {:title   "General"
+                         :content (ul general-puff)}
+                        {:title   "Attributes"
+                         :content (ul attr-puff)}
+                        {:title   "Traits"
+                         :content (ul trait-puff)}
+                        {:title   "Skills"
+                         :content (ul skill-puff)}
+                        {:title   "Labours"
+                         :content (ul labors-puff)}
+                        {:title   "Equipment"
+                         :content (mig-panel)}
+                        {:title   "Relations"
+                         :content (mig-panel)}]
+        tabbed-panel  (tabbed-panel
+                        :placement :top
+                        :overflow  :scroll
+                        :tabs      tabs)]
+
+  (selection! tabbed-panel @current-tab)
+
+  (listen tabbed-panel :change (fn [e] (swap! current-tab (fn [t] (:index (selection (.getSource e)))))))
+
   (mig-panel
     :constraints ["insets 0, fill" "" ""]
     :items [[(title (get-full-name puffball)) "dock north, shrink 0, growx"]
-            [(tabbed-panel
-                :placement :top
-                :overflow  :scroll
-                :tabs      tabs)              "grow"]])))
+            [tabbed-panel                     "grow"]])))
 
 (defn compat-info [puffball prof]
     (mig-panel
         :id :main
         :constraints ["insets 0" "" ""]
         :items [[(title (get-full-name puffball))       "dock north, shrink 0, growx"]
-                [(label :text (str "Compatability: " (compat puffball (second prof))))]]))
+                [(label :text (compat-tooltip (compat puffball (second prof))))]]))
 
 
 (defn puffball-compats [puffball profs]
   (let [compats        (map #(vector (compat puffball (second %)) (first %)) profs)
-        sorted-compats (reverse (sort compats))]
+        sorted-compats (reverse (sort-by :total compats ))]
     (mig-panel
         :id :main
         :constraints ["insets 0" "" ""]
@@ -212,27 +211,32 @@
     (apply hash-map (flatten vv)))
 
 (defn compat-cell-renderer [this obj]
-  (.setBackground this (compat-colour obj))
-  (if (float? obj)
-    (.setText this (format "%.0f" obj))
-    (.setText this (str obj)))
-  this)
+  (UIManager/put "ToolTip.background" (ColorUIResource. 255 255 255))
+  (let [total (int (:total obj))]
+    (doto this
+      (.setBackground   (compat-colour total))
+      (.setText         (str total))
+      (.setToolTipText  (compat-tooltip obj)))))
 
 (defn compat-header [compats]
-  (conj (key-seq-to-header (keys (dissoc compats :name)) { :renderer compat-cell-renderer :width 36}) {:key :name :text "Name"}))
+  (conj
+    (key-seq-to-header  (keys (dissoc compats :name))
+                        { :width    24
+                          :renderer compat-cell-renderer})
+    {:key :name :text "Name"}))
 
 (defn puffball-compats-table [puffballs profs]
   ;(prn puffballs profs)
-  (let [data    (map-prod #(vector (first %2) (compat %1 (second %2))) puffballs profs)
+  (let [data    (map-prod #(vector (first %2) (compat %1 %2)) puffballs profs)
         data    (map vv-to-map data)
         data    (map #(merge %1 (hash-map :name (get-full-name %2))) data puffballs)
         ;data    (map #(hash-map :foo %) (range 0 0.6 0.10001))
         tablith (make-table data identity compat-header)
         mp      (mig-panel
-          :id :main
-          :constraints ["insets 0, fill" "" "[pref!]r[]"]
-          :items [[(title  "Compatability Matrix")       "wrap"]
-                  [(scrollable tablith) "grow"]])]
+                  :id :main
+                  :constraints ["insets 0, fill" "" "[pref!]r[]"]
+                  :items [[(title  "Compatability Matrix")       "wrap"]
+                          [(scrollable tablith) "grow"]])]
   (config! mp :background :orange)))
 
 
@@ -268,6 +272,13 @@
   (let [s (select root [:#status])]
     (value! s (apply str msg))))
 
+
+(defn no-combination []
+    (mig-panel
+        :id :main
+        :constraints ["insets 0" "" ""]
+        :items [[(title "No Combination")       "dock north, shrink 0, growx"]]))
+
 (defn selection-change [e]
   (let [root          (to-root e)
         dwarf-list  (select root [:#dwarf-list])
@@ -275,19 +286,18 @@
         puffballs   (selection dwarf-list {:multi? true})
         profs       (selection prof-list {:multi? true})
         profs       (remove keyword? profs)]
-    (prn profs)
     (update-status! root "Dwarves: " (count puffballs) "/" (-> dwarf-list .getModel .getSize) ", Professions: " (count profs))
     (cond
-      (nil? profs) (cond
-              (nil? puffballs)          nil
+      (empty? profs) (cond
+              (empty? puffballs)        (rep! root (no-combination))
               (= (count puffballs) 1)   (rep! root (puffball-info (first puffballs)))
-              :else                     nil)
+              :else                     (rep! root (no-combination)))
       (= (count profs) 1) (cond
-              (nil? puffballs)          (rep! root (profession-info (first profs)))
+              (empty? puffballs)        (rep! root (profession-info (first profs)))
               (= (count puffballs) 1)   (rep! root (compat-info (first puffballs) (first profs)))
-              :else                     nil)
+              :else                     (rep! root (no-combination)))
       :else (cond
-              (nil? puffballs)          nil
+              (empty? puffballs)        (rep! root (no-combination))
               (= (count puffballs) 1)   (rep! root (puffball-compats (first puffballs) profs))
               :else                     (rep! root (puffball-compats-table puffballs profs))))))
 
@@ -309,8 +319,11 @@
 
 ;;; List Renderers
 
-(defn sex-symbol [s]
-  (if (= s 1) "♂" "♀"))
+(def male-icon    (ImageIcon. "icons/male-16.png"))
+(def female-icon  (ImageIcon. "icons/female-16.png"))
+
+(defn sex-icon [s]
+  (if (= s 1) male-icon female-icon))
 
 (defn prof-list-renderer [this {prof :value}]
   (if (keyword? prof)
@@ -322,20 +335,25 @@
   this)
 
 (defn puffball-list-renderer [this {puffball :value}]
-  (.setText this (str "[" (sex-symbol (:sex puffball)) "] " (get-full-name puffball)))
-  (config! this :font (font :size 12))
-  this)
+  (doto this
+    (.setIcon (sex-icon (puffball :sex)))
+    (.setText (get-full-name puffball))
+    (config! :font (font :size 12))))
 
 (defn preset-list-renderer [this {preset :value}]
   (.setText this (str (first preset)))
   this)
 
 (defn make-content [puffballs]
-  (let [profs             (apply concat (map #(cons (first %) (sort (second %))) professions))
+  (let [profs             (apply concat (map #(cons (first %) (sort (second %))) @professions))
         prof-list         (listbox  :id       :prof-list
                                     :model    profs
                                     :renderer prof-list-renderer
-                                    :popup    (fn [e] [sort-by-name-action sort-by-age-action add-prof-action add-prof-preset-action])
+                                    :popup    (fn [e] [ sort-by-name-action
+                                                        sort-by-age-action
+                                                        add-prof-action
+                                                        rem-profs-action
+                                                        add-prof-preset-action])
                                     :listen   [:selection prof-selection-change])
         dwarf-list        (listbox  :id       :dwarf-list
                                     :model    (sort-by get-full-name puffballs)
@@ -354,6 +372,11 @@
         rem-icon          (ImageIcon. "icons/list-remove-16.png")
         button-rem-dwarf-preset (button :margin 0 :icon rem-icon :listen [:action rem-dwarf-preset])
         button-rem-prof-preset  (button :margin 0 :icon rem-icon :listen [:action rem-prof-preset])]
+
+    ; TESTING
+    (selection! prof-list {:multi? true} [(first @professions)])
+    ;(selection! (select f [:#prof-list]) {:multi? true} [(first @professions) (second @professions)])
+
     (mig-panel
       :id          :container
       :constraints ["insets 0, fill, hidemode 3" "[pref!]r[grow]r[pref!]" "[pref!]r[grow]r[pref!]"]

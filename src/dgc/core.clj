@@ -21,9 +21,8 @@
                         (update-content! puffballs))]
     
     ; some initial selections for easy debugging
-    (selection! (select f [:#dwarf-list]) {:multi? true} [(first puffballs)])
+    ;(selection! (select f [:#dwarf-list]) {:multi? true} [(first puffballs)])
     ;(selection! (select f [:#dwarf-list]) {:multi? true} [(first puffballs) (second puffballs)])
-    ;(selection! (select f [:#prof-list]) {:multi? true} [(first professions) (second professions)])
 
     ;return the frame
     f

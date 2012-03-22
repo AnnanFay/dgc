@@ -1,28 +1,36 @@
 (ns dgc.compat
   ""
+  (:use [dgc util form])
   ;(:import [org.jfree.chart ChartPanel])
   (:import [java.awt Component Color Dimension])
   (:import [javax.swing JFrame])
   (:use
     ;[incanter core stats charts]
-    [seesaw color]))
+    [seesaw color]
+    [clojure pprint]))
 
+;(defrecord Puffball     [])
+;(defrecord Profession   [name skills attributes traits])
+(defrecord Compat       [prof-ref puff-id skills attributes traits total]
+  java.lang.Comparable
+    (compareTo [this other]
+      (compare total (:total other))))
 
 
 (defn avgattrtopct [x] 
-    (cond
-        (<= x 749)
-            (- (* 0.030357 x) 6.0714)
-        (and (>= x 750) (<= x 899))
-            (- (* 0.111852 x) 67.2223)
-        (and (>= x 900) (<= x 999))
-            (- (* 0.168333 x) 118.166)
-        (and (>= x 1000) (<= x 1099))
-            (- (* 0.168343 x) 118.343)
-        (and (>= x 1100) (<= x 1299))
-            (- (* 0.0837538 x) 25.4621) 
-        (>= x 1300)
-            (+ (* 0.0238412 x) 52.3404)))
+  (cond
+    (<= x 749)
+        (- (* 0.030357 x) 6.0714)
+    (and (>= x 750) (<= x 899))
+        (- (* 0.111852 x) 67.2223)
+    (and (>= x 900) (<= x 999))
+        (- (* 0.168333 x) 118.166)
+    (and (>= x 1000) (<= x 1099))
+        (- (* 0.168343 x) 118.343)
+    (and (>= x 1100) (<= x 1299))
+        (- (* 0.0837538 x) 25.4621) 
+    (>= x 1300)
+        (+ (* 0.0238412 x) 52.3404)))
 
 (defn minusattrtopct [x]
     (cond
@@ -96,10 +104,54 @@
     0
     (/ (apply + data) (count data))))
 
-(defn compat [puffball prof]
-  (let [attributes      (merge (-> puffball :soul :mental) (-> puffball :body :physical))
-        prof-attributes (select-keys attributes (:attributes prof))]
-    (average (map #(((first %) attributeFunctionMap) (second %)) prof-attributes ))))
+(defn compat-tooltip [compat]
+  ;(html compat)
+  (str "<html>
+        <h2>" (key-title (:prof-ref compat)) " - " (percent (:total compat)) "</h3>
+        <p>
+            <strong>Attributes:</strong>
+            <ul>"
+                (apply str (map #(str "<li>" (key-title (first %)) " - " (percent (second %)) "</li>") (:attributes compat)))
+            "</ul>
+        </p>
+        <p>
+            <strong>Skills:</strong>
+            <ul>"
+                (apply str (map #(str "<li>" (key-title (first %)) " - " (second %) "</li>") (:skills compat)))
+            "</ul>
+        </p>
+        <p>
+            <strong>Traits:</strong>
+            <ul>"
+                (apply str (map #(str "<li>" (key-title (first %)) " - " (second %) "</li>") (:traits compat)))
+            "</ul>
+        </p>
+    </html>"))
+
+; returns a Compat campatability between dwarf and profession
+(defn compat [puffball profession]
+  ; Select all dwarf attributes that are in the profession
+  (let [all-attributes  (merge (-> puffball :soul :mental) (-> puffball :body :physical))
+        all-skills      (-> puffball :soul :skills)
+        all-traits      (-> puffball :soul :traits)
+
+        prof            (second profession)
+        prof-attributes (select-keys all-attributes (:attributes  prof))
+        prof-skills     (select-keys all-skills     (:skills      prof))
+        prof-traits     (select-keys all-traits     (:traits      prof))
+
+        attr-scores     (map-map #(((first %) attributeFunctionMap) (second %)) prof-attributes)
+        skill-scores    prof-skills
+        trait-scores    prof-traits
+
+        total           (average (vals attr-scores))]
+    
+    ;(prn :compat)
+    ;(pprint all-skills)
+    ;(pprint (:skills prof))
+    ;(pprint trait-scores)
+
+    (->Compat (first profession) :puff-id skill-scores attr-scores trait-scores total)))
 
 ; maps to red > orange > yellow > green
 (defn compat-colour [compat]
