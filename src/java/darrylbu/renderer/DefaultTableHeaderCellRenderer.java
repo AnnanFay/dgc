@@ -62,7 +62,7 @@ public class DefaultTableHeaderCellRenderer extends DefaultTableCellRenderer {
           boolean isSelected, boolean hasFocus, int row, int column) {
     super.getTableCellRendererComponent(table, value,
             isSelected, hasFocus, row, column);
-    setIcon(getIcon(table, column));
+    //setIcon(getIcon(table, column));
     setBorder(UIManager.getBorder("TableHeader.cellBorder"));
     return this;
   }
