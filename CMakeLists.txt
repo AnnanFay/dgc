@@ -1,11 +1,9 @@
 PROJECT (dgc)
 
-execute_process(COMMAND lein 
-                OUTPUT_VARIABLE l)
+message (STATUS "Building DGC... ")
 
-message (STATUS "l=${l}")
+execute_process(COMMAND lein uberjar
+                WORKING_DIRECTORY ${CMAKE_CURRENT_SOURCE_DIR})
 
-
-install(DIRECTORY install/
-        DESTINATION .
-        PATTERN ".git" EXCLUDE)
+install(FILES dgc-1.0.0-SNAPSHOT-standalone.jar 
+        DESTINATION .)
