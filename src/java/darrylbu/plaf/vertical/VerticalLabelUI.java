@@ -32,7 +32,7 @@ import javax.swing.plaf.basic.BasicLabelUI;
  */
 public class VerticalLabelUI extends BasicLabelUI {
 
-   private boolean clockwise = false;
+   private boolean clockwise = true;
    // see comment in BasicLabelUI
    Rectangle verticalViewR = new Rectangle();
    Rectangle verticalIconR = new Rectangle();
@@ -46,8 +46,7 @@ public class VerticalLabelUI extends BasicLabelUI {
     * Constructs a <code>VerticalLabelUI</code> with the default anticlockwise
     * rotation
     */
-   public VerticalLabelUI() {
-   }
+   public VerticalLabelUI() {}
 
    /**
     * Constructs a <code>VerticalLabelUI</code> with the desired rotation.
