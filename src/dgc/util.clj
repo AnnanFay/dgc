@@ -1,6 +1,6 @@
 (ns dgc.util
   "A few generic often used functions"
-  (:use [seesaw core table color mig font]
+  (:use [seesaw [core :exclude [listbox tree]] table color mig font options]
         [clojure.pprint])
   (:require [clojure.string :as s])
   (:import [javax.swing.table TableRowSorter DefaultTableCellRenderer AbstractTableModel]))
@@ -9,42 +9,29 @@
 ;;;;
 ;;;; Serialization
 ;;;;
-
-; the following methods write/read clojure forms to/from a file
-(defn to-file
-  "Save a clojure form to a file"
-  [#^java.io.File file form]
-  (with-open [w (java.io.FileWriter. file)]
-    ;(print-dup form w))
-    (pprint form w)))
- 
-(defn from-file
-  "Load a clojure form from file."
-  [#^java.io.File file]
-  (with-open [r (java.io.PushbackReader. (java.io.FileReader. file))]
-     (read r)))
-
 (def save-dir "data")
 
 ; Creates parent directories
-(defn mkpath [filename]
+(defn mkpath
+  "Creates parent directories of filename."
+  [filename]
   (.mkdirs (.getParentFile (java.io.File. filename)))
   filename)
 
-; Writes data to file
-; Returns the filename
-(defn out [filename data]
+(defn out
+  "Save a clojure form to a file."
+  [filename data]
   (spit (mkpath (str save-dir "/" filename)) (with-out-str (pprint data)))
   filename)
 
 ; Reads data from file, returning it
-(defn in [filename & [default]]
+(defn in
+  "Load a clojure form from file."
+  [filename & [default]]
   (try
     (read-string (slurp (str save-dir "/" filename)))
     (catch Exception e
       (or default (throw e)))))
-
-
 
 ;;;;
 ;;;; Utilities
@@ -67,6 +54,11 @@
   (some #(= elm %) seq))
 
 
+(defn bool?
+  "True if a boolean"
+  [x]
+  (= (type x) java.lang.Boolean))
+
 ;;;
 ;;; Tables
 ;;; 
@@ -84,10 +76,12 @@
         (keys m) (vals m)))
 
 (defn set-column-renderers [col head]
-  (.setHeaderRenderer col (new darrylbu.renderer.VerticalTableHeaderCellRenderer))
+
+  (if (:vertical head)
+    (.setHeaderRenderer col (new darrylbu.renderer.VerticalTableHeaderCellRenderer)))
   
   (if (not-nil? (:width head))
-    (.setMaxWidth col (:width head)))
+    (.setPreferredWidth col (:width head)))
 
   (if (not-nil? (:renderer head))
     (.setCellRenderer col (proxy [DefaultTableCellRenderer] []
@@ -108,7 +102,7 @@
     ; add all calumns
     (doall (map #(.addColumn col-model %) sorted-cols))))
 
-(defn make-table [data to-row & [to-header]]
+(defn make-table [data to-row & [to-header row-height]]
   (let [header  (if (nil? to-header)
                   (key-seq-to-header  (keys (first data)))
                   (to-header          (first data)))
@@ -122,6 +116,10 @@
                     ((:key (nth header col)) (nth data row))))
         table   (table :model model)
         columns (enumeration-seq (-> table .getColumnModel .getColumns))]
+
+    ; Set row height
+    (if (not-nil? row-height)
+      (.setRowHeight table row-height))
 
     ; Enable Row Sorting
     (.setAutoCreateRowSorter table true)
@@ -143,6 +141,40 @@
     
     table))
 
+
+;;;;
+;;;; Seesaw
+;;;;
+
+; make a tree but update content later
+(defn tree
+  [& args]
+  ;(prn :listbox-args args)
+  (if (fn? (:model (apply hash-map args)))
+    (let [hargs         (apply hash-map args)
+          model-handler (:model hargs)
+          args          (reduce into (seq (dissoc hargs :model)))
+          t             (apply seesaw.core/tree args)]
+
+      (invoke-later (apply-options t [:model (model-handler)]))
+      t)
+    (apply seesaw.core/tree args)))
+
+
+; make a listbox but update content later
+(defn listbox
+  [& args]
+  ;(prn :listbox-args args)
+  (if (fn? (:model (apply hash-map args)))
+    (let [hargs         (apply hash-map args)
+          model-handler (:model hargs)
+          args          (reduce into (seq (dissoc hargs :model)))
+          lb            (apply seesaw.core/listbox args)]
+
+      (invoke-later (apply-options lb [:model (model-handler)]))
+      lb)
+    (apply seesaw.core/listbox args)))
+
 ;;;;
 ;;;; Formatting
 ;;;;
@@ -154,3 +186,10 @@
 
 (defn percent [p]
   (format "%.2f%%" p))
+
+;;;;
+;;;; Swing
+;;;;
+
+(defn get-model-elements [m]
+  (for [x (range (.getSize m))] (.getElementAt m x)))

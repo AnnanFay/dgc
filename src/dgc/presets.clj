@@ -1,32 +1,28 @@
 (ns dgc.presets
   ""
   (:use [dgc util config]
-        [seesaw.core]
+        [seesaw.core :exclude [listbox tree]]
         [cheshire.core]
         [clojure.walk])
   (:import [java.io File]))
 
 ;;;; Preset handlers
 
-; get presets from a file, returns presets
-(defn get-presets [filename]
+(defn get-presets
+  "Load presets from a file. Returns loaded presets."
+  [filename]
   (in filename {}))
 
-; writes presets to file
-; returns presets
-(defn set-presets [filename presets]
+(defn set-presets
+  "Writes list of presets to a file. Returns presets."
+  [filename presets]
   (out filename presets)
   presets)
 
-; appends preset to preset file
-; returns preset
-(defn append-preset [filename preset]
-  (try
-    (set-presets filename (assoc (get-presets filename) (first preset) (second preset)))
-    (catch Exception e
-      (prn e)
-      (set-presets filename {(first preset) (second preset)})))
-  preset)
+(defn append-preset
+  "Appends a preset to a presets file. Returns preset."
+  [filename preset]
+  (set-presets filename (assoc (get-presets filename) (first preset) (second preset))))
 
 
 ; retrieves the preset selection and asks the user for a preset name
@@ -104,19 +100,24 @@
     (out "professions.clj" @professions)))
 
 ;TODO: Refactor these
-(defn change-dwarf-preset [puffballs e]
-  (let [source          (.getSource e)
-        selected        (second (selection source))
-        selected-dwarfs (filter #(in? (:id %) selected) puffballs)
-        preset          (second selected)
-        selection-list  (select (to-root e) [:#dwarf-list])]
+(defn change-dwarf-preset [e]
+  (let [selection-list  (select (to-root e) [:#dwarf-list])
+        puffballs       (get-model-elements (.getModel selection-list))
+
+        source          (.getSource e)
+        preset          (second (selection source))
+
+        selected-dwarfs (filter #(in? (:id %) preset) puffballs)]
     (selection! selection-list {:multi? true} selected-dwarfs)))
 
-(defn change-prof-preset [profs e]
-  (let [profs           (remove keyword? profs)
+(defn change-prof-preset [e]
+  (let [selection-list  (select (to-root e) [:#prof-list])
+        profs           (get-model-elements (.getModel selection-list))
+        profs           (remove keyword? profs)
+
         source          (.getSource e)
         selected        (second (selection source))
+        
         selected-profs  (filter #(in? (first %) selected) profs)
-        preset          (second selected)
-        selection-list  (select (to-root e) [:#prof-list])]
+        preset          (second selected)]
     (selection! selection-list {:multi? true} selected-profs)))

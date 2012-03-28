@@ -1,7 +1,7 @@
 (ns dgc.form
   "Generates forms for structures"
   (:use [dgc util config read presets]
-        [seesaw core table color mig font keystroke chooser]
+        [seesaw [core :exclude [listbox tree]] table color mig font keystroke chooser]
         [seesaw.event :only [events-for]]
         [clojure.pprint]
         [cheshire.core])
@@ -12,8 +12,8 @@
            :font (font
              :name :monospaced
              :style #{:bold :italic}
-             :size 24)
-           :background :pink))
+             :size 24)))
+           ;:background :pink))
 
 (defn ul [s]
   (let [panel (cond
@@ -43,11 +43,17 @@
 (defn html [s]
   (str "<html><b>" (html-ul s) "</b></html>"))
 
+(defn input-for [id value]
+  (cond
+    (bool? value) (checkbox :id id :selected? value)
+    :else         (text :id id :columns 72 :text (str value))))
+
 ; TODO: Think of a good name
+; 
 (defn foo [thingie]
   (vector
     (vector (label :text (key-title (first thingie))) "")
-    (vector (text :id (first thingie) :columns 72 :text (str (second thingie))) "wrap")))
+    (vector (apply input-for thingie) "wrap")))
 
 (defn form-content [m]
   (mig-panel

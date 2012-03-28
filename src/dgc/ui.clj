@@ -1,7 +1,8 @@
 (ns dgc.ui
   ""
   (:use [dgc util config read compat presets form]
-        [seesaw core table color mig font keystroke chooser]
+        [seesaw table color mig font keystroke chooser]
+        [seesaw.core :exclude [listbox tree]]
         [seesaw.event :only [events-for]]
         [clojure pprint walk]
         [cheshire.core])
@@ -63,10 +64,23 @@
 
 (defn load-export [e]
     (if-let [f (choose-file :dir "." :filters [["JSON Files" ["json"]]])]
-      (update-content! (to-root e) (get-content f))))
+      (update-content! (to-root e) f)))
 
 (defn reload-export [e]
-    (update-content! (to-root e) (get-content @export-filename)))
+    (update-content! (to-root e) @export-filename))
+
+(defn view-settings [e]
+  (doto (frame 
+          :title      "DGC - Settings" 
+          :height     600
+          :width      800
+          :content    (mig-panel
+                        :id :settings-panel
+                        :constraints ["insets 0, fill" "" ""]
+                        :items [[(title "Settings")    "dock north, shrink 0, growx"]
+                               [(form {:a 1 :b 2 :c 3 :flag true :bar false} #(prn %1 %2))  ""]])
+          :on-close   :exit)
+    show!))
 
 ;;;;
 ;;;; Actions
@@ -88,6 +102,10 @@
                                   :mnemonic \f        :key (keystroke "F11")
                                   :handler toggle-full-screen))
 
+(def view-settings-action (action :name "View Settings" :tip "View Settings"     
+                                  :mnemonic \s        :key (keystroke "F6")
+                                  :handler view-settings))
+
 ;Dwarf list
 (def sort-by-name-action      (action :name "Sort by Name"            :handler sort-by-name))
 (def sort-by-age-action       (action :name "Sort by Age"             :handler sort-by-age))
@@ -107,7 +125,7 @@
                       :items [load-export-action reload-export-action]))
 (def view-menu (menu  :text "View"
                       :mnemonic \v
-                      :items [full-screen-action]))
+                      :items [full-screen-action view-settings-action]))
 (def help-menu (menu  :text "Help"
                       :mnemonic \h
                       :items [show-help-action show-version-action]))
@@ -216,14 +234,18 @@
     (doto this
       (.setBackground   (compat-colour total))
       (.setText         (str total))
+      (.setHorizontalAlignment (javax.swing.JLabel/CENTER))
       (.setToolTipText  (compat-tooltip obj)))))
 
 (defn compat-header [compats]
   (conj
     (key-seq-to-header  (keys (dissoc compats :name))
-                        { :width    24
+                        { :vertical true
+                          :width    30
                           :renderer compat-cell-renderer})
-    {:key :name :text "Name"}))
+    { :key :name
+      :text "Name"
+      :width 216}))
 
 (defn puffball-compats-table [puffballs profs]
   ;(prn puffballs profs)
@@ -231,13 +253,12 @@
         data    (map vv-to-map data)
         data    (map #(merge %1 (hash-map :name (get-full-name %2))) data puffballs)
         ;data    (map #(hash-map :foo %) (range 0 0.6 0.10001))
-        tablith (make-table data identity compat-header)
-        mp      (mig-panel
-                  :id :main
-                  :constraints ["insets 0, fill" "" "[pref!]r[]"]
-                  :items [[(title  "Compatability Matrix")       "wrap"]
-                          [(scrollable tablith) "grow"]])]
-  (config! mp :background :orange)))
+        tablith (make-table data identity compat-header 30)]
+  (mig-panel
+    :id :main
+    :constraints ["insets 0, fill" "" "[pref!]r[]"]
+    :items [[(title  "Compatability Matrix")       "wrap"]
+            [(scrollable tablith) "grow"]])))
 
 
 ;;;;
@@ -344,10 +365,10 @@
   (.setText this (str (first preset)))
   this)
 
-(defn make-content [puffballs]
-  (let [profs             (apply concat (map #(cons (first %) (sort (second %))) @professions))
-        prof-list         (listbox  :id       :prof-list
-                                    :model    profs
+
+(defn make-content [puffball-filename]
+  (let [prof-list         (listbox  :id       :prof-list
+                                    :model    (fn [] (apply concat (map #(cons (first %) (sort (second %))) @professions)))
                                     :renderer prof-list-renderer
                                     :popup    (fn [e] [ sort-by-name-action
                                                         sort-by-age-action
@@ -356,7 +377,7 @@
                                                         add-prof-preset-action])
                                     :listen   [:selection prof-selection-change])
         dwarf-list        (listbox  :id       :dwarf-list
-                                    :model    (sort-by get-full-name puffballs)
+                                    :model    #(get-content puffball-filename)
                                     :renderer puffball-list-renderer
                                     :popup    (fn [e] [sort-by-name-action sort-by-age-action add-dwarf-preset-action])
                                     :listen   [:selection puffball-selection-change])
@@ -364,18 +385,14 @@
         dwarf-preset-list (combobox :id       :dwarf-presets
                                     :model    (conj (get-presets "dwarves") default-presets)
                                     :renderer preset-list-renderer
-                                    :listen   [:selection (partial change-dwarf-preset puffballs)])
+                                    :listen   [:selection change-dwarf-preset])
         prof-preset-list  (combobox :id       :prof-presets
                                     :model    (conj (get-presets "profs") default-presets)
                                     :renderer preset-list-renderer
-                                    :listen   [:selection (partial change-prof-preset profs)])
+                                    :listen   [:selection change-prof-preset])
         rem-icon          (ImageIcon. "icons/list-remove-16.png")
         button-rem-dwarf-preset (button :margin 0 :icon rem-icon :listen [:action rem-dwarf-preset])
         button-rem-prof-preset  (button :margin 0 :icon rem-icon :listen [:action rem-prof-preset])]
-
-    ; TESTING
-    (selection! prof-list {:multi? true} [(first @professions)])
-    ;(selection! (select f [:#prof-list]) {:multi? true} [(first @professions) (second @professions)])
 
     (mig-panel
       :id          :container
@@ -393,8 +410,8 @@
 
         [(label :id :status :text "Status Bar: ...")        ""]])))
 
-(defn update-content! [frame puffballs]
-  (let [content (make-content puffballs)]
+(defn update-content! [frame puffball-filename]
+  (let [content   (make-content puffball-filename)]
     (doto frame
       (.setContentPane content)
       .invalidate
