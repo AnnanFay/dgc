@@ -1,9 +1,10 @@
 (ns dgc.compat
   ""
   (:use [dgc util form])
-  ;(:import [org.jfree.chart ChartPanel])
-  (:import [java.awt Component Color Dimension])
-  (:import [javax.swing JFrame])
+  (:import  [java.awt Component Color Dimension]
+            [javax.swing JFrame UIManager]
+            [javax.swing.plaf ColorUIResource])
+            ;[org.jfree.chart ChartPanel]
   (:use
     ;[incanter core stats charts]
     [seesaw color]
@@ -129,13 +130,12 @@
     </html>"))
 
 ; returns a Compat campatability between dwarf and profession
-(defn compat [puffball profession]
+(defn compat [puffball prof]
   ; Select all dwarf attributes that are in the profession
   (let [all-attributes  (merge (-> puffball :soul :mental) (-> puffball :body :physical))
         all-skills      (-> puffball :soul :skills)
         all-traits      (-> puffball :soul :traits)
 
-        prof            (second profession)
         prof-attributes (select-keys all-attributes (:attributes  prof))
         prof-skills     (select-keys all-skills     (:skills      prof))
         prof-traits     (select-keys all-traits     (:traits      prof))
@@ -151,12 +151,23 @@
     ;(pprint (:skills prof))
     ;(pprint trait-scores)
 
-    (->Compat (first profession) :puff-id skill-scores attr-scores trait-scores total)))
+    (->Compat (:name prof) :puff-id skill-scores attr-scores trait-scores total)))
 
 ; maps to red > orange > yellow > green
 (defn compat-colour [compat]
   (if (number? compat)
     (Color. (Color/HSBtoRGB (/ compat 166) 1 1))))
+
+
+
+(defn compat-cell-renderer [this obj]
+  (UIManager/put "ToolTip.background" (ColorUIResource. 255 255 255))
+  (let [total (int (:total obj))]
+    (doto this
+      (.setBackground   (compat-colour total))
+      (.setText         (str total))
+      (.setHorizontalAlignment (javax.swing.JLabel/CENTER))
+      (.setToolTipText  (compat-tooltip obj)))))
 
 
 ;(def test-chart (ChartPanel. (doto (function-plot  avgattrtopct     0 5000)

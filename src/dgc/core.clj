@@ -34,5 +34,5 @@
 
 (defn run []
   (do 
-    (use '[dgc compat config core form presets read ui util] :reload)
+    (use '[dgc compat config core form presets read ui util puffball] :reload)
     (-main :hide)))

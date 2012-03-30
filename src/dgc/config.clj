@@ -315,6 +315,9 @@
 ; * Traits will be seen as min/max. If it is positive it will be seen as the minimum required. 
 ; * If a trait is negetive only dwarves with less than the value will be selected, it's treated as a positive max.
 ; */
-(def professions (atom (in "professions.clj")))
+
+(defrecord Profession [name traits skills attributes labours])
+
+(def professions (atom (map map->Profession (in "professions.clj"))))
 
 

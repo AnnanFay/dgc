@@ -1,9 +1,10 @@
 (ns dgc.ui
   ""
-  (:use [dgc util config read compat presets form]
+  (:use [dgc util config read compat presets form puffball]
         [seesaw table color mig font keystroke chooser]
         [seesaw.core :exclude [listbox tree]]
         [seesaw.event :only [events-for]]
+        [seesaw.tree :only [simple-tree-model]]
         [clojure pprint walk]
         [cheshire.core])
   (:import [java.awt GraphicsEnvironment]
@@ -168,6 +169,16 @@
 
 (def current-tab (atom 0))
 
+(defn intro-renderer [this {prof :value}]
+  (.setText this (str (type prof)))
+  this)
+
+(defn intro-message []
+  (mig-panel
+    :id :main
+    :constraints ["insets 0, fill" "" "[pref!]r[]"]
+    :items [[(title  "Welcome to DGC!")       "wrap"]]))
+
 ; tabbed panel
 (defn puffball-info [puffball]
   (let [general-puff  (dissoc puffball :soul :body :labors)
@@ -221,24 +232,30 @@
         :items [[(title (str (get-full-name puffball) "'s Profession Compatability")) "dock north, shrink 0, growx"]
                [(listbox :model (map #(str (second %) ":" (first %)) sorted-compats))]])))
 
-; like map however returns a matrix of f applied to every combintion of c1 and c2
-(defn map-prod [f c1 c2]
-  (map #(map (partial f %) c2) c1))
+(defn to-matrix
+  "Returns a sequence of sequences whos elements are vectors of the corosponding elements of c1 c2.
+  Example:
+  (to-matrix '[a b c] '[1 2 3])
+  ;->
+  (([a 1] [a 2] [a 3])
+   ([b 1] [b 2] [b 3])
+   ([c 1] [c 2] [c 3]))
+  "
+  [c1 c2]
+  (partition (count c2) (for [x c1 y c2] (vector x y))))
 
-(defn vv-to-map [vv]
-    (apply hash-map (flatten vv)))
+(defn map-matrix
+  "Call f and replace the members of matrix m."
+  [f m]
+  (map #(map (partial apply f) %) m))
 
-(defn compat-cell-renderer [this obj]
-  (UIManager/put "ToolTip.background" (ColorUIResource. 255 255 255))
-  (let [total (int (:total obj))]
-    (doto this
-      (.setBackground   (compat-colour total))
-      (.setText         (str total))
-      (.setHorizontalAlignment (javax.swing.JLabel/CENTER))
-      (.setToolTipText  (compat-tooltip obj)))))
+(defn compat-header [first-row]
+  (into [{:text "Name"
+          :width 216
+          :renderer puffball-cell-renderer}]
+  (map #(hash-map :text (key-title %) :vertical true :width 30 :renderer compat-cell-renderer) (remove nil? (map :prof-ref first-row)))))
 
-(defn compat-header [compats]
-  (conj
+(comment (conj
     (key-seq-to-header  (keys (dissoc compats :name))
                         { :vertical true
                           :width    30
@@ -248,11 +265,9 @@
       :width 216}))
 
 (defn puffball-compats-table [puffballs profs]
-  ;(prn puffballs profs)
-  (let [data    (map-prod #(vector (first %2) (compat %1 %2)) puffballs profs)
-        data    (map vv-to-map data)
-        data    (map #(merge %1 (hash-map :name (get-full-name %2))) data puffballs)
-        ;data    (map #(hash-map :foo %) (range 0 0.6 0.10001))
+  (let [data    (to-matrix puffballs profs)
+        data    (map-matrix compat data)
+        data    (map #(into [%2] %1) data puffballs)
         tablith (make-table data identity compat-header 30)]
   (mig-panel
     :id :main
@@ -306,15 +321,18 @@
         prof-list   (select root [:#prof-list])
         puffballs   (selection dwarf-list {:multi? true})
         profs       (selection prof-list {:multi? true})
-        profs       (remove keyword? profs)]
+        profs       (remove keyword? profs)
+        profs       (if (empty? profs)
+                      profs
+                      (set (reduce into (map last profs))))]
     (update-status! root "Dwarves: " (count puffballs) "/" (-> dwarf-list .getModel .getSize) ", Professions: " (count profs))
     (cond
       (empty? profs) (cond
-              (empty? puffballs)        (rep! root (no-combination))
+              (empty? puffballs)        (rep! root (intro-message))
               (= (count puffballs) 1)   (rep! root (puffball-info (first puffballs)))
               :else                     (rep! root (no-combination)))
       (= (count profs) 1) (cond
-              (empty? puffballs)        (rep! root (profession-info (first profs)))
+              (empty? puffballs)        (rep! root (no-combination)) ;(rep! root (profession-info (first profs)))
               (= (count puffballs) 1)   (rep! root (compat-info (first puffballs) (first profs)))
               :else                     (rep! root (no-combination)))
       :else (cond
@@ -346,12 +364,14 @@
 (defn sex-icon [s]
   (if (= s 1) male-icon female-icon))
 
-(defn prof-list-renderer [this {prof :value}]
-  (if (keyword? prof)
-    (do
-      (.setText this (str (s/capitalize (name prof))))
-      (config! this :foreground :red))
-    (.setText this (str (s/capitalize (name (first prof))))))
+(defn prof-list-renderer [this {v :value}]
+  (cond
+    (and (seq? v) (= (count v) 1))
+      (.setText this (str (:name (first v))))
+    (seq? v)
+      (.setText this (str (:category (first v))))
+    :else nil)
+    
   (config! this :font (font :size 12))
   this)
 
@@ -365,11 +385,33 @@
   (.setText this (str (first preset)))
   this)
 
+(defn prof-branch? [keys node]
+  (cond 
+    (empty? keys)
+      false
+    (> (count (set (map (first keys) node))) 1)
+      true
+    :else
+      (recur (rest keys) node)))
+
+; get chldren with :foo and partition by :foo 
+(defn prof-children [keys node]
+  (cond 
+    (empty? keys)
+      nil
+    (> (count (set (map (first keys) node))) 1)
+      (partition-by (first keys) (filter #(contains? % (first keys)) node))
+    :else
+      (recur (rest keys) node)))
 
 (defn make-content [puffball-filename]
-  (let [prof-list         (listbox  :id       :prof-list
-                                    :model    (fn [] (apply concat (map #(cons (first %) (sort (second %))) @professions)))
+  (let [prof-list         (tree     :id       :prof-list
+                                    :model    (fn []  (simple-tree-model
+                                                        (partial prof-branch? [:category :name])
+                                                        (partial prof-children [:category :name])
+                                                        @professions))
                                     :renderer prof-list-renderer
+                                    :root-visible? false
                                     :popup    (fn [e] [ sort-by-name-action
                                                         sort-by-age-action
                                                         add-prof-action
