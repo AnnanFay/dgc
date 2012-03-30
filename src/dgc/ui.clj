@@ -304,9 +304,13 @@
         c           (select root [:#smain])]
     (replace! p c (scrollable screen :id :smain))))
 
-(defn update-status! [root & msg]
-  (let [s (select root [:#status])]
-    (value! s (apply str msg))))
+(def status (atom (label :id :status :text "Status Bar: ...")))
+
+(defn update-status! [& msg]
+  (value! @status (apply str msg)))
+
+(defn append-status! [& msg]
+  (value! @status (str (value @status) (apply str msg))))
 
 
 (defn no-combination []
@@ -325,7 +329,7 @@
         profs       (if (empty? profs)
                       profs
                       (set (reduce into (map last profs))))]
-    (update-status! root "Dwarves: " (count puffballs) "/" (-> dwarf-list .getModel .getSize) ", Professions: " (count profs))
+    (update-status! "Dwarves: " (count puffballs) "/" (-> dwarf-list .getModel .getSize) ", Professions: " (count profs))
     (cond
       (empty? profs) (cond
               (empty? puffballs)        (rep! root (intro-message))
@@ -404,6 +408,14 @@
     :else
       (recur (rest keys) node)))
 
+(defn load-puffballs [filename]
+  (update-status! "Loading Dwarves!")
+  (let [puffballs (get-content filename)]
+    (update-status! "Finished: " (count puffballs) " dwarves Loaded! Calibrating stats. ")
+    ; TODO: Calibrate stats.
+    (append-status! "Calibration finished!")
+    puffballs))
+
 (defn make-content [puffball-filename]
   (let [prof-list         (tree     :id       :prof-list
                                     :model    (fn []  (simple-tree-model
@@ -419,7 +431,7 @@
                                                         add-prof-preset-action])
                                     :listen   [:selection prof-selection-change])
         dwarf-list        (listbox  :id       :dwarf-list
-                                    :model    #(get-content puffball-filename)
+                                    :model    #(load-puffballs puffball-filename)
                                     :renderer puffball-list-renderer
                                     :popup    (fn [e] [sort-by-name-action sort-by-age-action add-dwarf-preset-action])
                                     :listen   [:selection puffball-selection-change])
@@ -450,7 +462,7 @@
         [(scrollable (mig-panel :id :main) :id :smain)      "grow"]
         [(scrollable prof-list  :id :prof-list-scrollable)  "span 1 2, growy, wrap"]
 
-        [(label :id :status :text "Status Bar: ...")        ""]])))
+        [@status        ""]])))
 
 (defn update-content! [frame puffball-filename]
   (let [content   (make-content puffball-filename)]
