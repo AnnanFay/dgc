@@ -1,6 +1,6 @@
 (ns dgc.ui
   ""
-  (:use [dgc util config read compat presets form puffball]
+  (:use [dgc util config read compat presets form puffball settings]
         [seesaw table color mig font keystroke chooser]
         [seesaw.core :exclude [listbox tree]]
         [seesaw.event :only [events-for]]
@@ -70,19 +70,6 @@
 (defn reload-export [e]
     (update-content! (to-root e) @export-filename))
 
-(defn view-settings [e]
-  (doto (frame 
-          :title      "DGC - Settings" 
-          :height     600
-          :width      800
-          :content    (mig-panel
-                        :id :settings-panel
-                        :constraints ["insets 0, fill" "" ""]
-                        :items [[(title "Settings")    "dock north, shrink 0, growx"]
-                               [(form {:a 1 :b 2 :c 3 :flag true :bar false} #(prn %1 %2))  ""]])
-          :on-close   :exit)
-    show!))
-
 ;;;;
 ;;;; Actions
 ;;;;
@@ -99,14 +86,9 @@
 (def show-version-action  (action :name "About"  :tip "Version info"     
                                   :mnemonic \a   :key (keystroke "menu A")))
 
-(def full-screen-action  (action  :name "Full Screen" :tip "Full Screen"     
+(def full-screen-action   (action :name "Full Screen" :tip "Full Screen"     
                                   :mnemonic \f        :key (keystroke "F11")
                                   :handler toggle-full-screen))
-
-(def view-settings-action (action :name "View Settings" :tip "View Settings"     
-                                  :mnemonic \s        :key (keystroke "F6")
-                                  :handler view-settings))
-
 ;Dwarf list
 (def sort-by-name-action      (action :name "Sort by Name"            :handler sort-by-name))
 (def sort-by-age-action       (action :name "Sort by Age"             :handler sort-by-age))
@@ -136,8 +118,18 @@
 
 
 ;;;;
-;;;; ???????????????????????????????????????????????
+;;;; Pages / Screens / ???
 ;;;;
+
+(defn intro-renderer [this {prof :value}]
+  (.setText this (str (type prof)))
+  this)
+
+(defn intro-message []
+  (mig-panel
+    :id :main
+    :constraints ["insets 0, fill" "" "[pref!]r[]"]
+    :items [[(title  "Welcome to DGC!")       "wrap"]]))
 
 (defn find-assoc [m k v]
   (postwalk #(if (and (map? %) (in? k (keys %))) (assoc % k v) %) m))
@@ -168,16 +160,6 @@
              [(form prof #(set-prof profession %1 %2))  ""]])))
 
 (def current-tab (atom 0))
-
-(defn intro-renderer [this {prof :value}]
-  (.setText this (str (type prof)))
-  this)
-
-(defn intro-message []
-  (mig-panel
-    :id :main
-    :constraints ["insets 0, fill" "" "[pref!]r[]"]
-    :items [[(title  "Welcome to DGC!")       "wrap"]]))
 
 ; tabbed panel
 (defn puffball-info [puffball]
@@ -232,7 +214,7 @@
         :items [[(title (str (get-full-name puffball) "'s Profession Compatability")) "dock north, shrink 0, growx"]
                [(listbox :model (map #(str (second %) ":" (first %)) sorted-compats))]])))
 
-(defn to-matrix
+(defn to-matrix-ish
   "Returns a sequence of sequences whos elements are vectors of the corosponding elements of c1 c2.
   Example:
   (to-matrix '[a b c] '[1 2 3])
@@ -253,19 +235,11 @@
   (into [{:text "Name"
           :width 216
           :renderer puffball-cell-renderer}]
-  (map #(hash-map :text (key-title %) :vertical true :width 30 :renderer compat-cell-renderer) (remove nil? (map :prof-ref first-row)))))
-
-(comment (conj
-    (key-seq-to-header  (keys (dissoc compats :name))
-                        { :vertical true
-                          :width    30
-                          :renderer compat-cell-renderer})
-    { :key :name
-      :text "Name"
-      :width 216}))
+  (map #(hash-map :text (key-title %) :vertical true :width 30 :renderer compat-cell-renderer)
+    (remove nil? (map :prof-ref first-row)))))
 
 (defn puffball-compats-table [puffballs profs]
-  (let [data    (to-matrix puffballs profs)
+  (let [data    (to-matrix-ish puffballs profs)
         data    (map-matrix compat data)
         data    (map #(into [%2] %1) data puffballs)
         tablith (make-table data identity compat-header 30)]
@@ -280,15 +254,15 @@
 ;;;; Action Handlers
 ;;;;
 ; No puff    / No profs
-; display help message
+; display help / Intro message
 ; A puff     / No profs
-; display puff info
+; display puffball info
 ; Multi puff / No profs
 ; Display summary info of selected / comparison
 ; No puff    / A prof
-; display prof info
+; display proffession info
 ; A puff     / A prof
-; display single compatability
+; display single compatability / graphs
 ; Multi puff / A prof
 ; display compatability for all puffs
 ; No puff    / Multi profs
