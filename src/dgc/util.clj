@@ -25,12 +25,22 @@
   (spit (mkpath (str save-dir "/" filename)) (with-out-str (pprint data)))
   filename)
 
+(declare in-default)
+
 ; Reads data from file, returning it
 (defn in
-  "Load a clojure form from file."
+  "Load a clojure form from file or try in-default."
   [filename & [default]]
   (try
     (read-string (slurp (str save-dir "/" filename)))
+    (catch Exception e
+      (in-default filename default))))
+
+(defn in-default
+  "Load a clojure form from the default file, return passed default or error."
+  [filename & [default]]
+  (try
+    (read-string (slurp (str save-dir "/" filename ".default")))
     (catch Exception e
       (or default (throw e)))))
 
@@ -42,9 +52,10 @@
 (defn map-vals [f m]
     (zipmap (keys m) (map f (vals m))))
 
-; Like map-vals but passes in [key val]
-(defn map-map [f m]
-    (zipmap (keys m) (map f m)))
+(defn map-map
+  "Maps over [key val] pairs in a map. Return value becomes the key's new value."
+  [f m]
+  (zipmap (keys m) (map f m)))
 
 (def not-nil? (comp not nil?))
 
@@ -63,6 +74,11 @@
   "Given a sequence of [key val key val key val] will update the specified key"
   [s k f]
   (reduce into (update-in (apply hash-map s) [k] f)))
+
+(defn map-range
+  "Given two ranges and a value s in the first range, maps s linearly to a value in the second range. [from rosettacode.org]"
+  [[a1 a2] [b1 b2] s]
+  (+ b1 (/ (* (- s a1) (- b2 b1)) (- a2 a1))))
 
 ;;;
 ;;; Tables
