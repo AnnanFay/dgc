@@ -13,7 +13,6 @@
              :name :monospaced
              :style #{:bold :italic}
              :size 24)))
-           ;:background :pink))
 
 (defn ul [s]
   (let [panel (cond
@@ -60,17 +59,18 @@
     :constraints  ["insets 0" "r[]r[]r" ""]
     :items        (reduce #(into %1 (foo %2)) [] m)))
 
-(defn form-to-obj [m e]
-  (let [source (.getSource e)
-        parent (.getParent source)
-        inputs (select parent [:JTextField])
-        inputs (apply hash-map (interleave (map id-of inputs) (map #(.getText %) inputs)))
-        obj    (map-map #(or (read-string ((first %) inputs)) (second %)) m)]
-    obj))
+(defn form-to-obj [mobject event]
+  (let [source  (.getSource event)
+        parent  (.getParent source)
+        inputs  (select parent [:*]) ;all children
+        inputs  (filter id-of inputs) ;nil ids
+        inputs  (apply hash-map (interleave (map id-of inputs) (map #(read-string (str (value %))) inputs)))]
+    (merge mobject inputs)))
 
-;returns a form  that will call the callback with the modified version if it's modified
-(defn form [m callback]  
+(defn form
+  "Returns a swing form of an object that will call the callback with the modified object and event if it's modified."
+  [object callback]
   (mig-panel
     :constraints  ["insets 0" "r[center]r" "r[center]r"]
-    :items        [ [(form-content m)                  "wrap"]
-                    [(button :text "Save!" :listen [:action #(callback (form-to-obj m %) %)]) ""]]))
+    :items        [ [(form-content object)                                                          "wrap"]
+                    [(button :text "Save!" :listen [:action #(callback (form-to-obj object %) %)])  ""]]))

@@ -1,7 +1,8 @@
 (ns dgc.core
   ""
   (:use [dgc ui read util]
-        [seesaw.core :exclude [listbox tree]])
+        [incanter core stats charts]
+        [seesaw.core :only [native! frame show! invoke-later]])
   (:gen-class))
 
 (native!)
@@ -34,5 +35,5 @@
 
 (defn run []
   (do 
-    (use '[dgc compat config core form presets read ui util puffball] :reload)
+    (use '[dgc compat config core form presets read ui util puffball settings] :reload)
     (-main :hide)))
