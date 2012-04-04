@@ -2,7 +2,7 @@
   ""
   (:use [dgc util form])
   (:import  [java.awt Component Color Dimension]
-            [javax.swing JFrame UIManager]
+            [javax.swing JFrame UIManager BorderFactory]
             [javax.swing.plaf ColorUIResource])
             ;[org.jfree.chart ChartPanel]
   (:use
@@ -95,13 +95,17 @@
     (Color. (Color/HSBtoRGB (/ compat 166) 1 1))))
 
 (defn compat-cell-renderer [this compat]
-  (UIManager/put "ToolTip.background" (ColorUIResource. 255 255 255))
-  ;(prn (:name compat) @compat-bounds)
-  (let [total (:total compat)
-        total (map-range ((:prof-ref compat) @compat-bounds) [0 100] total)
-        total (int total)]
+  (UIManager/put "ToolTip.background" (UIManager/get "FormattedTextField.background"))
+  (let [total       (:total compat)
+        total       (map-range ((:prof-ref compat) @compat-bounds) [0 100] total)
+        total       (int total)
+        labor-vals  (vals (:labors compat))
+        labor-match (and (not (empty? labor-vals)) (reduce #(and %1 %2) labor-vals))
+        base-colour (compat-colour total)
+        colour      (if labor-match (.darker base-colour) base-colour)]
+
     (doto this
-      (.setBackground           (compat-colour total))
+      (.setBackground           colour)
       (.setText                 (str total))
       (.setHorizontalAlignment  (javax.swing.JLabel/CENTER))
       (.setToolTipText          (compat-tooltip compat)))))

@@ -486,6 +486,7 @@
  {:name :wood-cutter,
   :category :gathering,
   :skills [:wood-cutting],
+  :labors [:wood-cutting],
   :attributes
   [:strength
    :agility
@@ -495,7 +496,8 @@
    :kinaesthetic-sense]}
  {:name :miner,
   :category :gathering,
-  :skills [:mining],
+  :skills  [:mining],
+  :labors [:mining],
   :attributes
   [:strength
    :toughness

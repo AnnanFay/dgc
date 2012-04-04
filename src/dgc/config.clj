@@ -316,7 +316,7 @@
 ; * If a trait is negetive only dwarves with less than the value will be selected, it's treated as a positive max.
 ; */
 
-(defrecord Profession [name traits skills attributes labours])
+(defrecord Profession [name traits skills attributes labors])
 
 (def professions (atom (map map->Profession (in "professions.clj"))))
 
