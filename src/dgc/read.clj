@@ -1,7 +1,8 @@
 (ns dgc.read
   ""
-  (:use [dgc config]
-        [cheshire.core])
+  (:use [dgc config settings]
+        [cheshire.core]
+        [clojure.java.shell :only [sh]])
   (:require [clojure.string :as s]))
 
 ;;;;
@@ -61,13 +62,25 @@
 (defn get-puffballs [data raw-puffballs]
   (map (partial get-puffball data) raw-puffballs))
 
+(defn get-file-data [filename]
+  (if filename
+    (update-setting! :export-filename filename))
 
-(def export-filename (atom "Dwarves.json"))
+  (parse-string (slurp (@settings :export-filename)) true))
 
-(defn get-content [filename]
-  (swap! export-filename #(or filename %))
-  (let [data              (parse-string (slurp filename) true)
-        raw-puffballs     (:root data)
-        puffballs         (get-puffballs data raw-puffballs)
-        puffballs         (filter #(= (:race %) "DWARF") puffballs)]
+(defn get-dfhack-data []
+  ; FIXME: what should the path be?
+  ;(sh "../df_34_07_win_s/dfhack-run.exe" "prospect" "all")
+  (:out (sh "../df_34_07_win_s/dfhack-run.exe" "dgc" "raw")))
+
+(defn get-content [& [filename]]
+  (let [data          (if (@settings :load-from-file)
+                        (get-file-data filename)
+                        (get-dfhack-data))
+        raw-puffballs (:root data)
+        puffballs     (get-puffballs data raw-puffballs)
+        puffballs     (filter #(= (:race %) "DWARF") puffballs)]
     puffballs))
+
+
+

@@ -1,3 +1,6 @@
+data/settings.clj
+data/professions.clj
+
 #java specific
 *.class
 

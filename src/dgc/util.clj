@@ -80,6 +80,12 @@
   [[a1 a2] [b1 b2] s]
   (+ b1 (/ (* (- s a1) (- b2 b1)) (- a2 a1))))
 
+(defn merge-records
+  "Given a function and multiple sequences. Merges the sequences treating 
+  the output of f on the elements as the keys in the merge. "
+  [f & rs]
+  (vals (apply merge (map #(zipmap (map f %) %) rs))))
+
 ;;;
 ;;; Tables
 ;;; 
@@ -174,6 +180,7 @@
 ;;;; Seesaw Extensions
 ;;;;
 
+; Not used?
 (defn- to-tree-model [xs]
   (cond
     (instance? javax.swing.tree.TreeModel xs)
@@ -206,7 +213,7 @@
     (let [hargs         (apply hash-map args)
           model-handler (:model hargs)
           args          (if (> (count (keys hargs)) 1)
-                          (reduce into (seq (dissoc hargs :model)))
+                          (reduce into (seq (assoc hargs :model nil)))
                           ())
           tree          (apply seesaw.core/tree args)]
 

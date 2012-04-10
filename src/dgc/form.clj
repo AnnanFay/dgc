@@ -1,6 +1,6 @@
 (ns dgc.form
   "Generates forms for structures"
-  (:use [dgc util config read presets]
+  (:use [dgc util config presets]
         [seesaw [core :exclude [listbox tree]] table color mig font keystroke chooser]
         [seesaw.event :only [events-for]]
         [clojure.pprint]
@@ -43,9 +43,9 @@
   (str "<html><b>" (html-ul s) "</b></html>"))
 
 (defn input-for [id value]
-  (cond
-    (bool? value) (checkbox :id id :selected? value)
-    :else         (text :id id :columns 72 :text (str value))))
+  (if (bool? value)
+    (checkbox :id id :selected? value)
+    (text     :id id :columns 72 :text (if (nil? value) "" (pr-str value)))))
 
 ; TODO: Think of a good name
 ; 
@@ -64,11 +64,12 @@
         parent  (.getParent source)
         inputs  (select parent [:*]) ;all children
         inputs  (filter id-of inputs) ;nil ids
-        inputs  (apply hash-map (interleave (map id-of inputs) (map #(read-string (str (value %))) inputs)))]
+        inputs  (apply hash-map (interleave (map id-of inputs)
+                                            (map (comp read-string #(if (clojure.string/blank? %) "nil" (str %)) value) inputs)))]
     (merge mobject inputs)))
 
 (defn form
-  "Returns a swing form of an object that will call the callback with the modified object and event if it's modified."
+  "Returns a swing form of a object that will call the callback with the modified object and event if it's modified."
   [object callback]
   (mig-panel
     :constraints  ["insets 0" "r[center]r" "r[center]r"]

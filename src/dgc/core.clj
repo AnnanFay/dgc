@@ -20,7 +20,7 @@
         (show! f)
 
         ; load puffballs
-        (invoke-later (update-content! f "Dwarves.json"))
+        (invoke-later (update-content! f))
     
     ; some initial selections for easy debugging
     ;(selection! (select f [:#dwarf-list]) {:multi? true} [(first puffballs)])

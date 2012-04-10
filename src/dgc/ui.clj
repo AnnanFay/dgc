@@ -6,10 +6,12 @@
         [seesaw.event :only [events-for]]
         [seesaw.tree :only [simple-tree-model]]
         [clojure pprint walk]
-        [cheshire.core])
+        [cheshire.core]
+        [incanter.charts :exclude [slider]])
   (:import [java.awt GraphicsEnvironment]
            [javax.swing ImageIcon UIManager]
-           [javax.swing.plaf ColorUIResource])
+           [javax.swing.plaf ColorUIResource]
+           [org.jfree.chart ChartPanel])
   (:require [clojure.string :as s]))
 
 ;;;;
@@ -58,9 +60,6 @@
 ;;;; Action Handlers
 ;;;;
 
-(defn sort-by-name [e] (prn "sort-by-name" e) (alert "Sorry, not implemented"))
-(defn sort-by-age  [e] (prn "sort-by-age" e)  (alert "Sorry, not implemented"))
-
 (declare update-content!)
 
 (defn load-export [e]
@@ -68,7 +67,7 @@
       (update-content! (to-root e) f)))
 
 (defn reload-export [e]
-    (update-content! (to-root e) @export-filename))
+    (update-content! (to-root e) (@settings :export-filename)))
 
 ;;;;
 ;;;; Actions
@@ -89,9 +88,6 @@
 (def full-screen-action   (action :name "Full Screen" :tip "Full Screen"     
                                   :mnemonic \f        :key (keystroke "F11")
                                   :handler toggle-full-screen))
-;Dwarf list
-(def sort-by-name-action      (action :name "Sort by Name"            :handler sort-by-name))
-(def sort-by-age-action       (action :name "Sort by Age"             :handler sort-by-age))
 
 (def add-prof-preset-action   (action :name "Add selection as preset" :handler add-prof-preset))
 (def add-dwarf-preset-action  (action :name "Add selection as preset" :handler add-dwarf-preset))
@@ -134,30 +130,52 @@
 (defn find-assoc [m k v]
   (postwalk #(if (and (map? %) (in? k (keys %))) (assoc % k v) %) m))
 
-(defn set-prof [profession prof e]
-  (let [prof-name   (first profession)
-        old-prof    (second profession)
-        prof-list   (select (to-root e) [:#prof-list])
-        list-model  (-> prof-list .getModel)
-        i           (.indexOf list-model profession)]
 
-    ; edit in list
-    (.set list-model i [prof-name prof])
+(defn prof-branch? [keys node]
+  (cond 
+    (empty? keys)
+      false
+    (> (count (set (map (first keys) node))) 1)
+      true
+    :else
+      (recur (rest keys) node)))
+
+; get chldren with :foo and partition by :foo 
+(defn prof-children [keys node]
+  (prn :prof-children :keys keys
+    :first-key-set (set (map (first keys) node)))
+  (cond 
+    (empty? keys)
+      nil
+    (> (count (set (map (first keys) node))) 1)
+      (partition-by (first keys) (sort-by (first keys) (filter #(contains? % (first keys)) node)))
+    :else
+      (recur (rest keys) node)))
+
+
+(defn set-prof [old-prof prof e]
+  (let [prof-list     (select (to-root e) [:#prof-list])
+        tree-model    (.getModel prof-list)]
 
     ; assoc professions
-    (swap! professions #(find-assoc % prof-name prof))
+    (swap! professions #(assoc (vec %) (.indexOf % old-prof) prof))
 
     ; write to file
-    (out "professions.clj" @professions)))
+    (out "professions.clj" @professions)
+
+    ; rebuild tree model
+    (.setModel prof-list  (simple-tree-model
+                            (partial prof-branch?  [:category :name])
+                            (partial prof-children [:category :name])
+                            @professions))))
 
 (defn profession-info [profession]
-  (let [prof-name (first profession)
-        prof      (second profession)]
+  (let [prof-name (:name profession)]
    (mig-panel
       :id :main
       :constraints ["insets 0, fill" "" ""]
-      :items [[(title prof-name)    "dock north, shrink 0, growx"]
-             [(form prof #(set-prof profession %1 %2))  ""]])))
+      :items [[(title prof-name)                              "dock north, shrink 0, growx"]
+             [(form profession (partial set-prof profession)) ""]])))
 
 (def current-tab (atom 0))
 
@@ -202,17 +220,48 @@
         :id :main
         :constraints ["insets 0" "" ""]
         :items [[(title (get-full-name puffball))       "dock north, shrink 0, growx"]
-                [(label :text (compat-tooltip (compat puffball (second prof))))]]))
+                [(label :text (compat-tooltip (compat puffball prof)))]]))
 
+(comment (defn puffball-compats [puffball profs]
+  (let [compats        (map (partial compat puffball) profs)]
 
-(defn puffball-compats [puffball profs]
-  (let [compats        (map #(vector (compat puffball (second %)) (first %)) profs)
-        sorted-compats (reverse (sort-by :total compats ))]
     (mig-panel
         :id :main
         :constraints ["insets 0" "" ""]
-        :items [[(title (str (get-full-name puffball) "'s Profession Compatability")) "dock north, shrink 0, growx"]
-               [(listbox :model (map #(str (second %) ":" (first %)) sorted-compats))]])))
+        :items [[(title (str (get-full-name puffball) "'s Profession Compatability"))                "dock north, shrink 0, growx"]
+               [(ChartPanel. (bar-chart (map :prof-ref compats) (map :total compats))) ""]]))))
+
+
+(defn puffball-compats [puffball profs]
+  (let [compats       (map (partial compat puffball) profs)
+        categories    (reduce into (map #(repeat (count (:attributes %)) (:name %)) profs))
+        values        (reduce #(into %1 (vals (:attributes %2))) [] compats)
+        group-by      (reduce #(into %1 (keys (:attributes %2))) [] compats)]
+    (ChartPanel. (stacked-bar-chart categories
+                                    values
+                                    :group-by     group-by
+                                    :title        (str (get-full-name puffball) "'s Compatabilities")
+                                    :x-label      "Professions"
+                                    :y-label      "Compatability"
+                                    :series-label "series-label"
+                                    ;:vertical     false
+                                    :legend       true))))
+
+(defn profession-compats [puffballs prof]
+  (let [compats       (map #(compat % prof) puffballs)
+        attr-count    (count (:attributes (first compats)))
+        categories    (reduce into (map #(repeat attr-count (get-full-name %)) puffballs))
+        values        (reduce #(into %1 (vals (:attributes %2))) [] compats)
+        group-by      (reduce #(into %1 (keys (:attributes %2))) [] compats)]
+    (ChartPanel. (stacked-bar-chart categories
+                                    values
+                                    :group-by     group-by
+                                    :title        (str (key-title (:name prof)) "'s Compatabilities")
+                                    :x-label      "Dwarves"
+                                    :y-label      "Compatability"
+                                    :series-label "series-label"
+                                    ;:vertical     false
+                                    :legend       true))))
 
 (defn to-matrix-ish
   "Returns a sequence of sequences whos elements are vectors of the corosponding elements of c1 c2.
@@ -310,9 +359,9 @@
               (= (count puffballs) 1)   (rep! root (puffball-info (first puffballs)))
               :else                     (rep! root (no-combination)))
       (= (count profs) 1) (cond
-              (empty? puffballs)        (rep! root (no-combination)) ;(rep! root (profession-info (first profs)))
+              (empty? puffballs)        (rep! root (profession-info (first profs)))
               (= (count puffballs) 1)   (rep! root (compat-info (first puffballs) (first profs)))
-              :else                     (rep! root (no-combination)))
+              :else                     (rep! root (profession-compats puffballs (first profs))))
       :else (cond
               (empty? puffballs)        (rep! root (no-combination))
               (= (count puffballs) 1)   (rep! root (puffball-compats (first puffballs) profs))
@@ -363,51 +412,30 @@
   (.setText this (str (first preset)))
   this)
 
-(defn prof-branch? [keys node]
-  (cond 
-    (empty? keys)
-      false
-    (> (count (set (map (first keys) node))) 1)
-      true
-    :else
-      (recur (rest keys) node)))
-
-; get chldren with :foo and partition by :foo 
-(defn prof-children [keys node]
-  (cond 
-    (empty? keys)
-      nil
-    (> (count (set (map (first keys) node))) 1)
-      (partition-by (first keys) (filter #(contains? % (first keys)) node))
-    :else
-      (recur (rest keys) node)))
-
 (defn load-puffballs [filename]
-  (update-status! "Loading Dwarves!")
+  (update-status! "Loading Dwarves... ")
   (let [puffballs (get-content filename)]
-    (update-status! "Finished: " (count puffballs) " dwarves Loaded! Calibrating stats. ")
+    (append-status! "Finished: " (count puffballs) " dwarves Loaded! Calibrating stats... ")
     ; TODO: Calibrate stats.
     (append-status! "Calibration finished!")
     puffballs))
 
 (defn make-content [puffball-filename]
   (let [prof-list         (tree     :id       :prof-list
-                                    :model    (fn []  (simple-tree-model
-                                                        (partial prof-branch? [:category :name])
-                                                        (partial prof-children [:category :name])
-                                                        @professions))
+                                    :model    #(simple-tree-model
+                                                (partial prof-branch?  [:category :name])
+                                                (partial prof-children [:category :name])
+                                                @professions)
                                     :renderer prof-list-renderer
                                     :root-visible? false
-                                    :popup    (fn [e] [ sort-by-name-action
-                                                        sort-by-age-action
-                                                        add-prof-action
+                                    :popup    (fn [e] [ add-prof-action
                                                         rem-profs-action
                                                         add-prof-preset-action])
                                     :listen   [:selection prof-selection-change])
         dwarf-list        (listbox  :id       :dwarf-list
                                     :model    #(load-puffballs puffball-filename)
                                     :renderer puffball-list-renderer
-                                    :popup    (fn [e] [sort-by-name-action sort-by-age-action add-dwarf-preset-action])
+                                    :popup    (fn [e] [add-dwarf-preset-action])
                                     :listen   [:selection puffball-selection-change])
         default-presets   {:none nil}
         dwarf-preset-list (combobox :id       :dwarf-presets
@@ -421,6 +449,10 @@
         rem-icon          (ImageIcon. "icons/list-remove-16.png")
         button-rem-dwarf-preset (button :margin 0 :icon rem-icon :listen [:action rem-dwarf-preset])
         button-rem-prof-preset  (button :margin 0 :icon rem-icon :listen [:action rem-prof-preset])]
+
+    (listen prof-list :tree-expansion
+      (fn [e]
+        (.revalidate (select (to-root e) [:#container]))))
 
     (mig-panel
       :id          :container
@@ -438,11 +470,8 @@
 
         [@status        ""]])))
 
-(defn update-content! [frame puffball-filename]
+(defn update-content! [frame & [puffball-filename]]
   (let [content   (make-content puffball-filename)]
     (doto frame
       (.setContentPane content)
-      .invalidate
-      .validate)))
-
-
+      repaint!)))
