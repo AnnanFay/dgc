@@ -5,6 +5,8 @@
                  [cheshire "2.0.4"]
                  [clojure-protobuf "0.4.7-SNAPSHOT"]
                  [incanter "1.2.3-SNAPSHOT"]
+                 [gloss "0.2.1-beta1"]
+                 [lamina "0.4.1-beta2"]
                  ;[me.hspy/defrecord2 "1.0.0-SNAPSHOT"]
                  ;[org.jfree/jfreechart "1.0.14"]
                  ]
