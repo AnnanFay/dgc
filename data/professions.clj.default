@@ -1,12 +1,12 @@
 [
  ;Military
- {:name :ranged-soldier,
-  :category :military,
+ {:name "ranged soldier",
+  :category "military",
   :skills
   [:observation :crossbow :hammer :ambusher :archer :blowgunner :bow],
   :attributes [:agility :focus :spatial-sense :kinaesthetic-sense]}
- {:name :melee-soldier,
-  :category :military,
+ {:name "melee soldier",
+  :category "military",
   :skills
   [:kick
    :strike
@@ -33,8 +33,8 @@
    :willpower
    :spatial-sense
    :kinaesthetic-sense]}
- {:name :wrestler,
-  :category :military,
+ {:name "wrestler",
+  :category "military",
   :skills [:wrestling],
   :attributes
   [:strength
@@ -43,8 +43,8 @@
    :willpower
    :spatial-sense
    :kinaesthetic-sense]}
- {:name :tank,
-  :category :military,
+ {:name "tank",
+  :category "military",
   :skills [:armour :shield :fighting],
   :attributes
   [:strength
@@ -60,8 +60,8 @@
     ;(prof "Captain")
     ;(prof "Captain of the Guard")
     ;(prof "Champion")
- {:name :chief-medical-dwarf,
-  :category :nobles,
+ {:name "chief-medical dwarf",
+  :category "nobles",
   :skills [:diagnostics],
   :attributes [:analytical-ability :memory :intuition],
   :traits {}}
@@ -69,8 +69,8 @@
     ;(prof "Diplomat" :disabled)
     ;(prof "Duke")
     ;(prof "Dungeon Master" :disabled)
- {:name :expedition-leader,
-  :category :nobles,
+ {:name "expedition leader",
+  :category "nobles",
   :traits {:cooperation 39, :straightforwardness 39},
   :skills [:consoling :pacification],
   :attributes
@@ -96,8 +96,8 @@
 
 
   ; Mining  
- {:name :miner,
-  :category :mining,
+ {:name "miner",
+  :category "mining",
   :skills  [:mining],
   :labors [:mining],
   :attributes
@@ -108,17 +108,17 @@
    :spatial-sense
    :kinaesthetic-sense]}
   ; Woodworker  
- {:name :carpenter,
-  :category :woodworker,
+ {:name "carpenter",
+  :category "woodworker",
   :skills [:carpentry],
   :attributes
   [:strength :agility :creatvity :spatial-sense :kinaesthetic-sense]}
- {:name :crossbow-maker,
-  :category :woodworker,
+ {:name "crossbow maker",
+  :category "woodworker",
   :skills [:bowmaking],
   :attributes [:agility :creatvity :spatial-sense :kinaesthetic-sense]}
- {:name :wood-cutter,
-  :category :woodworker,
+ {:name "wood cutter",
+  :category "woodworker",
   :skills [:wood-cutting],
   :labors [:wood-cutting],
   :attributes
@@ -129,8 +129,8 @@
    :spatial-sense
    :kinaesthetic-sense]}
   ; Stoneworking
- {:name :mason,
-  :category :stoneworking,
+ {:name "mason",
+  :category "stoneworking",
   :skills [:masonry],
   :attributes
   [:strength
@@ -139,30 +139,30 @@
    :creatvity
    :spatial-sense
    :kinaesthetic-sense]}
- {:name :stone-detailer,
-  :category :stoneworking,
+ {:name "stone detailer",
+  :category "stoneworking",
   :skills [:engraving],
   :attributes [:agility :creatvity :spatial-sense :kinaesthetic-sense]}
   ; Hunting Related
- {:name :animal-trainer,
-  :category :hunting-related,
+ {:name "animal trainer",
+  :category "hunting related",
   :skills [:animal-training],
   :attributes
   [:agility :toughness :endurance :intuition :patience :empathy]}
- {:name :animal-carer,
-  :category :hunting-related,
+ {:name "animal carer",
+  :category "hunting related",
   :skills [:animal-caretaking],
   :attributes [:agility :analytical-ability :memory :empathy]}
- {:name :hunter,
-  :category :hunting-related,
+ {:name "hunter",
+  :category "hunting related",
   :skills [:ambushing],
   :attributes [:agility :focus :spatial-sense :kinaesthetic-sense]}
- {:name :trapper,
-  :category :hunting-related,
+ {:name "trapper",
+  :category "hunting related",
   :skills [:trapping],
   :attributes [:agility :analytical-ability :creatvity :spatial-sense]}
- {:name :small-animal-dissector,
-  :category :hunting-related,
+ {:name "small-animal dissector",
+  :category "hunting related",
   :skills [:small-animal-dissection],
   :attributes [:agility :kinaesthetic-sense]}
   ; Healthcare
@@ -173,16 +173,16 @@
     ;(prof "Wounds Dresser"))
   ; Farming Related
     ;(prof "Beekeeper"))
- {:name :brewer,
-  :category :farming-related,
+ {:name "brewer",
+  :category "farming related",
   :skills [:brewing],
   :attributes [:strength :agility :kinaesthetic-sense]}
- {:name :butcher,
-  :category :farming-related,
+ {:name "butcher",
+  :category "farming related",
   :skills [:butchery],
   :attributes [:strength :agility :endurance :kinaesthetic-sense]}
- {:name :cheese-maker,
-  :category :farming-related,
+ {:name "cheese maker",
+  :category "farming related",
   :skills [:cheese-making],
   :attributes
   [:strength
@@ -191,69 +191,69 @@
    :analytical-ability
    :creatvity
    :kinaesthetic-sense]}
- {:name :cook,
-  :category :farming-related,
+ {:name "cook",
+  :category "farming related",
   :skills [:cooking],
   :attributes
   [:agility :analytical-ability :creatvity :kinaesthetic-sense]}
- {:name :dyer,
-  :category :farming-related,
+ {:name "dyer",
+  :category "farming related",
   :skills [:dying],
   :attributes [:strength :agility :endurance :kinaesthetic-sense]}
- {:name :grower,
-  :category :farming-related,
+ {:name "grower",
+  :category "farming related",
   :skills [:growing],
   :attributes [:strength :agility :endurance :kinaesthetic-sense]}
- {:name :lye-maker,
-  :category :farming-related,
+ {:name "lye maker",
+  :category "farming related",
   :skills [:lye-making],
   :attributes [:strength :toughness :endurance :kinaesthetic-sense]}
- {:name :milker,
-  :category :farming-related,
+ {:name "milker",
+  :category "farming related",
   :skills [:milking],
   :attributes [:strength :agility :endurance :kinaesthetic-sense]}
- {:name :miller,
-  :category :farming-related,
+ {:name "miller",
+  :category "farming related",
   :skills [:milling],
   :attributes [:strength :agility :endurance :kinaesthetic-sense]}
     ;(prof "Plant Gatherer")
     ;(prof "Plant Processer")
- {:name :potash-maker,
-  :category :farming-related,
+ {:name "potash maker",
+  :category "farming related",
   :skills [:potash-making],
   :attributes [:strength :toughness :endurance :kinaesthetic-sense]}
     ;(prof "Presser")
     ;(prof "Shearer")
- {:name :soap-maker,
-  :category :farming-related,
+ {:name "soap maker",
+  :category "farming related",
   :skills [:soap-making],
   :attributes [:strength :toughness :endurance :kinaesthetic-sense]}
     ;(prof "Spinner")
- {:name :tanner,
-  :category :farming-related,
+ {:name "tanner",
+  :category "farming related",
   :skills [:tanning],
   :attributes [:agility :kinaesthetic-sense]}
- {:name :wood-burner,
-  :category :farming-related,
+ {:name "wood burner",
+  :category "farming related",
   :skills [:wood-burning],
   :attributes [:strength :toughness :endurance :kinaesthetic-sense]}
   ; Fishing Related
- {:name :fisherdwarf,
-  :category :fishing-related,
+ {:name "fisherdwarf",
+  :category "fishing related",
   :skills [:fishing],
   :attributes
   [:strength :agility :focus :patience :kinaesthetic-sense]}
- {:name :fish-cleaner,
-  :category :fishing-related,
+ {:name "fish cleaner",
+  :category "fishing related",
   :skills [:fish-cleaning],
   :attributes [:agility :endurance :kinaesthetic-sense]}
- {:name :fish-dissector,
-  :category :fishing-related,
+ {:name "fish dissector",
+  :category "fishing related",
   :skills [:fish-dissection],
   :attributes [:agility :kinaesthetic-sense]}
   ; Metalsmithing
- {:name :furnace-operator,
-  :category :metalsmithing,
+ {:name "furnace operator",
+  :category "metalsmithing",
   :skills [:furnace-operation],
   :attributes
   [:strength
@@ -261,8 +261,8 @@
    :endurance
    :analytical-ability
    :kinaesthetic-sense]}
- {:name :weaponsmith,
-  :category :metalsmithing,
+ {:name "weaponsmith",
+  :category "metalsmithing",
   :skills [:weaponsmithing],
   :attributes
   [:strength
@@ -271,8 +271,8 @@
    :creatvity
    :spatial-sense
    :kinaesthetic-sense]}
- {:name :armorsmith,
-  :category :metalsmithing,
+ {:name "armorsmith",
+  :category "metalsmithing",
   :skills [:armorsmithing],
   :attributes
   [:strength
@@ -281,8 +281,8 @@
    :creatvity
    :spatial-sense
    :kinaesthetic-sense]}
- {:name :metalsmith,
-  :category :metalsmithing,
+ {:name "metalsmith",
+  :category "metalsmithing",
   :skills [:metalsmithing],
   :attributes
   [:strength
@@ -291,8 +291,8 @@
    :creatvity
    :spatial-sense
    :kinaesthetic-sense]}
- {:name :metal-crafter,
-  :category :metalsmithing,
+ {:name "metal crafter",
+  :category "metalsmithing",
   :skills [:metal-crafting],
   :attributes
   [:strength
@@ -302,18 +302,18 @@
    :spatial-sense
    :kinaesthetic-sense]}
   ; Jewelry
- {:name :gem-cutter,
-  :category :jewelry,
+ {:name "gem cutter",
+  :category "jewelry",
   :skills [:gem-cutting],
   :attributes
   [:agility :analytical-ability :spatial-sense :kinaesthetic-sense]}
- {:name :gem-setter,
-  :category :jewelry,
+ {:name "gem setter",
+  :category "jewelry",
   :skills [:gem-setting],
   :attributes [:agility :creatvity :spatial-sense :kinaesthetic-sense]}
   ; Crafts  
- {:name :leatherworker,
-  :category :crafts,
+ {:name "leatherworker",
+  :category "crafts",
   :skills [:leatherworkering],
   :attributes
   [:strength
@@ -323,16 +323,16 @@
    :spatial-sense
    :kinaesthetic-sense]}
     ;(prof "Woodcrafter")
- {:name :stone-crafter,
-  :category :crafts,
+ {:name "stone crafter",
+  :category "crafts",
   :skills [:stone-crafting],
   :attributes [:agility :creatvity :spatial-sense :kinaesthetic-sense]}
- {:name :bone-carver,
-  :category :crafts,
+ {:name "bone carver",
+  :category "crafts",
   :skills [:bone-carving],
   :attributes [:agility :creatvity :spatial-sense :kinaesthetic-sense]}
- {:name :glassmaker,
-  :category :crafts,
+ {:name "glassmaker",
+  :category "crafts",
   :skills [:glassmaking],
   :attributes
   [:strength
@@ -341,16 +341,16 @@
    :creatvity
    :spatial-sense
    :kinaesthetic-sense]}
- {:name :weaver,
-  :category :crafts,
+ {:name "weaver",
+  :category "crafts",
   :skills [:weaving],
   :attributes [:agility :creatvity :spatial-sense :kinaesthetic-sense]}
- {:name :clothier,
-  :category :crafts,
+ {:name "clothier",
+  :category "crafts",
   :skills [:clothiing],
   :attributes [:agility :creatvity :spatial-sense :kinaesthetic-sense]}
- {:name :strand-extractor,
-  :category :crafts,
+ {:name "strand extractor",
+  :category "crafts",
   :skills [:strand-extracting],
   :attributes
   [:strength
@@ -362,8 +362,8 @@
     ;(prof "Glazer")
     ;(prof "Wax Worker"))
   ; Engineering   
- {:name :siege-engineer,
-  :category :engineering,
+ {:name "siege engineer",
+  :category "engineering",
   :skills [:siege-engineering],
   :attributes
   [:strength
@@ -372,8 +372,8 @@
    :analytical-ability
    :creatvity
    :spatial-sense]}
- {:name :siege-operator,
-  :category :engineering,
+ {:name "siege operator",
+  :category "engineering",
   :skills [:siege-operation],
   :attributes
   [:strength
@@ -382,8 +382,8 @@
    :analytical-ability
    :focus
    :spatial-sense]}
- {:name :mechanic,
-  :category :engineering,
+ {:name "mechanic",
+  :category "engineering",
   :skills [:machinery],
   :attributes
   [:strength
@@ -392,18 +392,18 @@
    :analytical-ability
    :creatvity
    :spatial-sense]}
- {:name :pump-operator,
-  :category :engineering,
+ {:name "pump operator",
+  :category "engineering",
   :skills [:pump-operation],
   :attributes
   [:strength :toughness :endurance :willpower :kinaesthetic-sense]}
   ; Other Jobs
- {:name :building-designer,
-  :category :other,
+ {:name "building designer",
+  :category "other",
   :skills [:building-design],
   :attributes [:analytical-ability :creatvity :spatial-sense]}
- {:name :alchemist,
-  :category :other,
+ {:name "alchemist",
+  :category "other",
   :skills [:alchemist],
   :attributes [:agility :analytical-ability :creatvity :intuition]}
     ;(prof "Cleaner")
